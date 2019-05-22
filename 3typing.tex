@@ -1,0 +1,695 @@
+\section{Typing}
+
+\subsection{Basic Typing}
+
+
+\begin{definition}
+  Universes: For the type system we use a set of universes $\Sorts$ (called
+  sorts as well) and a wellfounded relation $<$ on sorts.
+\end{definition}
+
+
+\begin{definition}
+  Wellfounded relation $<$ on terms: We extend the relation $<$ from sorts to
+  terms by the rules
+  \begin{enumerate}
+  \item
+    $ \ruleh
+    {T < U \quad A \betaeq B \quad A \in \Types \cup \Kinds}
+    {\Pi x^A. T < \Pi x^B. U}$
+
+  \item
+    $ \ruleh
+    {T < U \quad A \betaeq B \quad A \in \Types \cup \Kinds}
+    {\lambda x^A. T < \lambda x^B. U}$
+
+  \item
+    $ \ruleh
+    {T < U \quad a \betaeq b \quad a \notin \Kinds}
+    {T \, a  <  U \, b}$
+  \end{enumerate}
+  The relation $<$ on terms remains wellfounded. There has been nothing added
+  which allows for infinitely decreasing chains (or cycles in the $<$ relation).
+\end{definition}
+
+\begin{theorem}
+  $\ruleh
+  {T < U}
+  {T,U \in \Kinds}$
+  \begin{proof}
+    Easy by induction on $T < U$.
+  \end{proof}
+\end{theorem}
+
+\begin{definition}
+  Term preorder: We define a preorder on terms inductively by
+  \begin{description}
+
+  \item[reflexive] $ a \le a$
+
+  \item[transitive] $\ruleh{ a \le b \land b < c } {a \le c}$
+
+  \item[$\beta$ equivalence] $ \ruleh {a \reduce b \lor b \reduce a} {a \le b} $
+  \end{description}
+  %
+  Note that $\le$ is not a partial order because it lacks antisymmetry. We can
+  only state the lemma
+  $$
+  \ruleh
+  {a \le b \quad b \le a}
+  {a \betaeq b}
+  $$
+\end{definition}
+
+
+
+\begin{definition}
+  A \emph{context} $\Gamma$ is a finite sequence of variables with their types
+  $$
+  \Gamma = [x_1: T_1, x_2: T_2, \ldots , x_n: T_n]
+  $$
+  where no variable occurs more than once. Therefore it makes sense to speak
+  about the type of a variable in a context.
+\end{definition}
+
+\begin{definition}
+  Typing relation: $\Gamma \vdash t: T$ where $\Gamma$ is a context and $t$
+  and $T$ are terms.
+  \begin{description}
+
+  \item[Axiom] $$\ruleh{s_1 < s_2}{[] \vdash s_1:s_2}$$
+
+  \item[Variable]
+    $$\ruleh{\Gamma \vdash A:s\quad x \notin \Gamma}{\Gamma,x:A \vdash x:A}$$
+
+
+  \item[Product]
+    $$\ruleh
+    {\Gamma \vdash A:s_1 \quad
+      \Gamma,x:A \vdash B:s_2 \quad
+      (s_1 = s_2 \lor s_2 \text{ is minimal}) }
+    {\Gamma \vdash \Pi x^A . B : s_2}
+    $$
+
+  \item[Abstraction]
+    $$\ruleh
+    {\Gamma \vdash \Pi x^A.B: s \quad
+      \Gamma,x:A \vdash e:B
+    }
+    {\Gamma \vdash \lambda x^A.e : \Pi x^A . B}
+    $$
+
+  \item[Application]
+    \footnote{$a \in \Objects \cup \Types$ is necessary in order to avoid that
+      a variable is substituted by a kind}
+   $$\ruleh
+    {\Gamma \vdash f: \Pi x^A.B \quad
+      \Gamma \vdash a:A
+      \quad a \in \Objects \cup \Types
+    }
+    {\Gamma \vdash f a : B[x:=a]}
+    $$
+
+  \item[Weaken]
+    $$\ruleh
+    {\Gamma \vdash A:s \quad  \Gamma \vdash t:T   \quad x \notin \Gamma}
+    {\Gamma,x:A \vdash t:T}$$
+
+
+  \item[Conversion]
+    $$\ruleh
+    {\Gamma \vdash t: T \quad
+      \Gamma\vdash U: s \quad
+      (T \reduce U \lor U \reduce T)
+    }
+    {\Gamma \vdash t: U}
+    $$
+
+  \item[Subtyping]
+    $$\ruleh
+    {\Gamma \vdash t: T \quad
+      \Gamma\vdash U: s \quad
+      T < U
+    }
+    {\Gamma \vdash t: U}
+    $$
+  \end{description}
+\end{definition}
+
+\begin{definition}
+  Some common definitions:
+  \begin{description}
+  \item[Valid context] A context $\Gamma$ is valid if there are two terms
+    $t,T$ such that $\Gamma \vdash t : T$ is valid.
+
+  \item[Subject and predicate] In the typing judgment $\Gamma \vdash t : T$
+    the term $t$ is in the subject position and the term $T$ is in the
+    predicate position.
+
+  \item[Welltyped] A term $T$ is welltyped if there is a contex $\Gamma$ and
+    another term $U$ such that $\Gamma \vdash T:U$ or $\Gamma \vdash U:T$ are
+    valid typing judgements.
+
+  \item[Minmal type] In the typing judgement $\Gamma \vdash t : T$ the term
+    $T$ is called a minimal type of $t$ if there is no other term $U$ with $U
+    < T$ and $\Gamma \vdash t :U$.
+  \end{description}
+\end{definition}
+
+\paragraph{Example: Extra clause in the application rule}
+Consider a type system with the sorts $\{\Prop,\Any,\Box\}$ and the
+wellfounded relation $\Prop < \Any < \Box$. Then the following derivation is
+legal if we ignore the clause $a \in \Objects \cup \Types$ in the application
+rule.
+%
+$$
+%
+\begin{array}{llll}
+  []       & \vdash & \Any : \Box                 & \text{axiom}
+  \cr
+  [x:\Any] & \vdash & \Any : \Box                 & \text{weaken}
+  \cr
+  []       & \vdash & \Pi x^{\Any} . \Any : \Box  & \text{product}
+  \cr
+  [L:\Pi x^{\Any}.\Any]& \vdash & L : \Pi x^{\Any}.\Any  & \text{variable}
+  \cr
+  [L:\dots, x: \Any]& \vdash & x: \Any            & \text{variable}
+  \cr
+  [L:\dots, x: \Any]& \vdash & L x: \Any          & \text{application}
+  \cr
+  [L:\Pi x^{\Any}.\Any]& \vdash & \Pi x^{\Any}. L x: \Box  & \text{producct}
+  \cr
+  [L:\dots, f: \Pi x^{\Any}. L x]& \vdash & f: \Pi x^{\Any}.L x & \text{variable}
+  \cr
+  [L:\dots, f: \Pi x^{\Any}. L x]& \vdash & f {\Prop}: L \Prop & \text{application}
+\end{array}
+$$
+%
+This is certainly not what we wanted. We introduced the variable $L$ as a
+type constructor having type $\Pi x^\Any. \Any$ i.e. mapping a type to a
+type. The function $f$ maps any type $T$ to an object of type $L T$. $f$ can
+be imagined as the constructor $\text{nil}$ which constructs the empty list of
+a certain type.
+
+Because of the construction we can feed the sort $\Prop$ as an argument to
+$\text{nil}$ giving a meaningless expression of a meaningless type.
+
+
+\subsection{Syntactic Categories}
+
+\begin{theorem}
+  $$
+  \ruleh
+  {\Gamma \vdash A : B}
+  {(A,B) \in
+    (\Objects \times \Types) \,\cup\,
+    (\Types   \times \Kinds) \,\cup\,
+    (\Kinds   \times \Kinds)
+  }
+  $$
+  \begin{proof} By induction on $\Gamma \vdash A : B$
+    \begin{description}
+
+    \item[Axiom] $[] \vdash s_1 : s_2$.
+
+      Since $\Sorts \subseteq \Kinds$ we have $s_1 \in \Kinds$ and $s_2 \in
+      \Sorts$.
+
+
+    \item[Variable] $\ruleh {\Gamma \vdash A:s} {\Gamma,x:A \vdash x: A}$.
+
+      Induction hypothesis: $A$ is either a type or a kind. The variable $x$
+      can be either regarded as an object or a type.
+
+    \item[Product]
+      $
+      \ruleh
+      {\Gamma \vdash A: s_1 \quad \Gamma,x:A \vdash B:s}
+      {\Gamma \vdash \Pi x^A . B : s}
+      $
+
+      From the premises we know that the types of $A$ and $B$ are
+      sorts. Therefore the induction hypotheses imply that $A$ and $B$ are
+      either types or kinds. If $B$ is a type then the product is a type and
+      if $B$ is a kind then the product is a kind which is compatible with $s$
+      being either a kind or a sort ($\Sorts \subset \Kinds$).
+
+    \item[Abstraction]
+      %
+      $\ruleh
+      {\Gamma \vdash \Pi x^A.B : s \quad
+      \Gamma,x:A \vdash e : B}
+      {\Gamma \vdash \lambda x^A.e : \Pi x^A. B}$
+
+      By the first induction hypothesis the product is syntactically either a
+      type or a kind. $B$ must have the same syntactic category as the product
+      (evident from the definition of the syntactic categories).
+
+      \begin{enumerate}
+        \item $B \in \Kinds$: Then $e$ is either a type or a kind by the second
+          induction hypotesis. This puts $\lambda x^A.e$ either in $\Types$ or
+          $\Kinds$ according to the definitions of the syntactic
+          categories. Since $\Pi x^A.B$ is a kind this case is ok.
+
+        \item $B \in \Types$: This puts $e$ in $\Objects$. Therefore $\lambda
+          x^A.e$ is an object as well which is consistent with $\Pi x^A.B$
+          being a type.
+      \end{enumerate}
+
+    \item[Application]
+      $ \ruleh
+      {\Gamma \vdash f : \Pi x^A.B
+        \quad
+        \Gamma \vdash a : A
+        \quad a \in \Objects \cup \Types}
+      {\Gamma \vdash f\; a : B[x:=a]}
+      $
+
+      Syntactically a product is either a type or a kind. Therefore $f$ is an
+      object or a type. $B$ is of the same category as the product. The
+      substitution of the variable $x$ in $B$ by an object or a type does not
+      change the syntactic category.
+
+      The application $f \, a$ is syntactically either an object or a type
+      depending on the category of $f$ which is determined by the category of
+      $B$. Therefore $f \, a$ is in the correct category for the category of
+      $B[x:=a]$.
+
+    \item[Weaken] Goal already identical to an induction hypothesis.
+
+    \item[Conversion]
+      $
+      \ruleh {
+        \Gamma \vdash t : T \quad
+        \Gamma \vdash U : s \quad
+        T \reduce U \lor U \reduce T
+      } {
+        \Gamma \vdash t : U
+      } $
+
+      \begin{enumerate}
+
+      \item $T\reduce U$:
+
+        $T \notin \Sorts$. I.e. $T$ is either a type or a kind.
+
+        The reduction of a type remains a type and the reduction of a kind
+        remains a kind. Therefore $U$ is in the same syntactic category as
+        $T$.
+
+
+      \item $U \reduce T$:
+
+        $U$ is a type or a kind and reduction does not change the
+        category. Therefore $T$ and $U$ are in the same category.
+      \end{enumerate}
+
+    \item[Subtyping]
+      $ \ruleh {
+        \Gamma \vdash t : T \quad
+        \Gamma \vdash U : s \quad
+        T < U
+      } {
+        \Gamma \vdash t : U
+      } $
+
+      By definition only kinds of the same arity are comparable. Therefore $T$
+      and $U$ have to be kinds of the same arity (or sorts in case the arity
+      is 0).
+
+    \end{description}
+
+  \end{proof}
+\end{theorem}
+
+
+\begin{corolary}
+  $$
+  \ruleh {(x,A) \in \Gamma} {A \in \Types \cup \Kinds}
+  $$
+  provided that $\Gamma$ is wellformed.
+  \begin{proof}
+    By weakening we conclude $\Gamma \vdash x:A$ for all $(x,A) \in \Gamma$.
+
+    Since a variable can be only an object or a type $A$ must be either a type
+    or a kind by the previous lemma.
+  \end{proof}
+\end{corolary}
+
+
+\subsection{Generalized Subtyping}
+
+The conversion and subtyping rule transform the type part one step. We can
+generalize both rules to one theorem.
+\begin{theorem}
+  \label{generalizedsubtyping}
+  Generalized subtyping
+  $$
+  \rulev
+  {
+    \Gamma \vdash t : T
+    \\
+    \Gamma \vdash U: s
+    \\
+    T \le U
+  }
+  {
+    \Gamma \vdash t : U
+  }
+  $$
+
+  \begin{proof}
+    By induction on $T \le U$
+  \end{proof}
+\end{theorem}
+
+
+\subsection{Some Lemmas}
+
+Free variables lemma
+
+Transitivity lemma
+
+Arbitrary type expansion
+
+
+\subsection{Substitution Lemma}
+
+
+Thinning lemma
+
+\subsection{Minimal Types}
+
+\begin{theorem}
+  For every valid term in the subject position there exist minimal types.
+  $$
+  \ruleh
+  %
+  {\Gamma \vdash t: T}
+  {\exists M.
+    \left (
+      \Gamma \vdash t : M \land
+      M \le T \land
+      \forall V.
+      \ruleh {\Gamma \vdash t: V}  {\lnot\, V < M}
+    \right )
+  }
+  $$
+
+  \begin{proof}
+    By induction on $\Gamma \vdash t: T$
+    \begin{description}
+
+    \item[Axiom] Trivial, because $<$ is a wellfounded relation of sorts.
+
+    \item[Variable]
+      $\ruleh
+      {\Gamma \vdash A:s\quad x \notin \Gamma}
+      {\Gamma,x:A \vdash x:A}$
+
+      We use $A$ as the minimal type. Proof by induction on
+      $\Gamma,x:A \vdash x:A$.
+      \begin{description}
+
+      \item[axiom, application, abstraction, product] Syntactically not
+        possible.
+
+      \item[variable] Trivial, because $A = V$ and $A < A$ is a contradiction.
+
+      \item[conversion]
+        $\rulev
+        {
+          \Gamma,x:A \vdash x: T \\
+          \Gamma,x:A \vdash U: s \\
+          T \reduce U
+        }
+        {\Gamma,x:A \vdash x: U}$
+
+        Goal $\lnot\, U < T$.  Trivial because $T \reduce U$ implies $T \le U$
+        which contradicts $U < T$.
+
+
+      \item[subtyping]
+        $\rulev
+        {
+          \Gamma,x:A \vdash x: T \\
+          \Gamma,x:A \vdash U: s \\
+          T < U
+        }
+        {\Gamma,x:A \vdash x: U}$
+
+        Goal $\lnot\, U < T$.  Trivial, because $T < U$ and $U < T$ are a
+        contradiction.
+      \end{description}
+
+    \item[Product]
+      $
+      \ruleh
+      {\Gamma \vdash A:s_1 \quad
+        \Gamma,x:A \vdash B:s_2 \quad
+        (s_1 = s_2 \lor s_2 \text{ is minimal}) }
+      {\Gamma \vdash \Pi x^A . B : s_2}      $
+
+      From the induction hypotheses we conclude the existence of a minimal
+      $c_2$ such that $\Gamma,x:A \vdash B: c_2$ is valid. This is a minimal
+      sort for $\Pi x^A. B$ as well.
+
+    \item[Application]
+      $\ruleh
+      {\Gamma \vdash f: \Pi x^A.B \quad
+        \Gamma \vdash a:A
+        \quad a \in \Objects \cup \Types
+      }
+      {\Gamma \vdash f a : B[x:=a]}
+      $
+
+      From the first induction hypothesis we conclude the existence of a
+      minimal product as the type of $f$ which must have the form
+      $\Pi x^A.B_\mu$ with $B_\mu \le B$ because of the definition of the
+      order relation $\le$.
+      %
+      This implies $B_\mu[x:=a] \le B[x:=a]$. Since $\Pi x^A. B_\mu$ is a
+      minimal type for $f$, $B_\mu[x:=a]$ is a minimal type for $f\; a$.
+
+    \item[Abstraction]
+      $\ruleh
+      {\Gamma \vdash \Pi x^A.B: s \quad
+        \Gamma,x:A \vdash e:B
+      }
+      {\Gamma \vdash \lambda x^A.e : \Pi x^A . B}
+      $
+
+      From the second induction hypothesis we conclude the existence of
+      $B_\mu$ which is a minimal type for $e$. Therefore $\Pi x^A. B_\mu$ is
+      a minimal type for $\lambda x^A.e$.
+
+
+    \item[Weaken] Trivial, the goal is already included in the induction
+      hypothesis.
+
+    \item[Conversion] Trivial because $T \reduce U$ implies $T \le U$ and
+      transitivity.
+
+    \item[Subtyping] Trivial because of transitivity.
+    \end{description}
+  \end{proof}
+\end{theorem}
+
+
+
+
+
+
+
+
+\subsection{Generation Lemmata}
+
+MISSING!!!!
+
+
+
+
+
+
+\subsection{Subject Reduction Theorem}
+
+\begin{theorem}
+  \label{subjectreduction}
+  Reduction preserves typing i.e.
+  $$
+  \ruleh
+  {\Gamma \vdash t : T
+    \\
+    t \reduce u
+  }
+  {\Gamma \vdash u : T}
+  $$
+  \begin{proof}
+    We define $\Gamma \reduce \Delta$ if $\Delta$ is $\Gamma$ where one type
+    has been reduced. Then we proof the stronger theorem
+    $$
+    \ruleh
+    {\Gamma \vdash t : T}
+    {
+      \rulev
+      {t \reduce u}
+      {\Gamma \vdash u : T}
+      \land
+      \rulev
+      {\Gamma \reduce \Delta}
+      {\Delta \vdash t : T}
+    }
+    $$
+    by induction on $\Gamma \vdash t : T$
+
+    \begin{description}
+
+    \item[Axiom] Not possible, because the context is empty and terms are
+      sorts and neither of them can be reduced.
+
+    \item[Variable]
+      $$
+      \ruleh
+      {\Gamma \vdash A:s \quad x \notin \Gamma}
+      {\Gamma,x:A \vdash x:A}
+      $$
+
+      The left part is vacuously satisfied because a variable is in normal
+      form and cannot be reduced.
+
+      For the right part of the goal assume $\Gamma,x:A$ reduces to another
+      context. There are two cases possible
+      \begin{enumerate}
+
+      \item $\Gamma,x:A \reduce \Delta,x:A$ where $\Gamma \reduce
+        \Delta$. From the induction hypothesis we can conclude $\Delta \vdash
+        A:s$ and therefore $\Delta,x:A \vdash x:A$ is valid.
+
+      \item  $\Gamma,x:A \reduce \Gamma,x:B$ where $A \reduce B$. From the
+        induction hypothesis we get $\Gamma \vdash B: s$ and therefore
+        $\Gamma,x:B \vdash x:B$ is valid.
+      \end{enumerate}
+
+    \item[Weaken]
+      $$
+      \ruleh
+      {\Gamma \vdash A:s \quad x \notin \Gamma \quad \Gamma \vdash t : T}
+      {\Gamma,x:A \vdash t : T}
+      $$
+
+      The left part of the goal is an immediate consequence of the induction
+      hypothesis derived from $\Gamma \vdash t : T$. The right part needs the
+      same case split as for the previous rule. For both cases the right part
+      of the goal can be derived from the induction hypothesis.
+
+
+    \item[Product]
+      $$
+      \rulev
+      { \Gamma \vdash A:s_1
+        \\
+        \Gamma,x:A \vdash B: s_2
+        \\
+        r(s_1,s_2,s_3)}
+      {\Gamma \vdash \Pi x^A. B : s_3}
+      $$
+
+      For the left part of the goal assume that $\Pi x^A. B$ reduces. Then
+      either  $A$ or $B$ reduces. From the induction hypotheses we conclude
+      that the reduced terms have the same sort. So the reduced product has the
+      same sort.
+
+      For the right part of the goal assume that the context $\Gamma$
+      reduces. The induction hypotheses immediately gives that the terms $A$
+      and $B$ have the same sorts, therefore the product has the same sort
+      under the reduced context.
+
+    \item[Abstraction]
+      $$
+      \rulev
+      { \Gamma \vdash \Pi x^A. B : s
+        \\
+        \Gamma,x:A \vdash e: B
+      }
+      {\Gamma \vdash \lambda x^A. e : \Pi x^A. B}
+      $$
+
+      Left part: Assume that $\lambda x^A. e$ reduces. I.e. either $A$ or $e$
+      reduce. From the induction hypotheses we conclude the same types.
+
+      Right part: Assume that $\Gamma$ reduces and use the induction
+      hypotheses to prove the goal.
+
+
+    \item[Application]
+      $$
+      \rulev
+      { \Gamma \vdash f : \Pi x^A. B
+        \\
+        \Gamma \vdash a: A
+      }
+      {\Gamma \vdash f a : B[x:=a]}
+      $$
+
+      Right part: Immediate consequence of the induction hypotheses.
+
+      Left part: Assume that $f a$ reduces and prove that the reduct has type
+      $B[x:=a]$. There are 3 cases to consider. Either $f$ reduces or $a$
+      reduces or $f$ is a lambda term and $f a$ is a redex.
+      \begin{enumerate}
+
+      \item $f \reduce g$: We get $g: \Pi x^A. B$ by the induction hypothesis
+        and $g a : B[x:=a]$.
+
+      \item $a \reduce b$: Same reasoning.
+
+      \item $(\lambda x^{A'} .e) a \reduce e[x:=a]$ where
+        $\lambda x^{A'} .e: \Pi x^A. B$:
+        Goal: $$\Gamma \vdash e[x:=a] : B[x:=a].$$
+        By the subsitution lemma we
+        generate the subgoal $$\Gamma,x:A \vdash e : B.$$
+
+        From the generation lemma for abstractions we get
+        $$
+        \exists s' B'.
+        \left[
+          \begin{array}{l}
+          \Gamma \vdash\Pi x^{A'}.B' : s' \quad\land
+          \\
+          \Gamma,x:A' \vdash e:B' \quad\land
+          \\
+          \Pi x^A. B \reducestar \Pi x^{A'}.B'
+          \end{array}
+          \right]
+        $$
+        Since reduction preserves product we get $A \reducestar A'$ and
+        $b \reducestar B'$. Together with $\Gamma,x:A' \vdash e:B'$ and the
+        generalized conversion rule~\ref{generalizedsubtyping} we prove the
+        subgoal.
+      \end{enumerate}
+
+
+    \item[Conversion]
+      $$
+      \rulev
+      { \Gamma \vdash t : U
+        \\
+        \Gamma \vdash T : s
+        \\
+        T \reduce U \lor U \reduce T
+      }
+      {\Gamma \vdash t: T}
+      $$
+      Left and right part of the goal are immediate consequences of the
+      induction hypothesis and the conversion rule.
+    \end{description}
+  \end{proof}
+\end{theorem}
+
+
+MISSING: Condensing lemma!!
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "0typed"
+%%% End:

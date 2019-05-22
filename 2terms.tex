@@ -1,0 +1,276 @@
+\section{Terms}
+
+\subsection{Basic Definition}
+
+\begin{definition}
+  Typed lambda terms are defined by the grammar
+  $$
+  \begin{array}{llll}
+    t &::=& s                 &\text{sort}
+    \\
+      &\mid& x                &\text{variable}
+    \\
+      &\mid& t t              &\text{application}
+    \\
+      &\mid& \lambda x^t.t    &\text{abstraction}
+    \\
+      &\mid& \Pi x^t.t        &\text{product}
+  \end{array}
+  $$
+  where $s$ ranges over sorts, $x$ ranges over variables and $t$ ranges over
+  terms.
+\end{definition}
+
+\subsection{Substitution}
+
+\begin{definition}
+  The expression $t[x:=a]$ substitutes in the term $t$ all free occurrences of
+  the variable $x$ by the term $a$. It is defined by
+  $$
+  t[x:=a] :=
+  \begin{cases}
+    s[x:=a] &:= s
+    \\
+    x[x:=a] &:= a
+    \\
+    y[x:=a] &:= y \quad\text{for } x \ne y
+    \\
+    (f \, t)[x:=a] &:= f[x:=a] \, t[x:=a]
+    \\
+    (\lambda y^B.e)[x:=a] &:= \lambda y^{B[x:=a]}. e[x:=a]
+    \quad y \text{ is fresh}
+    \\
+    (\Pi y^B.C)[x:=a] &:= \Pi y^{B[x:=a]}. C[x:=a]
+    \quad y \text{ is fresh}
+  \end{cases}
+  $$.
+
+  Note that bound variables in lambda abstractions and products must be chosen
+  to be fresh i.e. not to occuer outside the binder. If the bound variables
+  occur outside the binder, they have to be renamed into fresh variables
+  before doing the substitution.
+\end{definition}
+
+For every lambda term with subterms, substitution is done on all substerms
+separately. Care has to be taken when entering binders in abstractions and
+products. Before entering the binder it has to be made sure that the bound
+variable is renamed so that it does not occur outside the binder.
+
+
+\begin{lemma}
+  \label{doublesubstitution}
+  \emph{Double Substitution}:
+  $$
+  \ruleh
+  {x \neq y
+    \\
+    x \notin FV(b)
+  }
+  {t[x:=a][y:=b]\, = \, t[y:=b]\big[x:=a[y:=b]\big]}
+  $$
+  \begin{proof}
+    By induction on the structure of $t$.
+
+    The only interesting case is if $t$ is a variable e.g. $z$. The we have to
+    prove
+    $$ z[x:=a][y:=b]\, = \, z[y:=b]\big[x:=a[y:=b]\big].$$
+
+    Three cases are possible:
+    \begin{enumerate}
+    \item
+      $z \ne x \land z \ne y$: In this case no substitution takes place and we
+      have the trivial equality $z = z$.
+
+    \item $z = x$: Since $x \ne y$ we get $a = a$.
+
+    \item $z = y$: In that case we get $b = b$.
+    \end{enumerate}
+
+    If $t$ is an application, an abstraction or a product, the induction
+    hypothesis and the definition of substitution are sufficient to prove the
+    corresponding goal.
+  \end{proof}
+\end{lemma}
+
+
+
+
+
+\subsection{Reduction}
+
+\begin{definition}
+  The reduction relation $\reduce$ is defined as the compatible closure
+  of
+  $$
+  (\lambda x^A. e) a \reduce e[x:=a]
+  $$
+\end{definition}
+
+Compatible closure means that we can reduce a term by reducing one of its
+subterms. I.e. we have the following additional rules to define the reduction
+relation completely: $\ruleh {a \reduce b}{ac \reduce bc}$,
+$\ruleh {b \reduce c}{ab \reduce ac}$,
+$\ruleh {A \reduce B} {\lambda x^A.e \reduce \lambda x^B. e}$,
+$\ruleh {e \reduce f} {\lambda x^A.e \reduce \lambda x^A. f}$,
+$\ruleh {A \reduce B} {\Pi x^A.C \reduce \Pi x^B. C}$,
+$\ruleh {B \reduce C} {\Pi x^A.B \reduce \Pi x^A. C}$.
+
+
+
+\begin{lemma}
+  \label{reductionsubstitution}
+  \emph{Reduction Substitution}:
+  $$
+  \ruleh
+  {t \reduce u
+  }
+  {t[x:=a] \reduce u[x:=a]}
+  $$
+  \begin{proof} By induction on $t \reduce u$ where we use the abbreviation
+    $w' := w[x:=a]$ for any term $w$.
+
+    Let's first analyze the case that $t \reduce u$ is valid because of the
+    rule $(\lambda y^B.e) b \reduce e[y:=b]$.
+    $$
+    \begin{array}{llll}
+      ((\lambda y^B.e) b)'
+      &=& (\lambda y^{B'}. e') b'
+      &\text{definition of substitution}
+      \\
+      &\reduce & e'[y:=b'] &\text{reduction rule}
+      \\
+      &=& e[x:=a]\big[[y:=b[x:=a]\big]   &\text{abbreviation}
+      \\
+      &=& e[y:=b][x:=a]
+      &\text{double substitution~\ref{doublesubstitution}}
+      \\
+      &=& e[y:=b]'  &\text{abbreviation}
+    \end{array}
+    $$
+
+    Next we analyze the case $\ruleh{b \reduce c}{bd \reduce cd}$.
+
+    $$
+    \begin{array}{l|ll}
+      b \reduce c    & b' \reduce c' & \text{induction hypo}
+      \\ \hline
+      bd \reduce cd  & (bd)' \reduce (cd)' & \text{goal}
+    \end{array}
+    $$
+    The goal $(bd)' \reduce (cd)'$ is proved by the derivation
+    $$
+    \begin{array}{llll}
+      (bd)'
+      &=& b' d'        &\text{definition of substitution}
+      \\
+      &\reduce& c' d'  &\text{induction hypo}
+      \\
+      &=& (cd)'        &\text{definition of substitution}
+    \end{array}
+    $$
+
+    For the remaining rules where just subterms are substituted the proofs are
+    similar. The corresponding induction hypothesis with the definition of
+    substitution is sufficient to proof the goal.
+  \end{proof}
+\end{lemma}
+
+
+It is easy to see that terms of the form $\lambda x^A.e$, $\Pi x^A.B$ do not
+change their structure after reduction.
+
+\begin{lemma} Reduction maintains structure of abstraction and products:
+  $$
+  \ruleh
+  {\lambda x^A. e \reduce t}
+  {(\exists B. A \reduce B \land t = \lambda x^B.e)
+    \lor
+  (\exists f. e \reduce f \land t = \lambda x^A.f)}
+  $$
+
+  $$
+  \ruleh
+  {\Pi x^A. C \reduce T}
+  {(\exists B. A \reduce B \land T = \Pi x^B.C)
+    \lor
+  (\exists D. C \reduce D \land T = \Pi x^A.D)}
+  $$
+
+  \begin{proof}
+    The theorem is proved by induction on $\lambda x^A. e \reduce t$ and
+    $\Pi x^A. C \reduce T$ where in each induction proof only 2 cases are
+    syntactically possible.
+  \end{proof}
+\end{lemma}
+
+
+
+
+\subsection{Syntactic Categories}
+
+\begin{definition}
+  We define within the set of terms the set of objects $\Objects$, types
+  $\Types$, $\Kinds$ and sorts $\Sorts$ according to the following syntax
+  where $s$ ranges over sorts, $x,\alpha$ over variables, $o$ over objects,
+  $\tau$ over types and $\kappa$ over kinds
+  % 
+  $$
+  % 
+  \begin{array}{llll}
+    o &::= & x
+    \\
+      & | & o \; o
+    \\
+      & | & o \; \tau & \text{polymorphic function application}
+    \\
+      & | & \lambda x^\tau. o
+    \\
+      & | & \lambda \alpha^\kappa. o
+      & \text{polymorphic function}
+    \\
+    
+    \tau & ::= & \alpha
+    \\
+      & | & \tau \; o & \text{dependent type e.g. \code{isZero 5}}
+    \\
+      & | & \tau \; \tau & \text{polymorphic type application e.g. List}
+    \\
+      & | & \lambda x^\tau. \tau        & \text{function type}
+    \\
+      & | & \lambda \alpha^\kappa. \tau &\text{polymorphic type}
+    \\
+      & | & \Pi x^\tau. \tau
+    \\
+      & | & \Pi \alpha^\kappa. \tau
+    \\
+    
+    \kappa & ::= & s
+    \\
+      & | & \kappa \; o                     &\text{application of a kind function}
+    \\
+      & | & \kappa \; \tau                  &\text{application of a kind function}
+    \\
+      & | & \lambda x^\tau. \kappa          &\text{function from objects to kinds}
+    \\
+      & | & \lambda \alpha^\kappa. \kappa   &\text{function from types to kinds}
+    \\
+      & | & \Pi x^\tau . \kappa
+    \\
+      & | & \Pi \alpha^\kappa . \kappa
+  \end{array}
+  $$
+\end{definition}
+%
+Note that $\Objects \subseteq \Types$ and $\Sorts \subseteq
+\Kinds$. Furthermore the set of types and kinds are disjoint i.e. $\Types \cap
+\Kinds = \emptyset$.
+
+The union of types and kinds do not cover all possible terms. A term of the
+form $\tau \, \kappa$ is in neither category. The typing relation will make
+sure that all wellformed terms are in one of the syntactic categories.
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "0typed"
+%%% End:

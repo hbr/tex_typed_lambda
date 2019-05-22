@@ -1,0 +1,450 @@
+\section{Proof of Strong Normalization}
+
+\subsection{Overview}
+
+
+\begin{itemize}
+
+\item $\nu:\Kinds \to \SAT^*$: A mapping from kinds to model sets.
+
+\item $\xi = [x_1:M_1, x_2:M_2, \ldots]$: Interpretation of type variables of
+  a context i.e. a mapping from the type variables of a context to a model
+  (which is an element of $\SAT^*$ i.e either a saturated set or a function
+  mapping models to models).
+
+  $\xi \vDash \Gamma$ means that $\Gamma$ is a valid context and for all
+  $(x:\kappa) \in \Gamma$ the statement $\xi(x) \in \nu(\kappa)$ is valid.
+
+  Property: For each valid context $\Gamma$ there exists a type variable
+  interpretation $\xi$ with $\xi \vDash \Gamma$.
+
+\item Extension of type variable interpretation $\xi$ to a type/kind
+  interpretation $\typint{T}{\xi}$:
+  %
+  Maps all elements of $\Types \cup \Kinds$
+  for which $\Gamma \vdash \tau : \kappa$ or $\Gamma \vdash \kappa : s$ is
+  valid, to a model.
+
+  Properties:
+  \begin{enumerate}
+  \item
+    $$\ruleh
+    {\Gamma\vdash t: T \quad \xi \vDash \Gamma}
+    {\typint{T}{\xi}  \in \SAT}$$
+
+  \item
+    $$\ruleh
+    {\Gamma\vdash \Pi x^A . B : s \quad \xi \vDash \Gamma}
+    {\typint{\Pi x^A . B}{\xi}
+      =
+      \typint{A}{\xi} \tolam
+      \begin{cases}
+        \typint{B}{\xi} & A \in \Types
+        \\
+        \cap_{M \in \nu(A)} \typint{B}{\xi,x:M}
+        & A \in \Kinds
+      \end{cases}
+    }$$
+
+
+  \item
+    $$\ruleh
+    {\Gamma\vdash \Pi x^A . B : s
+      \quad
+      \Gamma\vdash a:A
+      \quad
+      \xi \vDash
+      \Gamma}
+    { \typint{B[x:=a]}{\xi}
+      =
+      \begin{cases}
+        \typint{B}{\xi} & A \in \Types
+        \\
+        \typint{B}{\xi,x:\typint{a}{\xi}} & A \in \Kinds
+      \end{cases}
+    }$$
+\end{enumerate}
+
+\item $\rho = [x_1: t_1, x_2 : t_2, \ldots]$ Variable interpretation: Mapping
+  of all variables of a context to a term. $\rho,\xi \vDash \Gamma$ is defined
+  as $\xi \vDash \Gamma$ and $\rho(x) \in \typint{T}{\xi}$ for all
+  $(x,T) \in \Gamma$.
+
+
+\item Extension of $\rho$ to a term interpretation
+  %
+  $\trmint{t}{\rho} := t[x_1:= \rho(x_1), x_2:= \rho(x_2), \ldots]$
+\end{itemize}
+
+
+
+
+
+
+
+\subsection{Saturated Sets}
+
+\begin{definition} % Base terms
+  The set of base terms $\BT$ is defined inductively by the rules
+  \begin{enumerate}
+
+  \item $x,s \in \BT$
+
+  \item $\ruleh{a \in \BT \quad b \in \SN}{a b \in \BT}$
+  \end{enumerate}
+\end{definition}
+
+
+\begin{lemma}
+  \label{BTSN}
+  Base terms are strongly normalizing $\ruleh{a \in \BT}{a \in \SN}$.
+  \begin{proof}
+    According to the definition base terms begin with a variable or a sort and
+    are followed by zero or more strongly normalizing terms (e.g. $x a b c
+    \ldots$). Evidently these terms are strongly normalizing.
+  \end{proof}
+\end{lemma}
+
+
+
+
+
+\begin{definition} % Key reduction
+  The relation \emph{key reduction} denoted by the binary operator
+  $\keyreduce$ is defined inductively by the rules
+  \begin{enumerate}
+
+  \item $(\lambda x^A.e) a \keyreduce e[x:=a]$
+
+  \item $\ruleh{a \keyreduce b}{a c \keyreduce b c}$
+  \end{enumerate}
+\end{definition}
+
+I.e. key reduction is possible only if the term is an application and the
+leftmost application is a redex.
+
+
+
+
+
+
+\begin{definition} % Saturation
+  A saturation of a set $S$ of terms $S^\sat$ is a closure defined inductively
+  by the rules
+  \begin{enumerate}
+
+  \item $\ruleh{a \in S}{a \in S^\sat}$
+
+  \item $\ruleh{a \in \BT}{a \in S^\sat}$
+
+  \item $\ruleh
+    {a \keyreduce b \quad a \in \SN \quad b \in S^\sat}
+    {a \in S^\sat}$
+  \end{enumerate}
+\end{definition}
+
+\begin{definition}
+  The set $\SAT$ of all saturated sets is defined by
+  $$
+  \SAT := \{S \mid  S^\sat \subseteq S \land S \subseteq \SN \}
+  $$
+\end{definition}
+
+
+\begin{lemma}
+  \label{SNinSAT}
+  The set of strongly normalizing terms is saturated i.e. $\SN \in \SAT$.
+
+  \begin{proof} Since $\SN \subseteq \SN$ is satisfied trivially we have to
+    prove the condition
+    $$
+    \ruleh{a \in \SN^\sat}{a \in \SN}
+    $$
+    which we prove by induction on $a \in \SN^\sat$.
+
+    \begin{enumerate}
+    \item $\ruleh{a \in \SN}{a \in \SN^\sat}$. Goal $a \in \SN$. Trivial by
+      assumption.
+
+    \item $\ruleh{a \in \BT}{a \in S^\sat}$. Goal $a \in \SN$. By lemma
+      \emph{base terms are strongly normalizing}~\ref{BTSN}
+
+    \item $\ruleh
+      {a \keyreduce b \quad a \in \SN \quad b \in S^\sat}
+      {a \in \SN^\sat}$: Goal $a \in \SN$. Trivial by assumption.
+    \end{enumerate}
+  \end{proof}
+\end{lemma}
+
+
+
+
+
+
+\subsection{Model Sets}
+
+\begin{definition}
+  A model is either a saturated set of terms or a function mapping a set of
+  models to another set of models. The function $\nu$ maps kinds to collection
+  of models and is defined as
+  %
+  $$
+  \nu(A) :=
+  \begin{cases}
+    \nu(s) := \SAT
+    \\
+    \nu(\Pi x^A.B) := \nu(B) & A \in \Types, B \in \Kinds
+    \\
+    \nu(\Pi x^A.B) := \{ f \mid f:\nu(A) \to \nu(B)\} & A,B \in \Kinds
+    \\
+    \nu(\lambda x^A. B) := \nu(B)       & B \in \Kinds
+    \\
+    \nu(A B) := \nu(A)                  & A \in \Kinds
+  \end{cases}
+  $$
+\end{definition}
+
+
+\begin{definition}
+  Let $A$ be a kind. Then we define a canonical model $\nu^c(A) \in \nu(A)$
+  according to the definition
+  $$
+  \nu^c(A) :=
+  \begin{cases}
+    \nu^c(s) := \SN
+    \\
+    \nu^c(\Pi x^A. B) := \nu^c(B) & A \in \Types, B \in \Kinds
+    \\
+    \nu^c(\Pi x^A. B) := \bullet \mapsto \nu^c(B) & A,B \in \Kinds
+    \\
+    \nu^c(\lambda x^A. B) := \nu^c(B)       & B \in \Kinds
+    \\
+    \nu^c(A B) := \nu^c(A)                  & A \in \Kinds
+
+  \end{cases}
+  $$
+\end{definition}
+
+
+
+\subsection{Interpretation of Type Variables}
+
+\begin{definition}
+  An interpretation of type variables is an assignment of models to type
+  variables of the form
+  $$
+  \xi = [x_1: M_1, x_2: M_2, \ldots].
+  $$
+
+  We say that $\xi$ is a valid interpretation of the type variables of a
+  context $\Gamma$ i.e. $\xi \vDash \Gamma$. if the following rules are satisfied.
+  \begin{enumerate}
+
+  \item $ [] \vDash []$
+
+  \item
+    $\ruleh
+    {\xi \vDash \Gamma
+      \quad
+      \Gamma,x:A \vdash x:A
+      \quad
+      A \in \Types
+    }
+    {\xi \vDash \Gamma,x:A}
+    $
+
+  \item
+    $\ruleh
+    {\xi \vDash \Gamma
+      \quad
+      \Gamma,x:A \vdash x:A
+      \quad
+      A \in \Kinds
+      \quad
+      M \in \nu(A)
+    }
+    {\xi,x:M \vDash \Gamma,x:A}
+    $
+  \end{enumerate}
+
+  Note that according to this definition $\xi \vDash \Gamma$ implies that the
+  context $\Gamma$ is a valid context.
+\end{definition}
+
+
+
+\subsection{Type Interpretation}
+
+\begin{definition}
+  For each valid interpretation $\xi$ of type variables (i.e. $\xi \vDash
+  \Gamma$) we define an interpretation of types
+  %
+  $\dbrack{T}_\xi$ such that
+  %
+  $
+  \ruleh
+  {\Gamma \vdash T: C
+    \quad
+    C \in \Kinds
+    \quad
+    \xi \vDash \Gamma}
+  {\dbrack{T}_\xi \in \nu(C)}
+  $
+  recursively on the structure of $T$.
+
+  \begin{description}
+
+  \item[Sort] $$\dbrack{s}_\xi := \SN$$
+
+  \item[Variable]
+    $$
+    \ruleh
+    {\Gamma \vdash x:A \quad A \in \Kinds \quad \xi \vDash \Gamma}
+    {\dbrack{x}_\xi := \xi(x)}
+    $$
+
+  \item[Application]
+    $$
+    \ruleh
+    {\Gamma \vdash f a : C
+      \quad
+      C \in \Kinds
+      \quad
+      \xi \vDash \Gamma
+    }
+    {\dbrack{f a}_\xi :=
+      \begin{cases}
+        \dbrack{f}_\xi &
+        \ruleh{\Gamma \vdash a:A}{A\in \Types}
+        \\
+        \dbrack{f}_\xi ( \dbrack{a}_\xi ) &
+        \ruleh{\Gamma \vdash a:A}{A\in \Kinds}
+      \end{cases}
+    }
+    $$
+
+    From the generation lemma we conclude the existence of minimal $A$ and $B$
+    such that $\Gamma \vdash f: \Pi x^A.B$ and $\Gamma \vdash a:A$ and
+    $B[x:=a] \le C$ and $a \notin \Kinds$.
+
+    Since $C$ is a kind, $B[x:=a]$ and the product are kinds as well and
+    $\dbrack{f}_\xi$ exists and is in $\nu (\Pi x^A.B)$ which is $\nu(B)$ or
+    $\nu(A) \to \nu(B)$ depending on $A$ being a type or a kind.
+
+    If $A$ is a kind, then $\dbrack{a}_\xi \in \nu(A)$ exists and the function
+    application in the definition is meaningful.
+
+    In any case $\dbrack{f a}_\xi \in \nu(B)$ which together with $\nu(B) =
+    \nu(C)$ proves the required property of the function.
+
+
+  \item[Abstraction]
+    $$
+    \ruleh
+    {\Gamma \vdash \lambda x^A. e: C \quad C \in \Kinds \quad \xi \vDash \Gamma}
+    {\dbrack{\lambda x^A. e}_\xi
+      :=
+      \begin{cases}
+        \dbrack{e}_\xi & A \in \Types
+        \\
+        M \mapsto \dbrack{e}_{\xi,x:M} & A \in \Kinds
+      \end{cases}
+    }
+    $$
+    The generation lemma guarantees the existence of $A,B,s$ with $\Gamma
+    \vdash \Pi x^A.B : s$, $\Gamma,x:A \vdash e:B$ and $\Pi x^A.B \le
+    C$. Since $C$ is a kind, the product and $B$ must be kinds as
+    well. Furthermore $\nu(\Pi x^A.B) = \nu(C)$ is valid.
+
+    If $A$ is a type, then $\xi \vDash \Gamma,x:A$ and therefore
+    $\dbrack{e}_\xi \in \nu(B)$. By $\nu(B) = \nu(\Pi x^A.B) = \nu(C)$ the
+    goal is proved.
+
+    If $A$ is a kind, then $\xi,x:M \vDash \Gamma,x:A$ when $M \in
+    \nu(A)$. Furthermore we have $\nu(C) = \nu(A) \to \nu(B)$, so
+    $M \mapsto \dbrack{e}_{\xi,x:M}$ is a correct value for
+    $\dbrack{\lambda x^A. e}_\xi$
+
+  \item[Product]
+    $$\ruleh
+    {\Gamma\vdash \Pi x^A . B : s \quad s \in \Kinds \quad \xi \vDash \Gamma}
+    {\typint{\Pi x^A . B}{\xi}
+      =
+      \typint{A}{\xi} \tolam
+      \begin{cases}
+        \typint{B}{\xi} & A \in \Types
+        \\
+        \cap_{M \in \nu(A)} \typint{B}{\xi,x:M}
+        & A \in \Kinds
+      \end{cases}
+    }$$
+
+    From the generation lemma we conclude the existence of $s_1,s_2$ with
+    $\Gamma \vdash A:s_1$, $\Gamma,x:A \vdash B:s_2$ and
+    $s_1 = s_2 \lor s_2 \text{ minimal}$. Since $s_1,s_2,s$ are sorts
+    $\nu(s_1) = \nu(s_2) = \nu(s) = \SAT$ is valid and we get $\dbrack{A}_\xi
+    \in \SAT$.
+
+    \begin{itemize}
+    \item $A \in \Types$: In that case we get $\xi \vDash \Gamma,x:A$ and
+      $\dbrack{B}_\xi \in \SAT$ and
+      $\dbrack{A}_\xi \tolam \dbrack{B}_\xi \in \SAT$.
+
+    \item $A \in \Kinds$: In that case we get $\xi,x:M \vDash \Gamma,x:A$ for
+      all $M \in \nu(A)$ and $\dbrack{B}_{\xi,x:M} \in \SAT$.
+      %
+      Therefore $\cap_{M \in \nu(A)} \dbrack{B}_{\xi,x:M} \in \SAT$ ($\SAT$ is
+      a complete lattice) and
+      %
+      $\dbrack{A}_\xi \tolam \cap_{M \in \nu(A)} \dbrack{B}_{\xi,x:M} \in
+      \SAT$ as well.
+    \end{itemize}
+
+
+  \end{description}
+\end{definition}
+
+
+\begin{lemma}
+  $$
+  \ruleh
+  {\Gamma \vdash t : T
+    \quad
+    \xi \vDash \Gamma
+  }
+  {\dbrack{T}_\xi \in \SAT}
+  $$
+  \begin{proof}
+    From $\Gamma \vdash t : T$ we conclude that $T$ is either a sort or there
+    is some sort $s$ wuch that $\Gamma \vdash T:s$ is valid.
+
+    In the first case we get by definition $\dbrack{T}_\xi = \SN$ which is in
+    $\SAT$.
+
+    In the second case we conclude $\dbrack{T}_\xi \in \nu(s)$ where $\nu(s) =
+    \SAT$ by definition.
+  \end{proof}
+\end{lemma}
+
+
+\subsection{Term Interpretation}
+
+\subsection{Soundness Lemma}
+
+\begin{theorem}
+  $$
+  \ruleh
+  {\Gamma \vdash t : T
+    \quad
+    \rho,\xi \vDash \Gamma
+  }
+  {\banana{t}_\rho \in \dbrack{T}_\xi}
+  $$
+\end{theorem}
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "0typed"
+%%% End:

@@ -1,0 +1,302 @@
+\section{Concept of Strong Normalisation}
+
+
+\begin{definition}
+  A term is in \emph{normal form} if it cannot be reduced.
+  $$
+  \ruleh{a \reduce b}
+  {\perp}
+  $$
+\end{definition}
+
+
+
+\begin{definition}
+  A term in \emph{strongly normalizing} if all reduction paths end up in a
+  normal form. We define the set $\SN$ of strongly normalizing terms
+  inductively by
+  $$
+  \ruleh{
+    \forall b.
+    \ruleh{a \reduce b}{b \in \SN}
+  }
+  {a \in \SN}
+  $$
+\end{definition}
+
+
+If we know that an term $a$ is strongly normalizing i.e. $a \in \SN$ and we
+want to prove a property $p(a)$ of the term it is sufficient to prove
+$$
+\ruleh
+{\forall b.
+  \ruleh {a \reduce b}{ p(b)}
+}
+{p(a)}
+$$
+i.e. in proving the goal $p(a)$ we can assume the induction hypothesis that
+all terms $b$ to which $a$ reduces already satisfy the goal.
+
+
+
+\begin{lemma}
+  \emph{Strongly normalizing substitution}
+  \label{stronglynormalizingsubstitution}
+  $$
+  \rulev
+  {
+    a \in \SN
+    \\
+    e[x:=a] \in \SN}
+  {e \in \SN}
+  $$
+
+  \begin{proof}
+    We prove the modified equivalent lemma
+    $$
+    \rulev
+    {
+      a \in \SN
+      \\
+      b \in \SN
+      \\
+      b = e[x:=a]
+    }
+    {e \in \SN}
+    $$
+    by assuming $a \in \SN$ and doing induction on $b \in \SN$.
+
+    Goal $p(b) := \forall e. \ruleh{b = e[x:=a]} {e \in \SN}$. Let's assume
+    $b = e[x:=a]$ and prove the subgoal $e \in \SN$. I.e. we have to assume
+    $e \reduce f$ and proof $f \in SN$. In order to do this we can use the
+    induction hypothesis
+    $$
+    \forall c. \ruleh{b \reduce c}{p(c)}.
+    $$
+
+    $$
+    \begin{array}{llll}
+      e \reduce f
+      & \imp & e[x:=a] \reduce f[x:=a]
+      & \text{Reduction substitution~\ref{reductionsubstitution}}
+      \\
+      & \imp & b \reduce f[x:=a]
+      & b = e[x:=a]
+      \\
+      & \imp & p(f[x:=a])  & \text{induction hypothesis}
+      \\
+      & \imp & \forall e. \ruleh{f[x:=a] = e[x:=a]}{e \in \SN}
+      & \text{definition of $p$}
+      \\
+      & \imp & f \in \SN & \text{using } e = f
+    \end{array}
+    $$
+  \end{proof}
+\end{lemma}
+
+
+
+\begin{lemma}
+  \emph{Strongly normalizing redex}
+  \label{stronglynormalizingredex}
+  $$
+  \ruleh
+  {e[x:=a] \in \SN \quad a \in \SN \quad A \in \SN}
+  {(\lambda x^A e)a \in \SN}
+  $$
+  \begin{proof}
+    In the proof we use the abbreviation
+    $$ p(e,a,A) := (\lambda x^A e) a \in \SN. $$
+
+    From the previous lemma~\ref{stronglynormalizingsubstitution} we know that
+    $e[x:=a] \in \SN$ and $a \in \SN$ imply $e \in SN$. Therefore we can add
+    the assumption $a \in \SN$ and prove the equivalent lemma
+    $$
+    \rulev
+    {
+      e \in SN
+      \\ e[x:=a] \in \SN
+      \\ a \in SN
+      \\ A \in SN
+      }
+    {p(e,a,A)}.
+    $$
+    We do this by 4 nested inductions.
+    \begin{enumerate}
+
+    \item Induction on $e \in SN$
+      $$
+      \begin{array}{ll}
+        \text{goal}:
+        & \forall a A.
+          \left[
+          \rulev{
+          e[x:=a] \in \SN
+          \\ a \in \SN
+          \\ A \in \SN
+          }
+        {p(e,a,A)}\right]
+        \\
+        \text{hypo }h_1:
+        & \forall f a A.
+          \left[
+          \rulev{e \reduce f \\ e[x:=a] \in \SN \\ a \in \SN \\ A \in \SN}
+        {p(f,a,A)}\right]
+
+      \end{array}
+      $$
+
+    \item Induction on $a \in SN$:
+      We assume $e[x:=a] \in \SN$ and
+      $a \in \SN$ and do induction on $a \in SN$.
+      $$
+      \begin{array}{ll}
+        \text{goal}:
+        & \forall A. \left[\rulev{A \in \SN}{p(e,a,A)}\right]
+        \\
+        \text{hypo }h_2:
+        & \forall b A.
+          \left[
+          \rulev{a \reduce b \\ A \in \SN}{p(e,b,A)}
+          \right]
+      \end{array}
+      $$
+
+    \item Induction on $A \in SN$:
+      We assume $A \in \SN$ and do induction on the assumption.
+      $$
+      \begin{array}{ll}
+        \text{goal}:
+        &  p(e,a,A)
+        \\
+        \text{hypo }h_3:
+        & \forall B. \rulev{A \reduce B}{p(e,a,B)}
+      \end{array}
+      $$
+
+    \item Now we want to prove $p(e,a,A)$ i.e. $(\lambda x^A.e) a \in \SN$. By
+      definition of $\SN$ we have to prove
+      $\forall c. \ruleh{(\lambda x^A. e) a \reduce c}{c \in \SN}$. We prove
+      this by induction on $(\lambda x^A. e) a \reduce c$ which has only 4
+      valid cases.
+
+      \begin{enumerate}
+
+      \item $(\lambda x^A. e) a \reduce e[x:=a]$:
+
+        In this case the goal is $e[x:=a] \in \SN$ which is valid by
+        assumption.
+
+      \item
+        $(\lambda x^A.e) a \reduce (\lambda x^A.f) a$ where $e \reduce f$:
+
+        The goal is $(\lambda x^A.f) a \in \SN$ i.e. $p(f,a,A)$ which can be
+        proved by $h_1$.
+      \item
+        $(\lambda x^A.e) a \reduce (\lambda x^B.e) a$ where $A \reduce B$:
+
+        The goal is $(\lambda x^B.e) a \in \SN$ i.e. $p(e,a,B)$ which can be
+        proved by $h_3$.
+
+      \item
+        $(\lambda x^A.e) a \reduce (\lambda x^A.e) b$ where $a \reduce b$:
+
+
+        The goal is $(\lambda x^A.e) b \in \SN$ i.e. $p(e,b,A)$ which can be
+        proved by $h_2$.
+      \end{enumerate}
+    \end{enumerate}
+  \end{proof}
+\end{lemma}
+
+
+
+\begin{lemma}
+  All subterms of a strongly normalizing term are strongly
+  normalizing\label{stronglynormalizingsubterms}. A term is either a sort, a
+  variable, an appliction, an abstraction or a product. The application $ab$
+  has subterms $a$ and $b$, the abstraction $\lambda x^A.e$ has subterms $A$
+  and $e$ and the product $\Pi x^A.B$ has subterms $A$ and $B$. It is not
+  necessary to analyze sorts and variables because the don't have subterms.
+
+  \begin{enumerate}
+
+
+  \item Application
+    $\ruleh{ab \in \SN}{a \in \SN \land b \in \SN}$:
+
+    We have to prove the two equivalent subgoals
+    $\ruleh{e \in \SN \quad e = ab}{a \in \SN}$ and
+    $\ruleh{e \in \SN \quad e = ab}{b \in \SN}$. Here we prove only the first
+    one because the proof of the second one is nearly indentical.
+
+    \begin{proof} By induction on $e \in \SN$ using the definition
+      $p(e):= \forall a b. \ruleh{e = a b}{a \in \SN}$.
+
+      $$
+      \begin{array}{ll}
+        \text{goal}: & p(e)
+        \\
+        \text{hypo}:
+        & \forall f. \ruleh{e \reduce f}{p(f)}
+      \end{array}
+      $$
+      In order to prove the goal we assume $e = a b$ and $a \reduce c$ and try
+      to prove the subgual $c \in \SN$.
+      $$
+      \begin{array}{llll}
+        a \reduce c
+        & \imp & ab \reduce cb &\text{definition of }\reduce
+        \\
+        & \imp & e \reduce cb   &\text{assumption}
+        \\
+        & \imp & p(cb)          & \text{hypo}
+        \\
+        & \imp & c \in \SN      & \text{definition of }p(cb)
+      \end{array}
+      $$
+    \end{proof}
+
+
+  \item Abstraction
+    $\ruleh{\lambda x^A.e \in \SN}{A \in \SN \land e \in \SN}$:
+    Again we define two equivalent subgoals
+    $\ruleh{a \in \SN \quad a = \lambda x^A.e}{A \in \SN}$ and
+    $\ruleh{a \in \SN \quad a = \lambda x^A.e}{e \in \SN}$ and prove only the
+    first one.
+
+    \begin{proof} By induction on $a \in \SN$ using the definition
+      $p(a) := \forall A e. \rulev{a = \lambda x^A.e}{A \in \SN}$.
+      $$
+      \begin{array}{ll}
+        \text{goal}: & p(a)
+        \\
+        \text{hypo}: & \forall b.\ruleh{a \reduce b}{p(b)}
+      \end{array}
+      $$
+
+      Assume $a = \lambda x^A.e$ and $A \reduce B$ and prove the subgoal
+      $B \in \SN$.
+      $$
+      \begin{array}{llll}
+        A \reduce B
+        & \imp & \lambda x^A.e \reduce \lambda x^B.e
+        &\text{definition of }\reduce
+        \\
+        & \imp & a \reduce  \lambda x^B.e & \text{assumption}
+        \\
+        & \imp & p(\lambda x^B.e) & \text{hypo}
+        \\
+        & \imp & B \in \SN & \text{definition of }p(\lambda x^B.e)
+      \end{array}
+      $$
+    \end{proof}
+
+  \item Product
+    $\ruleh{\Pi x^A.B \in \SN}{A \in \SN \land B \in \SN}$:
+    \begin{proof}
+      Similar to the above proofs for application and abstraction.
+    \end{proof}
+
+  \end{enumerate}
+\end{lemma}

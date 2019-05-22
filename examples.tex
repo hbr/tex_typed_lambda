@@ -1,0 +1,181 @@
+\section{Examples}
+
+
+\paragraph{Booleans}
+$$
+\begin{array}{lllll}
+  \text{Bool}
+  &:=& \Pi \alpha^* . \alpha\to\alpha\to\alpha
+  &:& *
+  \\
+  \text{true}
+  &:=& \lambda \alpha^* x^\alpha y^\alpha . x
+  &:& \text{Bool}
+  \\
+  \text{false}
+  &:=& \lambda \alpha^* x^\alpha y^\alpha . y
+  &:& \text{Bool}
+\end{array}
+$$
+
+
+\paragraph{Pairs}
+
+$$
+\begin{array}{lllll}
+  P
+  &:=& \lambda \alpha^* \beta^*
+       . \Pi \gamma^*
+       . (\alpha\to\beta\to\gamma) \to \gamma
+  &:& *
+  \\
+  \text{pair}
+  &:=& \lambda
+       \alpha^*
+       \beta^*
+       a^\alpha
+       b^\beta
+       \gamma^*
+       f^{\alpha\to\beta\to\gamma}
+       . f a b
+  &:& \Pi \alpha^* \beta^* a^\alpha b^\beta . P \alpha \beta
+  \\
+  \pi_1
+  &:=& \lambda
+       \alpha^*
+       \beta^*
+       p^{P\alpha\beta}
+       . p \alpha (\lambda a^\alpha b^\beta. a)
+  &:& \Pi \alpha^* \beta^* (P\alpha\beta)^* . \alpha
+  \\
+  \pi_2
+  &:=& \lambda
+       \alpha^*
+       \beta^*
+       p^{P\alpha\beta}
+       . p \beta (\lambda a^\alpha b^\beta. b)
+  &:& \Pi \alpha^* \beta^* (P\alpha\beta)^* . \beta
+\end{array}
+$$
+
+
+
+\paragraph{Natural numbers}
+$$
+\begin{array}{lllll}
+  \Nat
+  &:= & \Pi \alpha^* . (\alpha \to \alpha) \to \alpha \to \alpha
+  &:& *
+  \\
+  0
+  &:=& \lambda \alpha^* f^{\alpha\to\alpha} z^\alpha. z
+  &:& \Nat
+  \\
+  (')
+  &:=& \lambda p^\Nat \alpha^* f^{\alpha\to\alpha} z^\alpha . f (p \alpha f z)
+  &:& \Nat\to\Nat
+\end{array}
+$$
+
+Primitiv recursion is done with two functions $g:\tau$ and
+$h:\Nat \to \tau \to \tau$. We need a step function which takes the type
+$\tau$ and the function $h$ and returns a function with the type
+$\text{Pair}\,\Nat\,\tau \to \text{Pair}\,\Nat\,\tau$.
+$$
+\begin{array}{lll}
+  \text{start}
+  &:=& \lambda
+       \alpha^*
+       g^\alpha
+       . \text{pair}\,\Nat\,\alpha\,0\,g
+  \\
+  & &: \Pi \alpha^*. \alpha \to P\Nat\alpha
+  \\
+  \text{step}
+  &:=& \lambda
+       \alpha^*
+       h^{\Nat\to\alpha\to\alpha}
+       p^{P\Nat\alpha}
+       . \text{pair}\,\Nat\,\alpha\,
+       (\pi_1\,p)'\,
+       (h (\pi_1 p) (\pi_2 p)
+  \\
+  & &: \Pi \alpha^* (\Nat\to\alpha\to\alpha)
+      . (P\Nat\alpha)\to (P\Nat\alpha)
+\end{array}
+$$
+
+
+Predecessor function
+$$
+\text{pred} :=
+\lambda n^\Nat.
+\pi_2 (
+  n
+  \Nat (\text{step}\,\Nat (\lambda n^\Nat \_^\Nat. n))
+  (\text{pair}\,\Nat\,\Nat\,0\,0)
+)
+$$
+
+
+
+\paragraph{Lists}
+
+$$
+\begin{array}{lllll}
+  L
+  &:=& \lambda \alpha^* .
+       \Pi \beta^* . (\alpha\to\beta\to\beta) \to \beta \to \beta
+  &:& * \to *
+  \\
+  \text{nil}
+  &:=& \lambda \alpha^* \beta^* f^{(\alpha\to\beta\to\beta)} s^\beta . s
+  &:& \Pi \alpha^* . L \alpha
+  \\
+  \text{cons}
+  &:=& \lambda
+       \alpha^*
+       h^\alpha
+       t^{L\alpha}
+       \beta^*
+       f^{(\alpha\to\beta\to\beta)}
+       s^\beta
+       . f h (t \beta f s)
+  &:& \Pi \alpha^* . \alpha \to L \alpha \to L \alpha
+\end{array}
+$$
+
+
+
+
+\paragraph{Trees}
+
+$$
+\begin{array}{lllll}
+  T
+  &:=& \lambda \alpha^* .
+       \Pi \beta^* . (\alpha\to\beta\to\beta\to\beta) \to \beta \to \beta
+  &:& * \to *
+  \\
+  \text{empty}
+  &:=& \lambda \alpha^* \beta^* f^{\alpha\to\beta\to\beta\to\beta} e^\beta . e
+  &:& \Pi \alpha^* . T \alpha
+  \\
+  \text{node}
+  &:=& \lambda
+       \alpha^*
+       a^\alpha
+       l^{T\alpha}
+       r^{T\alpha}
+       \beta^*
+       f^{\alpha\to\beta\to\beta\to\beta}
+       e^\beta
+       . f a (l \beta f e) (r \beta f e)
+  &:& \Pi \alpha^* . \alpha \to T \alpha \to T \alpha \to T \alpha
+\end{array}
+$$
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "0typed"
+%%% End:
