@@ -602,19 +602,31 @@ M := \lambda \alpha^s x^\alpha. x \alpha x
 $$
 because we get
 $$
-M T_M M
-= (\lambda \alpha^s x^\alpha. x \alpha x) T_M M
-\reduce M T_M M
-\reduce M T_M M \ldots
+M T M
+= (\lambda \alpha^s x^\alpha. x \alpha x) T M
+\reduce M T M
+\reduce M T M \ldots
 $$
 
-The type $T_M$ of the mockingbird combinator must have the form
+The type $T$ of the mockingbird combinator must have the form
 $$
-T_M := \Pi \alpha^s x^\alpha. U : s_M
+T := \Pi \alpha^s x^\alpha. U : s_M
 $$
 where $s < s_M$ must be satisfied for non propositional $U$. This condition
-makes the expression $M T_M M$ impossible because $T_M$ cannot be fed as an
+makes the expression $M T M$ impossible because $T$ cannot be fed as an
 argument for $\alpha$.
+
+Another argument shows that such a term is not typable. In order for
+$\lambda \alpha^s x^\alpha. x \alpha x$ to be welltyped we must find a valid
+context $\Gamma$ such that
+$$
+\Gamma,\alpha:s,x:\alpha \vdash x \alpha x : U
+$$
+is a valid typing judgement. This requires that there exists some $\Pi y^A.B$
+with $x: \Pi y^A.B$ and $\Pi y^A.B \reduceeq \alpha$ which is impossible
+because $\alpha$ is a variable which is always in normal form and therefore
+cannot be equivalent to a product.
+
 
 %%% Local Variables:
 %%% mode: latex
