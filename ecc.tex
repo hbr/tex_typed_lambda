@@ -90,9 +90,9 @@
   The relation $\le$ is defined inductively by the rules
   \begin{description}
   \item[reflexive] $A \le B$
-    
+
   \item[transitive] $\ruleh{A \le B \quad B < C}{A \le C}$
-    
+
   \item[$\beta$ equivalence] $\ruleh{A \reduce B \lor B \reduce A}{A \le B}$
   \end{description}
   i.e. $\le$ is a preorder.
@@ -247,9 +247,9 @@ because $\ell(\Prop) \le \ell(s)$.
   and $\Gamma \vdash B : s_B$ for some $s_A,s_B$).
   \begin{enumerate}
   \item $\ruleh{A \betaeq B}{\ell(A) = \ell(B)}$
-    
+
   \item $\ruleh{A < B}{\ell(A) < \ell(B)}$
-    
+
   \item $\ruleh{A \le B}{\ell(A) \le \ell(B)}$
   \end{enumerate}
 
@@ -258,18 +258,18 @@ because $\ell(\Prop) \le \ell(s)$.
     \item
       By Church Rosser exists a $C$ with $A \reducestar C$ and  $B \reducestar
       C$. By definition $\ell(A) = \ell(C) = \ell(B)$.
-      
+
     \item Proof by induction on $A < B$.
     \begin{enumerate}
     \item $s_1 < s_2$ implies trivially $\ell(s_1) < \ell(s_2)$
-      
+
     \item $\ruleh{T < U \quad A \betaeq B}{\Pi x^A.T < \Pi x^B.U}$
 
       By induction hypothesis $\ell(T) < \ell(U)$.
-      
+
        MISSING
-    \end{enumerate}  
-    
+    \end{enumerate}
+
     \item
       Consequence of 1. and 2. and the definition of $\le$.
     \end{enumerate}
@@ -298,7 +298,7 @@ because $\ell(\Prop) \le \ell(s)$.
     Since $\ell(B'[x:=a])$ is the minimal universe in which it can reside we
     get  $\ell(B'[x:=a]) \le \ell(B)$ and because $B'[x:=a]$ and $B[x:=a]$ are
     beta equivalent we conclude the goal $\ell(B[x:=a]) \le \ell(B)$.
-    
+
   \end{proof}
 \end{lemma}
 
@@ -361,7 +361,7 @@ constructions where $\uni_n$ is the highest sort/universe.
   \uni_n$ has one of the forms
   \begin{itemize}
   \item $T = \uni_{n-1}$
-    
+
   \item $T = \Pi x^A.B$
   \end{itemize}
   \begin{proof}
@@ -387,7 +387,7 @@ constructions where $\uni_n$ is the highest sort/universe.
   $$
   \degree^0_j(T) :=
   \begin{cases}
-    0 & \text{if } \ell(T) \ne j
+    0 & \text{if } \ell(T) \not= j
     \\
     1 & \text{if } T = \uni_{j-1} \text{ i.e. } \ell(T) = j
     \\
@@ -398,13 +398,6 @@ constructions where $\uni_n$ is the highest sort/universe.
   \end{cases}
   $$
 \end{definition}
-
-\subsection{j-degree}
-
-j-degree is $1 + \text{depth}(t)$. $\text{Base term}  = 1$, $\text{sort} = 1$,
-$\Pi x^A.B = 1 + max(A,B)$ 
-
-The j-degree of a type is different from zero only if its level is $j$.
 
 
 
@@ -471,6 +464,157 @@ with $t \reduce u$ such that $u$ is $i$-quasinormal for $j \le i \le n$.
   All terms are $n$-quasinormal because there are no $n$-level redexes. An
   $n$-level redex needs universe $\uni_{n+1}$ which does not exist in $\ECC^n$.
 \end{quote}
+
+
+\subsection{Essence of the Proof}
+
+Assume we have a welltyped $j$-level ($0 < j$) redex of the form
+$$
+\lambda (x^A.e) a \reduce e[x:=a]
+$$
+and $e,a$ are $i$-quasinormal for $j < i \le n$. This requires
+$$
+\begin{array}{l}
+  \Gamma \vdash^p \lambda x^A.e : \Pi x^A.B
+  \\
+  \Gamma \vdash a: A
+  \\
+  \ell(\Pi x^A.B) = j
+  \\
+  j = \text{max}(\ell(A), \ell(B))
+  \\
+  \ell(A) \le j \land \ell(B) \le j \land (\ell(A) = j \lor \ell(B) = j)
+\end{array}
+$$
+
+The term $e[x:=a]$ has new redexes (i.e. redexes which are neither in $e$ nor
+in $a$) only if the variable $x$ is somewhere in a key position and $a$ is an
+abstraction. (AGUAS: The redex might be part of a term
+$(\lambda x^A.e) a b c\ldots$ and $e$ is an abstraction whose principal type
+has level $j$.) The level of the new redexes depend on the level of the
+principal type of $a$ or the level of the principal type of $e$.
+
+If the level is greater than $j$, then the term can be reduced to a
+quasinormal term (induction premise).
+
+If the level is less than $j$, then $e[x:=a]$ is $j$-quasinormal.
+
+The only interesting case is that the level of the principal type of $a$ has
+level $j$.
+
+
+$A$ is the principal type of $x$, but the principal type of $a$ can be less or
+equal $A$ (i.e. $\text{PT}(a) \le A$). We are interested only in cases where
+$\ell(\text{PT}(a)) = j$. Since $\ell(A) \le j$ this can only happen if
+$\ell(A) = j$ i.e. $A$ is a principal type of $a$.
+
+
+
+Let's assume
+$$
+\begin{array}{l}
+  a = \lambda y^C.d
+  \\
+  \Gamma \vdash^p \lambda y^C.f: \Pi y^C.D
+  \\
+  \ell(\Pi y^C.D) = j = \text{max}(\ell(C), \ell(D))
+\end{array}
+$$
+and $e$ contains a base term of the form
+$$
+x c u v \ldots
+$$
+i.e. $e[x:=a]$ contains the term
+$$
+(\lambda y^C.f) c u v \ldots
+$$
+where $(\lambda y^C.f) c$ is a $j$-level redex.
+$$
+\Gamma \vdash^p \lambda x^{\Pi y^C.D}.e : \Pi x^{\Pi y^C.D}. B
+$$
+
+
+\section{Universe Consistency}
+
+\subsection{Polymorphic Identity Function}
+
+In untyped lambda calculus we use the term $\lambda x.x$ for the identity
+function. In typed lambda calculus the argument must have a type. Since the
+type is arbitrary we need a type argument.
+
+{\def\id{\text{id}}
+
+  The polymorphic typed identity function:
+  $$
+  %
+  \begin{array}{lllll}
+    T_\id &:=& \Pi \alpha^s. \alpha \to \alpha &:& s_\id
+    \\
+    \id &:=& \lambda \alpha^s x^\alpha . x &:& T_\id
+  \end{array}
+  $$
+  %
+  If $s$ is non propositional then $s < s_\id$ must be satisfied. This
+  condition makes sure that
+  $$
+  \id \, T_\id \, \id
+  $$
+  is an illegal expression.
+}
+
+
+
+\subsection{Many Identity Functions}
+
+
+$$
+\begin{array}{lllll}
+  T_i &:=& \Pi \alpha^{s_i}. \alpha \to \alpha  &:& s'_i
+  \\
+  f_i &:=& \lambda \alpha x . x &:& T_i
+\end{array}
+$$
+with the constraint $s_i < s'_i$ because $s_i$ is non propositional. Now the
+term
+$$
+  f_i T_j f_j
+$$
+requires $s'_j \le s_i$ which implies $s_j < s_i$. I.e. $f_i$ must be from a
+strictly higher universe than $f_j$ and $T_j$.
+
+
+
+
+
+\subsection{Mockingbird Combinator}
+
+In untyped lambda calculus we defined the mockingbird combinator as $M :=
+\lambda x . x x$. This makes the infinite loop
+$$
+MM = (\lambda x . x x) M \reduce M M \reduce M M \ldots
+$$
+%
+possible.
+
+If we wanted to define a typed mocking bird combinator it would have the form
+$$
+M := \lambda \alpha^s x^\alpha. x \alpha x
+$$
+because we get
+$$
+M T_M M
+= (\lambda \alpha^s x^\alpha. x \alpha x) T_M M
+\reduce M T_M M
+\reduce M T_M M \ldots
+$$
+
+The type $T_M$ of the mockingbird combinator must have the form
+$$
+T_M := \Pi \alpha^s x^\alpha. U : s_M
+$$
+where $s < s_M$ must be satisfied for non propositional $U$. This condition
+makes the expression $M T_M M$ impossible because $T_M$ cannot be fed as an
+argument for $\alpha$.
 
 %%% Local Variables:
 %%% mode: latex

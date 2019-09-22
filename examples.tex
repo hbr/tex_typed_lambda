@@ -1,3 +1,383 @@
+\section{Programming}
+
+
+\subsection{Boolean}
+
+\begin{ocaml}
+  module Bool =
+    struct
+      type t = True | False
+
+      let true:  t = True
+      let false: t = False
+      ...
+    end
+\end{ocaml}
+
+Recipe for a folding functions
+%
+\begin{enumerate}
+
+\item We need one function (or constant) per constructur
+
+\item The function corresponding to a constructor uses one argument for
+  each argument of the constructor and returns the desired value.
+\end{enumerate}
+
+\begin{ocaml}
+  let fold (b:t) (f1:'a) (f2:'a): 'a =
+     match a with
+     | True -> f1
+     | False -> f2
+\end{ocaml}
+
+We can write this more explicitly
+
+\begin{ocaml}
+  let fold (type a) (b:t) (f1:a) (f2:a): a =
+     match a with
+     | True -> f1
+     | False -> f2
+  (* type of fold: t -> a -> a -> a *)
+\end{ocaml}
+
+
+We represent an object of an algebraic data type as a lambda term whose type
+has the type of the folding function without the object of the type. The type
+of the folding function without the object type is \code{a -> a -> a}. The
+variable \code{a} can be replaced by any type. The variable \code{a} is the
+first argument of the function.
+
+
+Therefore we get as the type of boolean values in lambda calculus
+$$
+    \Bool := \Pi \alpha^*. \alpha \to \alpha \to \alpha
+$$
+
+Each constructor has the type of the folding function. For the 2 constructors
+we get the lambda terms
+%
+$$
+\begin{array}{lllll}
+  \true
+  &:=& \lambda \alpha^* x^\alpha y^\alpha . x
+  &:& \Pi \alpha^*. \alpha \to \alpha \to \alpha
+  \\
+  \false
+  &:=& \lambda \alpha^* x^\alpha y^\alpha . y
+  &:& \Pi \alpha^*. \alpha \to \alpha \to \alpha
+\end{array}
+$$
+%
+There is some redundancy in the notation. Having the type of an expression it
+is easy to \emph{infer} some types. Therefore we can express the same with
+%
+$$
+\begin{array}{lllll}
+  \true
+  &:=& \lambda \alpha x y . x
+  &:& \Pi \alpha^*. \alpha \to \alpha \to \alpha
+  \\
+  \false
+  &:=& \lambda \alpha x y . y
+  &:& \Pi \alpha^*. \alpha \to \alpha \to \alpha
+\end{array}
+$$
+%
+In the following we often leave out type annotations if the types can be
+infered from the context.
+
+
+In untyped lambda calculus the boolean value true is represented by the lambda
+term $\lambda x y. x$ and the value false is represented by $\lambda x y
+.y$. In typed lambda calculus we need an extra type argument to make sure that
+both arguments have the same type.
+
+
+Now lets implement some boolean functions. E.g. negation in ocaml looks like
+\begin{ocaml}
+  let negate (a:t): t =
+     match a with
+     | True  -> False
+     | False -> True
+\end{ocaml}
+%
+However we want to implement functions using the folding function in order to
+translate it into the lambda calculus.
+%
+\begin{ocaml}
+  let not_ (a:t): t =
+     fold a False True
+\end{ocaml}
+
+$$
+\text{not}
+:= \lambda a \alpha .
+  a \, \alpha \, (\false\,\alpha) \, (\true \, \alpha)
+: \Bool \to \Bool
+$$
+
+Let's compute $\text{not} \, \true$
+$$
+%
+\begin{array}{lll}
+  \text{not} \, \true
+  &=
+  & (\lambda a \alpha .
+    a \, \alpha \, (\false\,\alpha) \, (\true \, \alpha)) \,
+    \true
+  \\
+  & \reduce
+  & \lambda \alpha .
+    \true \, \alpha \, (\false\,\alpha) \, (\true \,
+    \alpha)
+  \\
+  & \reduce
+  & \lambda \alpha. \false\,\alpha
+  \\
+  & =
+  & \lambda \alpha . (\lambda \beta x y. y) \, \alpha
+  \\
+  & \reduce & \lambda \alpha . \lambda x y . y
+  \\
+  & = & \lambda \alpha x y . y
+  \\
+  & = & \false
+\end{array}
+$$
+
+
+\begin{ocaml}
+  let and_ (a:t) (b:t): t =
+    match a with
+    | True -> b
+    | False -> False
+
+  (* with fold *)
+  let and_ (a:t) (b:t): t =
+    fold a b False
+\end{ocaml}
+
+The same in lambda calculus
+$$
+\andb
+:= \lambda a b \alpha. a \, (b\, \alpha) (\false\, \alpha)
+: \Bool \to \Bool \to \Bool
+$$
+
+
+The function \code{or}:
+\begin{ocaml}
+  let or_ (a:t) (b:t): t =
+    fold a True b
+\end{ocaml}
+%
+and in lambda calculus
+$$
+\orb
+:= \lambda a b \alpha. a \, (\true \, \alpha) (b \, \alpha)
+: \Bool \to \Bool \to \Bool
+$$
+
+
+
+Summary:
+$$
+%
+\begin{array}{lllll}
+  \Bool
+  &:=& \Pi \alpha^* . \alpha\to\alpha\to\alpha
+  &:& *
+
+  \\
+
+  \true
+  &:=& \lambda \alpha x y . x
+  &:& \Bool
+
+  \\
+
+  \false
+  &:=& \lambda \alpha x y . y
+  &:& \Bool
+
+  \\
+
+  \text{not}
+  &:=& \lambda a \alpha .
+  a \, \alpha \, (\false\,\alpha) \, (\true \, \alpha)
+  &:& \Bool \to \Bool
+
+  \\
+
+  \andb
+  &:=& \lambda a b \alpha. a \, (b\, \alpha) (\false\, \alpha)
+  &:& \Bool \to \Bool \to \Bool
+
+  \\
+
+  \orb
+  &:=& \lambda a b \alpha. a \, (\true \, \alpha) (b \, \alpha)
+  &:& \Bool \to \Bool \to \Bool
+\end{array}
+$$
+
+
+
+\subsection{Pair}
+
+\begin{ocaml}
+  module Pair =
+    struct
+      type ('a,'b) t = Pair of 'a * 'b
+
+      let pair (a:'a) (b:'b): ('a,'b) t =
+        Pair (a,b)
+
+      ...
+    end
+\end{ocaml}
+
+\begin{ocaml}
+  let fold (p: ('a,'b) t) (f:'a -> 'b -> 'c): 'c =
+    match p with
+    | Pair (a,b) -> f a b
+\end{ocaml}
+
+\begin{ocaml}
+  let first (p: ('a,'b) t): 'a =
+    fold p (fun a -> b -> a)
+
+  let second (p: ('a,'b) t): 'b =
+    fold p (fun a -> b -> b)
+\end{ocaml}
+
+\begin{ocaml}
+  let swap (p: ('a,'b) t): ('b,'a) t =
+    fold p (fun a -> b -> Pair(b,a))
+\end{ocaml}
+
+$$
+%
+\begin{array}{lllll}
+  \Pair
+  &:=
+  & \lambda \alpha^* \beta^* .
+    \Pi \gamma^* . (\alpha \to \beta \to \gamma)
+    \to \gamma
+  &:
+  & * \to * \to *
+
+  \\
+
+  \pair
+  &:=
+  & \lambda \alpha \beta a b . \lambda \gamma f . f \, a \, b
+  &:
+  & \Pi \alpha^* \beta^* . \alpha \to \beta \to \Pair\alpha\beta
+
+  \\
+
+  \pi_1
+  &:=
+  & \lambda \alpha \beta p. p \alpha (\lambda a b .a)
+  &:
+  &\Pi \alpha^* \beta^* . \Pair\alpha\beta \to \alpha
+
+  \\
+
+  \pi_2
+  &:=
+  & \lambda \alpha \beta p. p \alpha (\lambda a b .b)
+  &:
+  &\Pi \alpha^* \beta^* . \Pair\alpha\beta \to \beta
+
+  \\
+
+  \text{swap}
+  &:=
+  & \lambda\alpha\beta p.
+    p (\Pair\beta\alpha) (\lambda a b . \pair\beta\alpha b a)
+  &:
+  &\Pi \alpha^* \beta^* . \Pair\alpha\beta \to \Pair\beta\alpha
+\end{array}
+$$
+
+
+\subsection{Natural Number}
+
+\begin{ocaml}
+  module Nat =
+    struct
+      type t =
+      | Zero
+      | Succ of t
+
+      let zero: t =
+        Zero
+
+      let succ (n:t): t =
+        Succ(n)
+      ...
+    end
+\end{ocaml}
+
+
+\begin{ocaml}
+  let rec fold (n:t) (a:'a) (f:'a -> 'a): 'a =
+    match n with
+    | Zero -> a
+    | Succ p -> f (fold p a f)
+\end{ocaml}
+
+\begin{ocaml}
+  let (+) (a:t) (b:t): t =
+    fold a b succ
+\end{ocaml}
+
+\begin{ocaml}
+  let ( * ) (a:t) (b:t): t =
+    fold a zero ((+) b)
+\end{ocaml}
+
+
+\begin{ocaml}
+  let is_zero (a:t): Bool.t =
+    fold a Bool.true (fun _ -> Bool.false)
+\end{ocaml}
+
+
+\begin{ocaml}
+  (* 'recurse' with the help of 'fold' *)
+  let recurse (n:t) (a:'a) (f:'a -> t -> 'a): 'a =
+    (* f computes from the result of the predecessor and the predecessor
+       the result of the next number. *)
+    Pair.first (fold n (Pair.pair a zero) (fun (a,p) -> f a p, succ p))
+
+  (* 'recurse' directly as recursive function *)
+  let rec recurse (n:t) (a:'a) (f:'a -> t -> 'a): 'a =
+    match n with
+    | Zero -> a
+    | Succ p -> f (recurse p a f) p
+\end{ocaml}
+
+\begin{ocaml}
+  let predecessor (n:t): t =
+    recurse n zero (fun res p -> p)
+\end{ocaml}
+
+\begin{ocaml}
+  let factorial (n:t): t =
+    recurse
+      n
+      (succ zero)     (* start value 0! = 1 *)
+      (fun res p ->   (* res = p! *)
+         (succ p) * res)
+\end{ocaml}
+
+
+
+
 \section{Examples}
 
 
@@ -27,7 +407,7 @@ $$
   &:=& \lambda \alpha^* \beta^*
        . \Pi \gamma^*
        . (\alpha\to\beta\to\gamma) \to \gamma
-  &:& *
+  &:& * \to * \to *
   \\
   \text{pair}
   &:=& \lambda
