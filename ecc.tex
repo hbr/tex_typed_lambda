@@ -190,6 +190,33 @@ Note: All principal types of a term are beta equivalent.
 
 \section{Quasinormalization}
 
+
+\subsection{Zhaohui Luo ECC}
+
+A term is \emph{quasinormal} if it does not contain a redex whose function
+term has a non-propositional type.
+
+Every term can be reduced to some quasi-normal form.
+
+Quasinormal terms can still contain redexes with function terms with a
+propositional type.
+
+Reduction of a propositional redex might destroy quasinormalness. E.g. look at
+$$
+(\lambda x^{A\to B}. z (xy)) f \reduce z (f y)
+$$
+where $x,y,z$ are variables, $z: B \to P$, $P:\Prop$, $A\to B$ is a
+nonpropositional type and $f$ is a function term in normal form.
+%
+The term on the left side of the reduction is quasinormal because it contains
+only one redex whose function term has a propositional type.
+%
+The term on the right side of the reduction contains the non-propositional
+redex $f y$, therefore is not quasinormal.
+
+
+
+
 \subsection {Examples}
 
 $
@@ -207,16 +234,29 @@ because $\ell(\Prop) \le \ell(s)$.
 
 \subsection{Type Level}
 
+\begin{definition}
+  The \emph{Level of a type $T$} is the lowest universe level in which $T$
+  resides up to reduction.
+  \begin{itemize}
+  \item
+    $$
+    \ruleh {\Gamma \vdash T : \Prop} {\ell(T) := -1}
+    $$
+
+
+  \item
+    $$
+    \ruleh
+    {\Gamma \vdash T: \Any_k}
+    {\ell(T) := \mu i. \exists U . T \reduce^* U \land \Gamma \vdash U : i}
+    $$
+  \end{itemize}
+\end{definition}
+
 
 \begin{definition}
-  The level $\ell(T)$ of a type $T$ is the lowest universe in which $T$
-  resides up to reduction.
-  $$
-  \ruleh
-  { \Gamma \vdash T: s_1}
-  { \ell(T) := \mu s_2. \exists U. \Gamma \vdash U:s_2 \land T \reducestar U}
-  $$
-  Note that the level of a sort is its principal type.
+  The \emph{level of a redex} is the level of the type of the function term
+  (lambda abstraction) of the redex.
 \end{definition}
 
 
@@ -226,11 +266,11 @@ because $\ell(\Prop) \le \ell(s)$.
   $$
   \ell(\Pi x^A.B) =
   \begin{cases}
-    s_\text{min}
-    & \text{for } \Gamma,x:A \vdash^p B:s_\text{min}
+    -1
+    & \text{for } \Gamma,x^A \vdash^p B: \Prop
     \\
     \text{max}(\ell(A), \ell(B))
-    & \text{for } \Gamma,x:A \vdash^p B:s \land s_\text{min} < s
+    & \text{for } \Gamma,x^A \vdash^p B: \uni_i
   \end{cases}
   $$
   which implies $\ell(B) \le \ell(\Pi x^A.B)$
@@ -355,8 +395,8 @@ constructions where $\uni_n$ is the highest sort/universe.
 \end{definition}
 
 \begin{lemma}
-  Form of a type in the highest universe.
-  % -------------------------------------
+  Syntactic structure of a type in the highest universe.
+  % ----------------------------------------------------
   In $\ECC^n$ a type $T$ with $\ell(T) = \uni_n$ i.e. $\Gamma \vdash T :
   \uni_n$ has one of the forms
   \begin{itemize}
@@ -365,9 +405,28 @@ constructions where $\uni_n$ is the highest sort/universe.
   \item $T = \Pi x^A.B$
   \end{itemize}
   \begin{proof}
-    By induction on $\Gamma \vdash T: \uni_n$.
+    By induction on $\Gamma \vdash T: \uni_n$. Only the axiom, the product and
+    the application rule can introduce a term whose type is a sort. The
+    weakening, reduction and subtype rules do not change the form of the term.
 
-    MISSING
+    The axiom and the product rules are trivial. Only the application rule is
+    interesting.
+    $$
+    \rulev
+    {
+      \Gamma \vdash f : \Pi x^A . B
+      \\
+      \Gamma \vdash a : A
+
+    }
+    {\Gamma \vdash f a : B [x:=a]}
+    $$
+    where $B [x:=a] = \uni_n$.
+
+    $B [x:=a] = \uni_n$ is syntactically possible only if $B = \uni_n$ or $B =
+    x$ and $a = \uni_n$. Both cases are ill typed because
+    $\uni_n$ is the highest universe in $\ECC^n$.
+
   \end{proof}
 \end{lemma}
 
