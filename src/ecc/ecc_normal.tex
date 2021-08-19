@@ -1,0 +1,334 @@
+\section{Strong Normalization}
+
+
+From the quasinormalization theorem~\ref{quasinormalization} we get the
+following result: All valid types $T$ can be reduced to
+
+\begin{itemize}
+
+\item a syntactical kind $\Pi \vec x^{\vec A}. s$
+
+\item or a syntactical type $\Pi \vec x^{\vec A}. y \vec a$
+
+\end{itemize}
+%
+where $A$ is either a syntactical kind or a syntactical type.
+
+
+\subsection{Constructor Interpretation}
+
+
+
+\begin{definition}
+    \emph{Base Terms} The set of base terms $\baseterms$ is defined by the
+    grammar
+    $$
+    \begin{array}{lll}
+        b &::=& x
+        \\
+        &\mid& b a
+    \end{array}
+    $$
+    where $b$ ranges over base terms, $x$ over variables and $a$ over any terms.
+    I.e. a base term is a variable applied to zero or more arbitrary arguments.
+
+    Base terms have the property that beta reduction does not change the
+    structure. Beta reduction of a base term reduces exactly one of the
+    arguments.
+\end{definition}
+
+
+
+\begin{definition}
+    \emph{Key Reduction} A key reduction is the binary relation $\keyreduce$
+    defined by the rules
+    \begin{enumerate}
+    \item
+        $$
+            (\lambda x^A. e) a \keyreduce e[x:=a]
+        $$
+
+    \item
+        $$
+        \rulev {
+            a \keyreduce b
+        }
+        {
+            a c \keyreduce b c
+        }
+        $$
+    \end{enumerate}
+    A key reduction reduces a redex only in a key position i.e. the redex has to
+    be the leftmost subterm of the term.
+\end{definition}
+
+
+
+
+
+\begin{definition}
+    \emph{Lambda Function Space}
+    Let $A$ and $B$ two sets of lambda terms. The lambda function space $A
+    \tolambda B$ is defined as
+    $$
+    A \tolambda B := \set{f: \forall a. a \in A \imp fa \in B}
+    $$
+\end{definition}
+
+
+
+
+
+\begin{definition}
+    \emph{Strongly Normalizing Terms}
+    The set of strongly normalizing terms $\SN$ is defined inductively by the
+    rule
+    $$
+    \ruleh{
+        \forall b. \ruleh{a \reduce b}{b \in \SN}
+    }
+    {
+        a \in \SN
+    }
+    $$
+\end{definition}
+
+
+\begin{definition}
+    \emph{Saturated Sets} A saturated set $X$ is a set of strongly normalizing terms
+    which satisfy the following closure conditions
+    \begin{enumerate}
+    \item $X$ contains all strongly normalizing base terms
+        $$
+            \rulev{b \in \baseterms \\ b \in \SN}{b \in X}
+        $$
+
+    \item $X$ contains all strongly normalizing key redexes if the key reduct is
+        in $X$
+        $$
+        \rulev {
+            b \in X
+            \\
+            a \in \SN
+            \\
+            a \keyreduce b
+        }
+        {
+            a \in X
+        }
+        $$
+    \end{enumerate}
+\end{definition}
+
+
+\begin{theorem}
+    \emph{The saturated sets are closed under arbitrary intersections}
+    Let $S \subseteq \satsets$ be a set of saturated sets. Then the intersection
+    $$
+    \bigcap S := \set{t: \forall A \in S \imp t \in A}
+    $$
+    is saturated as well
+    $$
+    \bigcap S \in \satsets
+    $$
+    \begin{proof}
+        We have to proof the following closure conditions of $\bigcap S$:
+
+        \begin{enumerate}
+        \item All strongly normalizing base terms are in $\bigcap S$:
+
+            Since all strongly normalizing base terms are in each element of $S$
+                they are certainly in the intersection as well.
+
+        \item If key reduct is in $\bigcap S$ then its strongly normalizing key
+            redex is in $\bigcap S$ as well:
+
+
+            Let's assume $b$ is in all sets of $S$ and $a \keyreduce b$ and $a$
+                is strongly normalizing. Then by definition $a$ is in all sets
+                of $S$. Therefore it is the intersection $\bigcap S$ as well.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+\begin{definition} \emph{Syntactical Kinds and Types} Let range $s$ over sorts,
+    $b$ over base terms, $T$ over syntactical types and $K$ over syntactical
+    kinds. Then syntactical kinds and types are defined by the mutually
+    recursive grammar
+    $$
+    \begin{array}{lll}
+        K &::=& s
+        \\
+        &\mid& \Pi x^T. K
+        \\
+        &\mid& \Pi x^K. K
+        \\
+        T &::=& b
+        \\
+        &\mid& \Pi x^T. T
+        \\
+        &\mid& \Pi x^K. T
+    \end{array}
+    $$
+
+    We use $\skinds$ to describe the set of syntactical kinds and $\stypes$ to
+    describe the set of syntactical types.
+\end{definition}
+
+
+
+\begin{definition}
+    \emph{Kinds}
+    The set of kinds $\skinds^*$ is the set of all terms which
+    reduce to a syntactical kind in zero or more steps.
+    $$
+    \skinds^* := \set{A: \exists K \in \skinds. A \reducestar K}
+    $$
+\end{definition}
+
+
+
+
+
+\begin{definition}
+    \emph{Proper Types}
+    The set of proper types $\stypes^*$ is the set of all
+    terms which reduce to a syntactical type in zero or more steps.
+    $$
+    \stypes^* := \set{A: \exists T \in \stypes. A \reducestar T}
+    $$
+\end{definition}
+
+
+
+
+
+\begin{definition}
+    \emph{Constructors}
+    The set of constructors $\constructors_\Gamma$ in the
+    context $\Gamma$ is defined as
+    $$
+    \constructors_\Gamma := \set{A: \exists K\in\skinds^*. \Gamma \vdash A: K}
+    $$
+\end{definition}
+
+
+
+
+\begin{definition}
+    \emph{Model Sets} A model set is either the set of saturated sets or a
+    function from a model set to a model set. Let $M$ range over model sets,
+    then the model sets are described by the grammar
+    $$
+    \begin{array}{lll}
+        M &::=& \satsets
+        \\
+        &\mid& M \to M
+    \end{array}
+    $$
+    We use $\satsets^*$ to describe the set of model sets.
+
+    We can map each syntactical kind to a set of models. We
+    define a function $\nu: \skinds \to \satsets^*$.
+    $$
+    \nu K :=
+    \begin{cases}
+        \nu s := \satsets
+        
+        \\
+
+        \nu (\Pi x^A. B) := \nu A \to \nu B & \mbox{if } A \in \skinds
+        
+        \\
+
+        \nu (\Pi x^A. B) := \nu B & \mbox{if } A \in \stypes
+    \end{cases}
+    $$
+\end{definition}
+
+The reduction of a type to a syntactical kind or type is not unique. E.g. the
+type $A$ might reduce to the kinds $K_1$ and $K_2$ i.e. $A \reducestar K_1$ and
+$A \reducestar K_2$. According to the Church Rosser theorem there is a term $K$
+with $K_1 \reducestar K$ and $K_2 \reducestar K$. $K$ is a syntactical kind,
+since reduction preserves syntactical kinds and types.
+
+The definition of the function $\nu$ guarantees $K_i \reducestar K \imp \nu K_i
+= \nu K$ which implies $\nu K_1 = \nu K_2$. Therefore we an extend the function
+$\nu$ to all terms $A$ which reduce to a syntactical kind
+$$
+\nu : \skinds^* \to \satsets^*
+$$
+
+
+\begin{definition}
+    \emph{Interpretation of Constructor Variables} An interpretation $\xi$ of
+    constructor variable is generated by the grammar
+    $$
+    \begin{array}{lll}
+        \xi &::=& []
+        \\
+        &\mid& \xi, x^S
+    \end{array}
+    $$
+    where $S \in \satsets^*$.
+
+    A valid interpretation of constructor variables $\xi$ for the
+    context $\Gamma$ written as $\xi \vDash \Gamma$ is an inductive relation
+    defined by the rules
+    \begin{enumerate}
+    \item
+        $$
+            [] \vDash []
+        $$
+
+    \item
+        $$
+        \rulev {
+            \xi \vDash \Gamma
+            \\
+            \Gamma \vdash A: s
+            \\
+            A \in \stypes^*
+        }
+        {
+            \xi \vDash \Gamma, x^A
+        }
+        $$
+    \item
+        $$
+        \rulev {
+            \xi \vDash \Gamma
+            \\
+            \Gamma \vdash A: s
+            \\
+            A \in \skinds^*
+            \\
+            S \in \nu A
+        }
+        {
+            \xi, x^S \vDash \Gamma, x^A
+        }
+        $$
+    \end{enumerate}
+\end{definition}
+
+
+\begin{definition}
+    \emph{Constructor Interpretation}  A constructor interpretation
+    $\typeinter{-}{\xi \Gamma}$ is a map from valid constructors $A$ in a valid
+    context $\Gamma$ with the interpretation $\xi$ of the constructor variables
+    into $\satsets^*$.
+    $$
+    \rulev{
+        \xi \vDash \Gamma
+        \\
+        \Gamma \vdash A: K
+        \\
+        K \in \skinds^*
+    }
+    {
+        \typeinter{A}{\xi \Gamma} \in \nu K
+    }
+    $$
+\end{definition}

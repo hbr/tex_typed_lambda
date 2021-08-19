@@ -1,0 +1,640 @@
+********************************************************************************
+Quasinormalization
+********************************************************************************
+
+ECC
+================================================================================
+
+Sorts::
+
+    s   ::=     Prop
+        |       Any i           i = 0, 1, 2, 3, ...
+
+
+Sometimes we write ``Any (-1)`` for ``Prop``.
+
+
+Terms::
+
+    t   ::=     s
+        |       x
+        |       t t
+        |       \ (x: t) := t
+        |       all (x: t): t
+
+
+Context::
+
+    Gamma   ::=     []
+            |       Gamma, (x:t)
+
+
+Covering relation to define an Order::
+
+    Prop    <   Any 0
+
+    Any i   <   Any (i + 1)         i = 0, 1, 2, ...
+
+    B <  C  =>      all (x: A): B   <   all (x: A): C
+
+
+Reduction: Compatible closure of ::
+
+    (\ (x: A): e) a     ~>      e[x:=a]
+
+
+Typing Relation Introduction Rules:
+    Axiom::
+
+        [] |- Prop: Any 0
+        [] |- Any i: Any (i + 1)       i = 0, 1, 2, 3, ...
+
+
+    Variable::
+
+        Gamma |- A: s
+        x /in Gamma
+        --------------------
+        Gamma, (x:A) |- x: A
+
+
+    Propositional Product::
+
+        Gamma        |- A: s
+        Gamma, (x:A) |- B: Prop
+        ------------------------------
+        Gamma |- (all (x: A): B): Prop
+
+
+    Nonpropositional Product::
+
+        Gamma        |- A: Any i
+        Gamma, (x:A) |- B: Any i
+        -------------------------------
+        Gamma |- (all (x: A): B): Any i
+
+
+    Abstraction::
+
+        Gamma        |- (all (x: A): B): s
+        Gamma, (x:A) |- e: B
+        ---------------------------------------
+        Gamma |- (\ (x: A) := e): all (x: A): B
+
+
+    Application::
+
+        Gamma |- f: all (x: A): B
+        Gamma |- a: A
+        --------------------------
+        Gamma |- f a: B[x:=a]
+
+
+
+Typing Relation Structural Rules:
+    Weaken::
+
+        Gamma |- t: T
+        Gamma |- A: s
+        x /in Gamma
+        --------------------
+        Gamma, (x:A) |- t: T
+
+
+    Reduction::
+
+        Gamma |- t: T
+        Gamma |- U: s
+        T ~> U \/ U ~> T
+        ----------------
+        Gamma |- t: U
+
+
+    Subtyping::
+
+        Gamma |- t: T
+        Gamma |- U: s
+        T < U
+        -------------
+        Gamma |- t: U
+
+
+
+
+
+
+
+
+Metatheoretic Properties
+================================================================================
+
+
+Compatibility of Reduction and Substitution
+--------------------------------------------------------------------------------
+
+Lemma::
+
+    t ~> u
+    ------------------
+    t[x:=a] ~> u[x:=a]
+
+Proof by induction on ``t ~> u``. The only interesting case is::
+
+    (\ (y:B) := e) b    ~>  e[y:=b]
+
+
+The case is proved by the sequence::
+
+
+    ((\ (y: B) := e) b)[x:=a]
+
+    =   (\ (y: B[x:=a]) := e[x:=a]) b[x:=a]
+
+    ~>  e[x:=a][y:= b[x:=a]]
+
+    =   e[y:=b][x:=a]                   -- double substitution lemma
+
+
+
+Existence of Minimal Types
+--------------------------------------------------------------------------------
+
+Definition:
+    A minimal type of a term is a type which is a subtype of all valid types of
+    the term.
+
+Lemma::
+
+    Gamma |- x: T   =>  Gamma x <= T
+
+Proof by induction on ``Gamma |- x: T``. Only the variable introduction,
+weakening, subtyping and reduction rules are applicable. For the variable
+introduction rule the validity is immediate. For the other rules it follows from
+the induction hypothesis.
+
+With that we have the proof that all variables have a minimal type.
+
+
+Lemma: All valid terms have minimal types.
+
+
+Proof by induction on the term structure.
+
+Sort:
+    trivial
+
+Variable:
+    see above
+
+General product ``all (x: A): B``:
+    Sorts are the only valid types for products. Every nonempty set of sorts
+    must have a least element which is also minimal.
+
+Abstraction ``\ (x: A) := e``:
+    Rule::
+
+        Gamma |- (all (x: A): B): s
+        Gamma, (x: A) |- e: B
+        ---------------------------------------
+        Gamma |- (\ (x: A) := e): all (x: A): B
+
+    By the induction hypotheses we conclude the existence of ``B'`` as a minimal
+    type of ``e``. So we have ``all (x: A): B' <= all (x: A): B``.
+
+Application ``f a``:
+    By the induction hypotheses we have the existence of minimal types ``all (x:
+    A): B`` for ``f`` and ``A'`` for ``a``.
+
+    Needs more thinking!!       <-------------
+    
+
+
+Goal
+================================================================================
+
+In the calculus of constructions (CC) there are only two sorts: ``Prop`` and
+``Any 0``. Therefore for all types ``T`` we have either ``T: Prop`` or ``T: Any
+0``.
+
+In CC it is possible to prove that all types ``T`` with ``T: Any 0`` have the
+form ::
+
+    all (x0: A0) (x1: A1) ... : Prop
+
+which is the syntactical form of a kind and all syntacical kinds which are
+wellformed have the type ``Any 0``. Therefore it is decidable if a type is a
+kind.
+
+Having this we can define a model set for all variables ``x: K`` where ``K`` is
+a syntactical kind.
+
+In ECC this is no longer possible. A syntactical kind can be generated by
+reduction. E.g. ``Prop`` is a syntactical kind and ::
+
+    (\ (x: Any i) := x) Prop
+
+has the type ``Any (i + 1)`` and reduces to ``Prop`` which is a syntactical
+kind.
+
+In ECC we need a proof that all types can be reduced to a form which is either a
+syntactical kind or not. The quasinormalization theorem states exactly that.
+
+Every type ``T`` can be reduced to the form
+
+.. code-block:: alba
+
+    all (x0: A0) (x1: A1) .... : B
+
+
+where ``B`` is either a sort or a base term. If ``B`` is a base term, then ``T``
+is a proper type and if ``B`` is a sort, then ``T`` is a kind.
+
+
+
+
+Proof Overview
+================================================================================
+
+All is based on ECCn i.e. an ECC where the greatest sort is ``Any n``.
+
+Proof by induction starting at ``n`` as the base case and the step from ``j + 1``
+down to ``j`` as the induction step until reaching ``j = 0``.
+
+For each ``j`` we define
+
+- a proof stating that each type ``T`` with ``level T = j`` which is ``j + 1``
+  quasinormal is either ``Any (j - 1)`` or ``Prop`` (in case of ``j = 0``) or a
+  base term or of the form ``all(x:A): B`` (corollary 4.3.11).
+
+- a function ``Degree j T`` which assigns to each type ``T`` a unique degree.
+  This function uses ``reduce (j + 1) T`` in the case ``j < n`` to reduce ``T``
+  to ``j + 1`` quasinormalform and the previous theorem to consider only the
+  cases ``Prop``, ``Any (j -1)``,  base term and ``all (x: A): B`` for ``j + 1``
+  quasinormal terms.
+
+- a function ``reduce j t`` which reduces all terms (types) to j-quasinormal
+  form. j-quasinormalness means that the term does not contain any redexes with
+  whose type of the major (function) term has a level greater or equal ``j``
+  (Lemma 4.3.10).
+
+
+We can make corollary 4.3.11 more general:
+
+Let ``T`` be a type with ``level T = k``, ``j <= k``, ``T`` is (j+1)quasinormal.
+Then ``T`` is one of
+
+- ``Prop`` for ``j = 0`` or ``Any (j - 1)`` for ``0 < j``
+
+- a base term
+
+- a product ``all (x: A): B``
+
+
+
+Base Case
+================================================================================
+
+First we have to prove that all types ``T`` with ``level T = n`` have one of the
+forms:
+
+- ``T = Any (n - 1)`` or ``T = Prop`` for ``n = 0``
+
+- A base term
+
+- ``all (x: A): B``
+
+We prove the stronger statement that only the first and the third form is
+possible (lemma 4.3.2).
+
+Since ``T`` is a type and cannot be ``Any n`` (because this would imply ``level
+T = n + 1``), there must be a sort ``s`` with ``T: s``. Since ``level T = n`` we
+must have ``Any n <= s`` which implies ``s = Any n`` within ECCn.
+
+So we have ``T: Any n`` and ``level (typeOf T) = n + 1``.
+
+``T`` cannot be a variable because this would require ``Any n: Any (n + 1)``
+which is not possible in ECCn.
+
+``T`` cannot be an abstraction because an abstraction is never a type.
+
+``T`` cannot be an application i.e. have the form ``f a`` because this would
+require ``level (typeOf f) = n + 1``. The only level ``n + 1`` type in ECCn is
+``Any n`` and ``Any n`` cannot be the type of a function term (``Any n`` can
+never convert to anything of the form ``all (x: A): B``).
+
+So ``T`` can either be a sort or a product. The only sorts of level ``n`` are
+``Any (n - 1)`` or ``Prop`` (in case of ``n = 0``).
+
+
+Second we have to reduce all terms to n-quasinormal form.
+????????????????????????????????????????????????????????
+
+
+
+
+Levels
+================================================================================
+
+
+Definition
+--------------------------------------------------------------------------------
+
+The level of a type ``T`` is the level of the lowest universe/sort in which
+``T`` lives up to conversion where ``level Prop = -1``, ``level (Any i) = i``.
+
+By definition convertible types have the same level.
+
+The set of minimal types of any valid expression contains only convertible
+types.  Therefore all minimal types of a valid expression have the same level.
+I.e. we can talk about the level of the principal type of a valid expression.
+
+As an immediate consequence of this definition we get::
+
+    B: Prop     =>  level (all (x: A): B) = -1
+
+    B: Any i    =>  level (all (x: A): B) = max (level A) (level B)
+
+
+
+Lemma 4.2.3: Type Preserving Substitution
+--------------------------------------------------------------------------------
+
+
+Type preserving substitution of a type does not increase its level. 
+
+.. code-block:: alba
+
+    Gamma        |- a: A
+    Gamma, (x:A) |- B: s
+    ----------------------
+    level B[x:=a] <= level B
+
+Proof:
+
+Assume ``level B < j`` where ``j = level B[x:=a]``.
+
+Then there exists some ``B'`` convertible to ``B`` with ``Gamma, (x:A) |- B':
+Any k`` with ``k < j``.
+
+The substitution lemma yields ::
+
+    Gamma |- B'[x:=a]: Any k
+
+i.e. ``level B'[x:=a] < j``. Since ``B`` and ``B'`` are convertible, ``B[x:=a]``
+and ``B'[x:=a]`` must be convertible as well and have the same level leads to a
+contradiction.
+
+
+
+
+
+
+Lemma 4.2.4: Level of the Type of a Function Term
+--------------------------------------------------------------------------------
+
+In an application ``f a`` the level of the type of the function term ``f`` is an
+upper bound for the level of the type of the whole term ``f a``, i.e. ::
+
+    level (typeOf (f a)) <= level (typeOf f)
+
+where ``typeOf t`` returns any minimal type of the term ``t``.
+
+
+Proof:
+
+One of the minimal types of ``f`` has the form ``all (x: A): B``. Therefore ``f
+a`` has type ``B[x:=a]``. Since type preserving substitution does not increase
+the level we have ``level (f a) = level B[x:=a] <= level B``.
+
+If ``B`` is a proposition, then ``level B = level (all (x: A): B) = -1`` and the
+condition is satisfied.
+
+If ``B`` is a non-propositional type we get ``level B <= level (all (x:A): B) =
+level (typeOf f)`` and the conditions is satisfied.
+
+
+As a special case we get the the level of the principal type of the function
+term of a redex is an upper bound for the level of the principal type of the
+redex.
+
+
+This inequality can be iterated ::
+
+    level (typeOf (f a b c ... y z))
+    <=
+    level (typeOf (f a b c ... y))
+    <=
+    ...
+    level (typeOf (f a b c))
+    <=
+    level (typeOf (f a b))
+    <=
+    level (typeOf (f a))
+    <=
+    level (typeOf f)
+
+
+This is interesting because every application has the form ``f a b c ...`` where
+``f`` is either a variable or an abstraction.
+
+
+
+
+Lemma 4.2.5: Level of a Product
+--------------------------------------------------------------------------------
+
+Let ``all (x: A): B`` be a non-propositional type. Then ::
+
+    level (all (x: A): B) = j   =>      level A = j \/ level B = j
+
+
+Proof:
+
+We have ``level B >= 0``, otherwise the type would be a proposition.
+
+Assume there were ``level A < j`` and ``level B < j``. Then there would be
+convertibles ``A'`` and ``B'`` such that ``A': Any k`` and ``B': Any k`` with ``k
+< j``. Therefore ``(all (x: A'): B'): Any k``. This contradicts the assumption
+``level (all (x: A): B) = j`` since both products are convertible.
+
+
+
+
+
+
+Quasinormality
+================================================================================
+
+Quasinormality is defined in ECCn where ``Any n`` is the highest universe.
+
+
+
+Definition of j-quasinormal terms
+--------------------------------------------------------------------------------
+
+A term ``t`` is j-quasinormal if it does not contain any redexes with level
+``i`` with ``j <= i <= n``.
+
+
+A reduction step is j-quasinormal if it reduces only redexes with a level ``i``
+with ``j <= i <= n``.
+
+
+Uniqueness of j-quasinormal terms
+--------------------------------------------------------------------------------
+
+If ``t`` reduces to ``u`` with reduction step which are j-quasinormal, then
+``u`` is unique.
+
+Proof: MISSING!!!!! At least a unique quasinormal term can be chosen by choosing
+a rightmost reduction sequence.
+
+
+
+
+
+
+
+
+Levels as Set of Sorts
+================================================================================
+
+Definition 
+--------------------------------------------------------------------------------
+
+The level of a type ``T`` is the set of all universes/sorts in which the type
+``T`` lives up to conversion.
+
+We define the set of all universes a type lives in as an inductive set defined
+by the rule::
+
+    Gamma |- B: s1
+    Gamma |- C: s2
+    B ~ C
+    ----------------
+    Level B s2
+
+By definition convertible types have the same level and level sets are upper closed.
+
+
+
+Type Preserving Substitution
+--------------------------------------------------------------------------------
+
+Lemma: Type preserving substitution in a type term only adds sorts to the level::
+
+    Gamma               |- a: A
+    Gamma, (x:A), Delta |- B: s
+    ---------------------------
+    Level B <= Level B[x:=a]
+
+Proof:
+
+Assume that a sort ``s`` is in ``Level B``. This requires the existence of a
+context with a variable ``x`` where ``B`` is a valid type and of an equivalent
+type ``C`` with ``B ~ C`` such that ``C: s`` is valid in the same context.
+
+Since the context must contain the variable ``x`` it must have the form ``Gamma,
+(x:A), Delta`` for some type ``A``.
+
+From the substitution lemma we conclude ::
+
+    Gamma, Delta[x:=a] |- B[x:=a]: sB
+    Gamma, Delta[x:=a] |- C[x:=a]: s
+
+Since substitution and reduction are compatible we have ``B[x:=a] ~ C[x:=a]``.
+By definition of *level*  we conclude ``Level B[x:=a] s`` which proves the
+claim.
+
+
+First be observe that ``B ~ C`` implies ``B[x:=a] ~ C[x:=a]``.
+
+
+
+Level of a Term
+--------------------------------------------------------------------------------
+
+Definition: The level of a term is the union of the levels of all its types. ::
+
+    Gamma |- t: T
+    Level T s
+    -------------
+    level t s
+
+
+Theorem: ``level f <= level (f a)``
+
+Proof: ?????
+
+
+
+Reducing Proof Redexes
+================================================================================
+
+.. code-block:: 
+
+    (\ (x: A -> B) := z (x y)) X    ~~>     z(X y)
+
+    -- where
+    P: Prop
+    y: A
+    X: A -> B
+    z: B -> P       -- therefore 'z(X y)' is a proof, it proves 'P'
+
+If ``X`` is an abstraction, then ``z (X y)`` has a new redex whose level is
+``level (A -> B)``.
+
+
+
+Lemmata
+================================================================================
+
+Lemma 4.2.4
+--------------------------------------------------------------------------------
+
+The level of the type of a redex is always less equal the level of the type of
+its major term (function term).
+
+
+
+Lemma 4.3.2
+--------------------------------------------------------------------------------
+
+All types ``T`` with ``level T = Any n`` are either of the form ``T = Any (n - 1)``
+or ``T = all (x: A): B``.
+
+Proof: By induction on ``Gamma |- T : s``.
+
+Hint: Since reduction cannot make the principal type greater we must have ``Any
+n <= s``.
+
+
+
+Lemma 4.3.4
+--------------------------------------------------------------------------------
+
+Well definedness of the degree and the degree respects conversion i.e.
+equivalent types have the same degree.
+
+Lemma 4.3.5
+--------------------------------------------------------------------------------
+
+Let ``A`` and ``B`` be types.
+
+1. level A = Any j if and only of degree j A >= 1
+
+2. ``A <= B``, then either ``level A < level B`` or ``level A = level B`` and
+   ``degree j A <= degree j B``.
+
+
+Corrolary 4.3.11
+--------------------------------------------------------------------------------
+
+Let ``A`` be a type which is quasinormal for every ``i`` with ``j < i <= n`` and
+``level A = Any j``. Then ``A`` has one of the forms:
+
+- ``Any (j - 1)``  or ``Prop`` when ``j = 0``
+
+- A base term
+
+- ``all (x: B): C``

@@ -1,0 +1,366 @@
+\section{Typing}
+
+
+\subsection{Substitution Lemma}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{theorem}
+    \label{substitution-theorem}
+    Substitution (cut) theorem.
+    $$
+    \rulev{
+        \Gamma \vdash a: A
+        \\
+        \Gamma, x^A, \Delta \vdash t: T
+    }
+    {
+        \Gamma, \Delta[x:=a] \vdash t[x:=a]: T[x:=a]
+    }
+    $$
+
+    \begin{proof}
+        We assume
+        $\Gamma \vdash a: A$
+        and prove this theorem by induction on
+        $\Gamma, x^A, \Delta \vdash t: T$.
+
+        In order to express the proof more compactly we introduce the
+        abbreviation $t' := t[x:=a]$.
+
+        \begin{enumerate}
+            \item Axiom: This case is syntactically impossible, because the
+                context is not empty.
+
+            \item Variable: We have to prove the goal
+                $$
+                \begin{array}{l|l}
+                    \Gamma, x^A, \Delta \vdash B: s
+                    &
+                    \Gamma, \Delta' \vdash B': s
+                    \\
+                    \hline
+                    \Gamma, x^A, \Delta, y^B \vdash y: B
+                    &
+                    \Gamma, \Delta', y^{B'} \vdash y: B'
+                \end{array}
+                $$
+
+                The final goal in the lower right corner follows directly from
+                the induction hypothesis and the variable introduction rule.
+
+            \item Product:
+                $$
+                \begin{array}{l|l}
+                    \Gamma, x^A, \Delta \vdash B: s_1
+                    &
+                    \Gamma, \Delta' \vdash B': s_1
+                    \\
+                    \Gamma, x^A, \Delta, y^B \vdash C: s_2
+                    &
+                    \Gamma, \Delta', y^{B'} \vdash C': s_2
+                    \\
+                    s_2 = \Prop \lor s_1 = s2
+                    \\
+                    \hline
+                    \Gamma, x^A, \Delta \vdash \Pi y^B. C : s_2
+                    &
+                    \Gamma, \Delta' \vdash \Pi y^{B'}. C': s_2
+                \end{array}
+                $$
+
+                The final goal follows from the induction hypotheses and the
+                product introduction rule.
+
+            \item Abstraction:
+                $$
+                \begin{array}{l|l}
+                    \Gamma, x^A, \Delta \vdash \Pi y^B. C: s
+                    &
+                    \Gamma, \Delta' \vdash \Pi y^{B'}. C': s
+                    \\
+                    \Gamma, x^A, \Delta, y^B \vdash e: C
+                    &
+                    \Gamma, \Delta', y^{B'} \vdash e': C'
+                    \\
+                    \hline
+                    \Gamma, x^A, \Delta \vdash \lambda y^B. e: \Pi y^B. C
+                    &
+                    \Gamma, \Delta' \vdash \lambda y^{B'}. e' : \Pi y^{B'}. C'
+                \end{array}
+                $$
+
+                Same reasoning as above.
+
+            \item Application:
+                $$
+                \begin{array}{l|l}
+                    \Gamma, x^A, \Delta \vdash f: \Pi y^B. C
+                    &
+                    \Gamma, \Delta' \vdash f' : \Pi y^{B'}. C'
+                    \\
+                    \Gamma, x^A, \Delta \vdash b: B
+                    &
+                    \Gamma, \Delta' \vdash b': B'
+                    \\
+                    \hline
+                    \Gamma, x^A, \Delta \vdash f b: C[y:=b]
+                    &
+                    \Gamma, \Delta' \vdash f' b': C[y:=b]'
+                \end{array}
+                $$
+
+                From the induction hypotheses and the application introduction
+                rule we conclude
+                $$
+                    \Gamma, \Delta' \vdash f' b': C'[y:=b']
+                $$
+                and get the final goal by observing
+                $$
+                    C'[y:=b'] = C[y:=b]'
+                $$
+                by using the double substition lemma~\ref{DoubleSubstitution}.
+
+            \item Structural rules: For all structural rules we prove the final
+                goal by the induction hypothesis and by the facts
+                $$
+                \begin{array}{lll}
+                    t \reduce u &\imp& t' \reduce u'
+                    \\
+                    A \prec B    &\imp& A' \prec B'
+                \end{array}
+                $$
+
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+\subsection{Subject Reduction Lemma}
+
+\begin{theorem}
+    \label{subject-reduction-theorem}
+    Subject reduction theorem.
+    $$
+    \rulev{
+        \Gamma \vdash t: T
+        \\
+        t \reduce u
+    }
+    {
+        \Gamma \vdash u: T
+    }
+    $$
+
+    \begin{proof} MISSING
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\subsection{Generation Lemmata}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{theorem}
+    The following generation lemmata are valid
+    \begin{enumerate}
+    \item
+        $$
+        \ruleh {
+            \Gamma \vdash s_1 : T
+        }
+        {
+            \exists
+                s_2.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash s_1: s_2
+                    \\
+                    s_2 \le T
+                \end{array}
+                \right]
+        }
+        $$
+
+    \item
+        $$
+        \ruleh {
+            \Gamma \vdash x : T
+        }
+        {
+            \Gamma x \le T
+        }
+        $$
+        where $\Gamma x$ is the type of $x$ in the context $\Gamma$.
+
+    \item % product
+        $$
+        \ruleh {
+            \Gamma \vdash (\Pi x^A. B) : T
+        }
+        {
+            \exists
+                s_1, s_2.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash A: s_1
+                    \\
+                    \Gamma, x^A \vdash B: s_2
+                    \\
+                    (s_2 = \Prop \lor s_1 = s_2) \land s_2 \le T
+                \end{array}
+                \right]
+        }
+        $$
+
+    \item % abstraction
+        $$
+        \ruleh {
+            \Gamma \vdash (\lambda x^A. e) : T
+        }
+        {
+            \exists
+                B, s.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash (\Pi x^A. B): s
+                    \\
+                    \Gamma, x^A \vdash e: B
+                    \\
+                    \Pi x^A.B \le T
+                \end{array}
+                \right]
+        }
+        $$
+
+    \item % application
+        $$
+        \ruleh {
+            \Gamma \vdash f a : T
+        }
+        {
+            \exists
+                A, B.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash f: \Pi x^A. B
+                    \\
+                    \Gamma \vdash a: A
+                    \\
+                    B[x:=a] \le T
+                \end{array}
+                \right]
+        }
+        $$
+    \end{enumerate}
+
+    \begin{proof}
+        Premise in all lemmata is the validity of $\Gamma \vdash t: T$ where $t$
+        is either a sort, a variable, an application, a product or an
+        abstraction. The proof is done by induction on $\Gamma \vdash t: T$.
+
+        Only one of the introduction rules is valid. For the corresponding
+        introduction rule the proof of the goal is trivial.
+
+        The weakening rule modifies neither the term $t$ nor its type $T$.
+        Therefore the goal is proved by the corresponding induction hypothesis.
+
+        The reduction rule modifies the type from the type $T$ to another type
+        $U$ with $T \equiv U$. Since $T \equiv U$ implies $T \le U$ the goal can
+        be concluded from the induction hypothesis.
+
+        The subtype rule modifies the type from the type $T$ to another type $U$
+        with $T \prec U$. Since $T \prec U$ implies $T \le U$ the goal can be
+        concluded from the induction hypothesis.
+    \end{proof}
+\end{theorem}
+
+
+
+\subsection{Uninhabited Types}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+There are types which cannot be inhabited by a term in normal form in the empty
+context.
+
+\begin{theorem}
+    \emph{The type $\Pi X^s. X$ cannot be inhabited by a term in normal form
+    (i.e. a term with no redexes) in the empty context.}
+    $$
+    \ruleh {
+        [] \vdash t: \Pi X^s. X
+        \\
+        t \text{ is in normal form}
+    }
+    {
+        \perp
+    }
+    $$
+
+    \begin{proof}
+        We prove this theorem by induction on the structure of $t$.
+        \begin{enumerate}
+        \item $t$ is the sort $s_1$:
+
+            By the generation lemma we postulate the existence of a sort $s_2$
+                with $[] \vdash s_1: s_2 \land s_2 \le \Pi X^s. X$. This is
+                contradictory because $s_2 \le \Pi X^s.X$ is imposible.
+
+        \item $t$ is a variable:
+            This is impossible, because the context is empty.
+
+        \item $t$ is a product:
+            This is impossible. The type of a product is always a sort and never
+                a product.
+
+        \item $t$ is an application:
+
+            If $t$ is an application it must have the form $h a_0 a_1 \ldots$
+                where the head term $h$ is neither an application nor a sort nor
+                a product. Therefore the head term must be either a variable or
+                an abstraction. It cannot be a variable, because the context is
+                empty. It cannot be an abstraction, because the term is in
+                normal form and therefore cannot have the redex $h a_0$.
+
+        \item $t$ is the abstraction $\lambda x^A. e$:
+
+            By the generation lemma we postulate the existence of $s_2$ and $B$
+                with
+                $$
+                \begin{array}{l}
+                    [] \vdash \Pi x^A. B: s_2
+                    \\
+                    \text{$[x^A]$} \vdash e: B
+                    \\
+                    \Pi x^A. B \le \Pi X^s. X
+                \end{array}
+                $$
+
+                Because of the last statement we conclude $x = X$, $A \equiv s$
+                and $B \le X$ where the latter implies $B = X$. I.e. we have
+                lead the existence of $e$ with $[X^A] \vdash e: X$ to a
+                contradiction.
+
+                We prove this claim by induction on the structure of $e$.
+                \begin{enumerate}
+                \item $e$ is a sort:
+
+                    This is impossible, because the type of a sort cannot be a
+                        variable.
+
+                \item $e$ is a variable: The only variable in the context is
+                    $X$. By the generation lemma we know that $A \le X$. By
+                        definition of $\le$ this is possible only if $A \equiv
+                        X$ which implies $X \equiv s$ which is contradictory.
+                \end{enumerate}
+        \end{enumerate}
+    \end{proof}
+\end{theorem}

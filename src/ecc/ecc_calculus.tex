@@ -1,0 +1,914 @@
+\section{Typed Lambda Calculus}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+\subsection{Sorts}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+In the extended calculus of constructions terms and types are in the same
+syntactic category. All welldefined terms have types and therefore types must
+have types as well. In order to have types for types we start with the
+introduction of sorts which are the types of types.
+
+\begin{definition}
+    \emph{Sorts:}
+    There is
+    \begin{itemize}
+        \item the propositional sort $\Prop$ (sometimes written as $\Any_{-1}$)
+    \item and the countably infinte collection of
+    non-propositional sorts $\Any_i$ for $0 \le i$.
+    \end{itemize}
+
+    Sorts or universes are the types of types. Sorts are usually abbreviated by
+    the variable $s$.
+\end{definition}
+
+
+
+
+
+\subsection{Terms}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}
+    The \emph{terms} are defined by the grammar where $s$ ranges over sorts, $x$
+    ranges over some countably infinite set of variables and $t$ ranges over
+    terms.
+    $$
+    \begin{array}{llll}
+        t
+
+        &::=& s & \text{sorts}
+
+        \\
+
+        &\mid & x & \text{variable}
+
+        \\
+
+        &\mid & \Pi x^t. t & \text{product}
+
+        \\
+
+        &\mid & \lambda x^t. t & \text{abstraction}
+
+        \\
+
+        &\mid & t t & \text{application}
+    \end{array}
+    $$
+\end{definition}
+
+
+
+
+
+
+
+\subsection{Contexts}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{definition}
+    A \emph{context} is a sequence of variables and their corresponding types.
+    Contexts are usually abbreviated by upper greek letters and types are terms
+    which are usually abbreviated by uppercase letters.
+
+    Contexts are defined by the grammar
+    $$
+    \begin{array}{llll}
+        \Gamma
+        &:=& [] & \text{empty context}
+
+        \\
+
+        &\mid& \Gamma, x^A & \text{one more variable $x$ with its type $A$}
+    \end{array}
+    $$
+\end{definition}
+
+
+
+
+
+
+
+\subsection{Free Variables}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}
+    The set of \emph{free variables} $\FV t$ of a term $t$ is defined by the function
+    $$
+    \FV t :=
+        \begin{cases}
+            \FV s &:= \emptyset
+
+            \\
+
+            \FV x &:= \{ x \}
+
+            \\
+
+            \FV (a b) &:= \FV a \cup \FV b
+
+            \\
+
+            \FV (\lambda x^A. e) &:= \FV A \cup (\FV e - \{x\})
+
+            \\
+
+            \FV (\Pi x^A. B) &:= \FV A \cup (\FV B - \{x\})
+        \end{cases}
+    $$
+    where $s$ ranges over sorts, $x$ ranges over variables and $a$, $b$,
+    $e$, $A$ and $B$ range over arbitrary terms.
+\end{definition}
+
+A variable which is not free is called a bound variable. E.g. if $x$ is a free
+variable in the term $e$, it is no longer free in $\lambda x^A. e$. Therefore we
+call $\lambda x^A. e$ a binder, because it makes the variable $x$ bound. The
+same applies to the term $\Pi x^A. B$  where the variable $x$ is bound, but can
+appear free in $B$.
+
+
+It is possible to rename bound variables within a term. The renaming of a bound
+variable does not change the term. We consider two terms which only differ in
+the name of bound variables as identical. Examples of some identical terms:
+$$
+\begin{array}{lll}
+    \lambda x^\Prop. x  &=& \lambda y^\Prop. y
+
+    \\
+
+    \Pi x^{\Any_5}. x   &=& \Pi y^{\Any_5}. y
+\end{array}
+$$
+
+
+
+\subsection{Substitution}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{definition}
+    \emph{Substitution:}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    The term $t[y:=c]$ is the term $t$ where the term $c$ is substituted for all
+    free occurrences of the variable $y$. It is defined as a recursive function
+    which iterates over all subterms until variables or sorts are encountered.
+    $$
+    t[y:=c] :=
+        \begin{cases}
+            s[y:=c] &:= s
+
+            \\
+
+            y[y:=c] &:= c
+
+            \\
+
+            x[y:=c] &:= x \quad \text{if } x \ne y
+
+            \\
+
+            (a b)[y:=c] &:= a[y:=c] b[y:=c]
+
+            \\
+
+            (\lambda x^A . e)[y:=c]
+            &:=
+            \lambda x^{A[y:=c]}. e[y:=c]
+                \quad \text{if } x \notin \FV c
+
+            \\
+
+            (\Pi x^A . B)[y:=c]
+            &:=
+            \Pi x^{A[y:=c]}. B[y:=c]
+                \quad \text{if } x \notin \FV c
+        \end{cases}
+    $$
+\end{definition}
+The condition $x \notin \FV c$ is not a restriction, because the bound variable
+$x$ can always be renamed to annother variable which does not occur free in the
+term $c$.
+
+
+
+
+
+\subsection{Beta Reduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Like in untyped lambda calculus, computation is done via \emph{beta reduction}.
+A beta redex has the form $(\lambda x^A. e) a$ which reduces to the reduct
+$e[x:=a]$. Beta reduction can be done in any subterm of a term.
+
+\begin{definition}
+    \emph{Beta reduction}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    is a binary relation $a \reduce b$ where the term $a$
+    reduces to the term $b$. It is defined by the rules
+    \begin{description}
+
+        \item[redex]
+            $$
+                (\lambda x^A. e) a \reduce e[x:=a]
+            $$
+
+        \item[reduce function]
+            $$
+                \ruleh{
+                    f \reduce g
+                }
+                {
+                    f a \reduce g a
+                }
+            $$
+
+        \item[reduce argument]
+            $$
+                \ruleh{
+                    a \reduce b
+                }
+                {
+                    f a \reduce f b
+                }
+            $$
+
+        \item[reduce abstraction type]
+            $$
+                \ruleh{
+                    A \reduce B
+                }
+                {
+                    \lambda x^A. e \reduce \lambda x^B . e
+                }
+            $$
+
+        \item[reduce abstraction term]
+            $$
+                \ruleh{
+                    e \reduce f
+                }
+                {
+                    \lambda x^A. e \reduce \lambda x^A. f
+                }
+            $$
+
+        \item[reduce product type]
+            $$
+                \ruleh{
+                    A \reduce B
+                }
+                {
+                    \Pi x^A. C \reduce \Pi x^B . C
+                }
+            $$
+
+        \item[reduce product result]
+            $$
+                \ruleh{
+                    B \reduce C
+                }
+                {
+                    \Pi x^A. B \reduce \Pi x^A. C
+                }
+            $$
+    \end{description}
+\end{definition}
+
+
+
+\begin{theorem}
+    \label{DoubleSubstitution}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+    \emph{Double substitution lemma} If we change the order of two subsequent
+    substitutions, then it is necessary to introduce a correction term.
+    $$
+    \ruleh{
+        x \ne y
+        \\
+        y \notin \FV a
+    }
+    {
+        t[y:=b][x:=a]
+        =
+        t[x:=a][y:=b[x:=a]]
+    }
+    $$
+    \begin{proof}
+        The intuitive proof is quite evident. If we substitute $b$ for the
+        variable $y$ in the term $t$ and then substitute $a$ for the variable
+        $x$ in the result we replace in the second substitution not only all
+        variables $x$ originally contained in $t$ but all occurrences of $x$ in
+        $b$ as well.
+
+        If we do the substitution $[x:=a]$ on $t$, then all occurrences of $x$ in $b$
+        have not yet been substituted. Therefore the correction term $b[x:=a]$
+        is necessary if the order is changed.
+
+        The formal proof goes by induction on the structure of $t$.
+
+        \begin{enumerate}
+
+            \item If $t$ is a sort then the equality is trivial because a sort
+                does not have any variables.
+
+            \item If $t$ is an application, an abstraction or a product, then
+                the goal follows immediately from the induction hypotheses.
+
+            \item The only interesting case is when $t$ is a variable. Let's
+                call the variable $z$. Then we have to distinguish the cases
+                that $z$ is $x$ or $z$ is $y$ or $z$ is different from $x$ and
+                $y$.
+
+                \begin{enumerate}
+                    \item Case $z = x$:
+                        $$
+                        \begin{array}{llll}
+                            x[y:=b][x:=a]
+                            &=& x[x:=a]
+                            \\
+                            &=& a
+                            \\
+                            \\
+                            x[x:=a][y:=b[x:=a]]
+                            &=& a[y:=b[x:=a]]
+                            \\
+                            &=& a & y \notin \FV a
+                        \end{array}
+                        $$
+
+                    \item Case $z = y$:
+                        $$
+                        \begin{array}{llll}
+                            y[y:=b][x:=a]
+                            &=& b[x:=a]
+                            \\
+                            \\
+                            y[x:=a][y:=b[x:=a]]
+                            &=& y[y:=b[x:=a]]
+                            \\
+                            &=&b[x:=a]
+                        \end{array}
+                        $$
+
+                    \item Case $z \ne x \land z \ne y$:
+                        $$
+                        \begin{array}{llll}
+                            z[y:=b][x:=a]
+                            &=& z
+                            \\
+                            \\
+                            z[x:=a][y:=b[x:=a]]
+                            &=& z
+                        \end{array}
+                        $$
+
+                \end{enumerate}
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+The validity of the
+\emph{double substitution lemma}~\ref{DoubleSubstitution}
+is needed to make sure that \emph{beta
+reduction} is confluent. E.g. if we have the term
+$(\lambda x^A. (\lambda y^B. t) b) a$ then we can decide whether we reduce first
+the inner redex and then the outer redex or the other way round. Because of
+confluence both possibilities shall have the same result.
+$$
+\begin{array}{llll}
+    (\lambda x^A. (\lambda y^B. t) b) a
+    &\reduce& (\lambda x^A. t[y:=b]) a
+    \\
+    &\reduce& t[y:=b][x:=a]
+    \\
+    \\
+    (\lambda x^A. (\lambda y^B. t) b) a
+    &\reduce& (\lambda y^B. t[x:=a]) b[x:=a]
+    \\
+    &\reduce& t[x:=a][y:=b[x:=a]]
+\end{array}
+$$
+
+
+\begin{theorem}
+    \label{SubstituteReduction}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \emph{Substitute Reduction} A reduction remains valid if we do the same
+    substitution before and after the reduction.
+    $$
+    \ruleh{
+        t \reduce u
+    }
+    {
+        t[y:=v] \reduce u[y:=v]
+    }
+    $$
+
+    \begin{proof}
+        Proof by induction on $t \reduce u$.
+
+
+        \begin{enumerate}
+
+        \item Redex: We have to prove the goal
+            $$
+                ((\lambda x^A. e) a)[y:=v] \reduce e[x:=a][y:=v]
+            $$
+
+            We can see this by the sequence
+            $$
+            \begin{array}{lll}
+                ((\lambda x^A. e) a)[y:=v]
+                &=&
+                (\lambda x^{A[y:=v]}. e[y:=v]) a[y:=v]
+                \\
+                &\reduce&
+                e[y:=v][x:=a[y:=v]]
+                \\
+                &=& \text{Double substitution lemma~\ref{DoubleSubstitution}}
+                \\
+                &&e[x:=a][y:=v]
+            \end{array}
+            $$
+
+        \item Reduce function: We have to prove the goal
+            $$
+            \begin{array}{l|l}
+                f \reduce g
+                & f[y:=v] \reduce g[y:=v]
+                \\
+                \hline
+                f a \reduce g a
+                &(f a)[y:=v] \reduce (g a)[y:=v]
+            \end{array}
+            $$
+            The validity of the final goal in the right lower corner can be seen
+            by the following reasoning
+            $$
+            \begin{array}{lll}
+                (f a)[y:=v]
+                &=&
+                f[y:=v] a[y:=v]
+                \\
+                &\reduce&
+                g[y:=v] a[y:=v]
+                \\
+                &=&
+                (g a)[y:=v]
+            \end{array}
+            $$
+
+        \item Other rules: All other rules follow the same pattern as the proof
+            of the rule \emph{reduce function}.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\subsection{Beta Equivalence}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{definition}
+    We define \emph{beta equivalence} as a binary relation $a \equiv b$ between
+    the terms $a$ and $b$ inductively by the rules
+    \begin{enumerate}
+    \item
+        $$ a \equiv a$$
+
+    \item
+        $$
+        \rulev
+        {
+            a \equiv b
+            \\
+            b \reduce c
+        }
+        {
+            a \equiv c
+        }
+        $$
+
+    \item
+        $$
+        \rulev
+        {
+            a \equiv b
+            \\
+            c \reduce b
+        }
+        {
+            a \equiv c
+        }
+        $$
+    \end{enumerate}
+
+    In other words the beta equivalence relation $\equiv$ is the smallest
+    equivalence relation which contains beta reduction $\reduce$.
+\end{definition}
+
+
+
+
+
+
+
+
+\subsection{Cumulativity / Subtyping}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{definition}
+    We define the
+    %
+    \emph{predecessor relation}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %
+    $A \prec_i B$ between the terms $A$
+    and $B$ with the arity $i$ inductively by the following rules
+    \begin{enumerate}
+    \item
+        $$
+        \ruleh {
+            -1 \le k < l
+        }
+        {
+            \Any_k \prec_0 \Any_l
+        }
+        $$
+
+    \item
+        $$
+        \ruleh {
+            B \prec_i C
+        }
+        {
+            \Pi x^A. B \prec_{i+1} \Pi x^A. C
+        }
+        $$
+    \end{enumerate}
+\end{definition}
+
+
+
+
+\begin{lemma}
+    %\label{PrecedenceSameArity}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%
+    $$
+    \ruleh{
+        A \prec_i B
+        \\
+        B \prec_j C
+    }
+    {
+        i = j
+    }
+    $$
+
+    \begin{proof}
+        Proof by induction on $A \prec_i B$
+        \begin{enumerate}
+        \item
+            $$
+            \begin{array}{l|l}
+                -1 \le k < l
+                \\
+                \hline
+                \Any_k \prec_0 \Any_l
+                &
+                \forall C. \ruleh{\Any_l \prec_j C}{0 = j}
+            \end{array}
+            $$
+            We prove the goal in the right lower corner by making a case split
+            on the construction of $\Any_l \prec_j C$. Only the first case
+            is possible with the trivial goal $0 = 0$. The second case is
+            syntactically impossible because $\Any_l$ cannot have the form
+            $\Pi x^A. R$.
+
+        \item
+        $$
+            \begin{array}{l|l}
+                B \prec_i C
+                &
+                \forall k E. \ruleh{C \prec_k E}{i = k}
+                \\
+                \hline
+                \Pi x^A.B \prec_{i+1} \Pi x^A. C
+                &
+                \forall D. \ruleh{\Pi x^A. C \prec_j D}{i+1 = j}
+            \end{array}
+        $$
+        We prove the goal in the right lower corner by making a case split on
+        the construction of $\Pi x^A.C \prec_j D$.
+
+        The first case is syntactically impossible. In the second case we
+        construct $\Pi x^A. C \prec_{k+1} \Pi x^A. E$ where $j = k + 1$ and $D =
+        \Pi x^A. E$ under the premise $C \prec_k E$.
+
+        From the induction hypothesis we infer $k = i$ which implies the final
+        goal $i + 1 = j$.
+        \end{enumerate}
+    \end{proof}
+\end{lemma}
+
+
+
+
+
+
+\begin{lemma}
+    \label{PrecedenceSameArity}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%
+    $$
+    \ruleh{
+        A \prec_i B
+        \\
+        C \prec_j D
+        \\
+        B \betaeq C
+    }
+    {
+        i = j
+    }
+    $$
+
+    \begin{proof}
+        Proof by induction on $A \prec_i B$
+        \begin{enumerate}
+        \item
+            $$
+            \begin{array}{l|l}
+                -1 \le k < l
+                \\
+                \hline
+                \Any_k \prec_0 \Any_l
+                &
+                \forall C D.
+                \left[
+                \ruleh{
+                    C \prec_j D
+                    \\
+                    \Any_l \betaeq C
+                }
+                {0 = j}
+                \right]
+            \end{array}
+            $$
+            We prove the goal in the right lower corner by making a case split
+            on the construction of $C \prec_j D$. Only the first case
+            is possible with the trivial goal $0 = 0$. The second case is
+            impossible because $\Any_l \betaeq \Pi x^A. R$ cannot be the case.
+
+        \item
+        $$
+            \begin{array}{l|l}
+                B \prec_i C
+                &
+                \forall k F G.
+                \left[
+                \ruleh{F \prec_k G \\ C \betaeq F}{i = k}
+                \right]
+                \\
+                \hline
+                \Pi x^A.B \prec_{i+1} \Pi x^A. C
+                &
+                \forall j D E.
+                \left[
+                \ruleh{
+                    D \prec_j E
+                    \\
+                    \Pi x^A. C \betaeq D
+                }
+                {i+1 = j}
+                \right]
+            \end{array}
+        $$
+        We prove the goal in the right lower corner by making a case split on
+        the construction of $D \prec_j E$.
+
+        The first case is impossible, because $\Pi x^A. B$ cannot be beta
+        equivalent to a sort.
+
+        In the second case we construct $D \prec_j E$ as
+        $\Pi x^{A'}. F \prec_{k+1} \Pi x^{A'}. G$ where $j = k + 1$,
+        $D = \Pi x^{A'}. F$ and $E = \Pi x^{A'}. G$
+        under the premise $F \prec_k G$.
+
+        The condition $\Pi x^A. C \betaeq D$ becomes $\Pi x^A.C \betaeq \Pi
+        x^{A'}. F$ which implies $A \betaeq A'$ and $C \betaeq F$.
+
+        From the induction hypothesis we infer $i = k$ which implies the final
+        goal $i + 1 = j$.
+        \end{enumerate}
+    \end{proof}
+\end{lemma}
+
+
+
+
+
+
+
+
+\begin{definition}
+    \emph{Proper Subtype}
+    $A$ is a proper subtype of $B$ written as $A <_i B$ where $i$ is the arity
+    of $A$ and $B$ if and only if the
+    following rule is satisfied
+    $$
+    \rulev{
+        A \betaeq A'
+        \\
+        A' \prec_i B'
+        \\
+        B' \betaeq B
+    }
+    {
+        A <_i B
+    }
+    $$
+\end{definition}
+
+
+\begin{lemma}
+    \label{ProperSubtypeSameArity}
+    $$
+    \ruleh {A <_i B \\ B <_j C}{i = j}
+    $$
+    \begin{proof}
+        INCOMPLETE INCOMPLETE
+
+        $A <_i B$ requires the existence of $A'$ and $B'$ with $A \betaeq A'$,
+        $B' \betaeq B$ and $A' \prec_j B'$.
+    \end{proof}
+\end{lemma}
+
+
+
+\begin{definition}
+    \emph{Subtype}
+    \begin{enumerate}
+    \item
+        $$
+        \ruleh {
+            A \betaeq B
+        }
+        {
+            A \le B
+        }
+        $$
+
+    \item
+        $$
+        \ruleh {
+            A <_i B
+        }
+        {
+            A \le B
+        }
+        $$
+    \end{enumerate}
+\end{definition}
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Typing Relation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{definition}
+    The ternary \emph{typing relation} $\Gamma \vdash t: T$ which says that in
+    the context $\Gamma$ then term $t$ has type $T$ is defined inductively by
+    the rules
+    \begin{enumerate}
+    \item Introduction rules:
+        \begin{enumerate}
+            \item Axiom:
+                $$
+                \ruleh
+                {i \in \{-1, 0, 1, 2, 3, \ldots \}}
+                { [] \vdash \Any_i : \Any_{i + 1}}
+                $$
+
+        \item Variable:
+            $$
+            \rulev {
+                \Gamma \vdash A: s
+                \\
+                x \notin \Gamma
+            }
+            {
+                \Gamma, x^A \vdash x: A
+            }
+            $$
+
+        \item Product:
+            $$
+            \rulev {
+                \Gamma \vdash A: s_1
+                \\
+                \Gamma, x^A \vdash B: s_2
+                \\
+                s_1 = s_2 \lor s_p = \Prop
+            }
+            {
+                \Gamma \vdash \Pi x^A.B : s_2
+            }
+            $$
+
+        \item Abstraction:
+            $$
+            \rulev {
+                \Gamma \vdash \Pi x^A. B: s
+                \\
+                \Gamma, x^A \vdash e: B
+            }
+            {
+                \Gamma \vdash (\lambda x^A. e): \Pi x^A. B
+            }
+            $$
+
+        \item Application:
+            $$
+            \rulev {
+                \Gamma \vdash f: \Pi x^A. B
+                \\
+                \Gamma \vdash a: A
+            }
+            {
+                \Gamma \vdash f a: B[x:=a]
+            }
+            $$
+        \end{enumerate}
+
+
+    \item Structural rules:
+        \begin{enumerate}
+        \item Weaken:
+            $$
+            \rulev {
+                \Gamma \vdash t: T
+                \\
+                \Gamma \vdash A: s
+                \\
+                x \notin \Gamma
+            }
+            {
+                \Gamma \vdash t: T
+            }
+            $$
+
+        \item Reduction:
+            $$
+            \rulev {
+                \Gamma \vdash t: T
+                \\
+                \Gamma \vdash U: s
+                \\
+                T \reduce U \lor U \reduce T
+            }
+            {
+                \Gamma \vdash t: U
+            }
+            $$
+
+        \item Subtype:
+            $$
+            \rulev {
+                \Gamma \vdash t: T
+                \\
+                \Gamma \vdash U: s
+                \\
+                T \prec U
+            }
+            {
+                \Gamma \vdash t: U
+            }
+            $$
+        \end{enumerate}
+
+    \end{enumerate}
+\end{definition}

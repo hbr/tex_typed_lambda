@@ -1,0 +1,154 @@
+\section{Quasinormalization}
+
+
+
+
+
+\subsection{Levels}
+
+To motivate the definition of levels let's consider the following reduction
+$$
+    (\lambda x^{\Any_i}. x) \Prop \reduce \Prop
+$$
+where the left hand side and the right hand side have the minimal sorts
+$$
+    \begin{array}{lll}
+        (\lambda x^{\Any_i}) \Prop &:& \Any_i
+        \\
+        \Prop &:& \Any_0
+    \end{array}
+$$
+I.e. the minimal sort can go down via beta reduction. However we want to
+characterize a type by a sort/universe which is independent of reduction.
+
+
+\begin{definition}
+    A \emph{level} $l$ is a set of sorts which is upper closed i.e.
+    $$
+    \rulev{s_1 \in l \\ s_1 \le s_2}{s_2 \in l}
+    $$
+\end{definition}
+
+Because levels are upper closed, a level which is a superset of another level
+must contain extra sorts which are lower than the other level.
+
+We define the following levels
+$$
+\begin{array}{lll}
+    l_\Prop &:=& \{\Prop, \Any_0, \Any_1, \ldots\}
+    \\
+    l_{\Any_0} &:=& \{ \Any_0, \Any_1, \Any_2 \ldots \}
+    \\
+    \ldots
+    \\
+    l_{\Any_i} &:=& \{ \Any_i, \Any_{i+1}, \Any_{i+2}, \ldots \}
+\end{array}
+$$
+with
+$$
+    l_\Prop \supseteq \Any_0 \supseteq \Any_1 \ldots
+$$
+
+
+\begin{definition}
+    The level $\Level T$ of a type $T$ is the set of all sorts/universes it
+    lives in modulo reduction.
+
+    The relation $\Level$ is defined inductively by the rule
+    $$
+    \rulev
+    {
+        \Gamma \vdash B: s_1
+        \\
+        \Gamma \vdash C: s
+        \\
+        B \reducestar C
+    }
+    {\Level B s}
+    $$
+    where $\Level T s$ means that $s$ in the level of the type $T$.
+\end{definition}
+
+The so defined level is really a level i.e. upperclosed because of the
+cumulativity.
+
+
+\begin{theorem}
+    \emph{Typesafe substitution does not increase the level of a type}.
+    $$
+    \rulev
+    {
+        \Gamma \vdash a: A
+        \\
+        \Gamma, x^A, \Delta \vdash B: s
+    }
+    {\Level B \subseteq \Level B[x:=a]}
+    $$
+
+
+    \begin{proof}
+    \begin{enumerate}
+        \item We have to proof that all sorts $s$ with $\Level B s$ satisfy
+        $\Level B[x:=a] s$.
+
+        \item In order for $\Level B s$ to be valid there exists a type $C$ with $B
+        \reducestar C$ and $\Gamma, x^A, \Delta \vdash B: s$.
+
+        \item By the substition lemma we get $\Gamma, \Delta[x:=a] \vdash C[x:=a]: s$.
+
+        \item Since reduction and substitution are compatible
+            (Lemma~\ref{SubstituteReduction})
+            we can conclude $B[x:=a]
+        \reducestar C[x:=a]$  from $B \reducestar C$.
+
+        \item Therefore by definition $\Level B[x:=a] s$ is valid.
+    \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+\begin{definition}
+    The level $\ell t$ of a term $t$ is the union of all the levels of its
+    types. The term level is defined by the rule
+    $$
+    \rulev{
+        \Gamma \vdash t: T
+        \\
+        \Level T s
+    }
+    {
+        \ell t s
+    }
+    $$
+\end{definition}
+
+For term levels we use the same ordering as for type levels.
+
+
+\begin{theorem}
+    The term level $\ell f$ of the function term of an application $f a$ where
+    $f a$ is a valid term in some context $\Gamma$ is a subset of the term level
+    of the application
+    $$
+    \ell f \subseteq \ell (f a)
+    $$
+
+    \begin{proof}
+
+        We have to prove that $\ell f s$ implies $\ell (f a) s$ for all sorts $s$.
+
+        MISSING
+    \end{proof}
+\end{theorem}
+
+
+\subsection{Quasinormalization}
+
+
+\begin{theorem}
+    \label{quasinormalization}
+    \emph{Quasinormalization theorem}
+
+    MISSING!!
+\end{theorem}
