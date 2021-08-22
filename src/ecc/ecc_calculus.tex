@@ -529,7 +529,37 @@ $$
 \subsection{Cumulativity / Subtyping}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+In this section we want to define a subtype relation $A \le B$ (read $A$ is a
+subtype of $B$) which is a partial order (reflexive, transitive and
+antisymmetric) with respect to beta equivalent terms.
 
+Furthermore we want a proper subtype relation $A < B$ (read $A$ is a proper
+subtype of $B$) which is a strict partial order (irreflexive and transitive)
+with respect to beta equivalence.
+
+In the partial orders we regard beta equivalent terms as the same terms.
+
+In order to define the partial orders we first define the prececessor relation
+$A \prec_i B$ saying that type $A$ is a predecessor of type $B$ and both have
+the arity $i$. In the predecessor relation we consider only terms of the form
+$\Pi \vec{x}^\vec{A}. s$ where $s$ is a sort i.e. it has the form $\Any_k$ with
+$-1 \le k$. Only terms with identical arguments and same arity figure in the
+predecessor relation i.e. $\Pi \vec{x}^\vec{A}. \Any_k \prec_i \Pi
+\vec{x}^\vec{A}. \Any_l$ if $k < l$ and $i$ is the number of arguments.
+
+Based on this we define the proper subtype relation $A <_i B$ saying that $A$ is
+a proper subtype of $B$ and both are beta equivalent to some terms $A'$ and $B'$
+which figure in the predecessor relation with arity $i$ and are beta equivalent
+to $A$ and $B$ respectively.
+
+By ignoring the arity we get the proper subtype relation $A < B$ and by adding
+reflexivity with respect to beta equivalence we get the subtype relation $A \le
+B$.
+
+
+
+
+\subsubsection{Predecessor Relation}
 
 \begin{definition}
     We define the
@@ -561,69 +591,6 @@ $$
         $$
     \end{enumerate}
 \end{definition}
-
-
-
-
-\begin{lemma}
-    %\label{PrecedenceSameArity}
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%
-    $$
-    \ruleh{
-        A \prec_i B
-        \\
-        B \prec_j C
-    }
-    {
-        i = j
-    }
-    $$
-
-    \begin{proof}
-        Proof by induction on $A \prec_i B$
-        \begin{enumerate}
-        \item
-            $$
-            \begin{array}{l|l}
-                -1 \le k < l
-                \\
-                \hline
-                \Any_k \prec_0 \Any_l
-                &
-                \forall C. \ruleh{\Any_l \prec_j C}{0 = j}
-            \end{array}
-            $$
-            We prove the goal in the right lower corner by making a case split
-            on the construction of $\Any_l \prec_j C$. Only the first case
-            is possible with the trivial goal $0 = 0$. The second case is
-            syntactically impossible because $\Any_l$ cannot have the form
-            $\Pi x^A. R$.
-
-        \item
-        $$
-            \begin{array}{l|l}
-                B \prec_i C
-                &
-                \forall k E. \ruleh{C \prec_k E}{i = k}
-                \\
-                \hline
-                \Pi x^A.B \prec_{i+1} \Pi x^A. C
-                &
-                \forall D. \ruleh{\Pi x^A. C \prec_j D}{i+1 = j}
-            \end{array}
-        $$
-        We prove the goal in the right lower corner by making a case split on
-        the construction of $\Pi x^A.C \prec_j D$.
-
-        The first case is syntactically impossible. In the second case we
-        construct $\Pi x^A. C \prec_{k+1} \Pi x^A. E$ where $j = k + 1$ and $D =
-        \Pi x^A. E$ under the premise $C \prec_k E$.
-
-        From the induction hypothesis we infer $k = i$ which implies the final
-        goal $i + 1 = j$.
-        \end{enumerate}
-    \end{proof}
-\end{lemma}
 
 
 
@@ -720,9 +687,140 @@ $$
 
 
 
+\begin{lemma}
+    \label{PrecedenceIrreflexive}
+    $$\ruleh {A \prec_i B \\ B \betaeq A}{\perp}$$
+
+    \begin{proof}
+        Proof by induction on $A \prec_i B$.
+
+        \begin{enumerate}
+        \item
+        $$
+            \begin{array}{l|l}
+                -1 \le k < l
+                \\
+                \hline
+                \Any_k \prec_0 \Any_l
+                &
+                \Any_l \betaeq \Any_k \imp \perp
+            \end{array}
+        $$
+        $\Any_k$ and $\Any_l$ cannot be beta equivalent for different $k$ and $l$
+
+
+        \item
+        $$
+            \begin{array}{l|l}
+                B \prec_i C
+                &
+                C \betaeq B \imp \perp
+                %
+                \\
+                \hline
+                %
+                \Pi x^A. B \prec_{i+1} \Pi x^A. C
+                &
+                \Pi x^A. C \betaeq \Pi x^A. B \imp \perp
+            \end{array}
+        $$
+        To prove the goal in the right lower corner we assume $\Pi x^A. C
+        \betaeq \Pi x^A.B$. This can be the case only if $C$ and $B$ are
+        beta equivalent. From the induction hypothesis we immediately
+        get the contradiction.
+        \end{enumerate}
+    \end{proof}
+\end{lemma}
 
 
 
+\begin{lemma}
+    \label{PrecedenceNonCircular}
+    $$
+    \ruleh
+    {
+        A \prec_i B
+        \\
+        B' \prec_i A'
+        \\
+        A \betaeq A'
+        \\
+        B \betaeq B'
+    }
+    {\perp}
+    $$
+    \begin{proof} Proof by induction on $A \prec_i B$.
+        \begin{enumerate}
+        \item
+            $$
+            \begin{array}{l|l}
+                -1 \le k < l
+                \\
+                \hline
+                \Any_k \prec_0 \Any_l
+                &
+                \ruleh {
+                    B' \prec_0 A'
+                    \\
+                    A' \betaeq \Any_l
+                    \\
+                    B' \betaeq \Any_k
+                }
+                {\perp}
+            \end{array}
+            $$
+            $B' \prec_0 A'$ is possible only if $B' = \Any_n$ and $A' = \Any_m$
+            with $-1 \le n < m$. From the beta equivalences we get $k = m$ and
+            $l = n$ which are impossible to satisfy because of $k < l$ and $n <
+            m$.
+
+        \item
+            $$
+            \begin{array}{l|l}
+                B \prec_i C
+                &
+                \forall B' C'.
+                \left[
+                    \ruleh{
+                        C' \prec_i B'
+                        \\
+                        C' \betaeq C
+                        \\
+                        B' \betaeq B
+                    }
+                    {\perp}
+                \right]
+                \\
+                \hline
+                \Pi x^A. B \prec_{i+1} \Pi x^A. C
+                &
+                \ruleh {
+                    D \prec_{i+1} E
+                    \\
+                    D \betaeq \Pi x^A. C
+                    \\
+                    E \betaeq \Pi x^A. B
+                }
+                {\perp}
+            \end{array}
+            $$
+            Because of $D \prec_{i+1} E$ there are some $A'$, $B'$ and $C'$
+            with $C' \prec_i B'$, $D = \Pi x^{A'}. C'$ and $E = \Pi x^{A'}. B'$.
+            The beta equivalences require $C \betaeq C'$ and $B \betaeq B'$.
+
+            The induction hypothesis is therefore sufficent to arrive at the
+            contradiction.
+        \end{enumerate}
+    \end{proof}
+\end{lemma}
+
+
+
+
+
+
+
+\subsubsection{Proper Subtype Relation}
 
 \begin{definition}
     \emph{Proper Subtype}
@@ -741,7 +839,14 @@ $$
         A <_i B
     }
     $$
+    If the arity is not important we write $A < B$ to express that $A$ is a
+    proper subtype of $B$. This means that some arity $i$ exists such that $A
+    <_i B$ is valid.
 \end{definition}
+
+
+
+
 
 
 \begin{lemma}
@@ -750,13 +855,35 @@ $$
     \ruleh {A <_i B \\ B <_j C}{i = j}
     $$
     \begin{proof}
-        INCOMPLETE INCOMPLETE
-
-        $A <_i B$ requires the existence of $A'$ and $B'$ with $A \betaeq A'$,
-        $B' \betaeq B$ and $A' \prec_j B'$.
+        Let's assume $A <_i B$ and $B <_j C$. By definition of the relation
+        $<_k$ there exist some $A'$, $B'$, $B''$ and $C''$ such that the
+        following relations are valid
+        $$
+        \begin{array}{lll}
+            A &\betaeq& A'
+            \\
+            A' &\prec_i& B'
+            \\
+            B' &\betaeq& B
+            \\
+            B &\betaeq& B''
+            \\
+            B'' &\prec_j& C''
+            \\
+            C'' &\betaeq& C
+        \end{array}
+        $$
+        Since beta equivalence is transitive we get $B' \betaeq B''$. Together
+        with $A' \prec_i B'$ and $B'' \prec_j C''$ and
+        lemma~\ref{PrecedenceSameArity} we infer the goal $i = j$.
     \end{proof}
 \end{lemma}
 
+
+
+
+
+\subsubsection{Subtype Relation}
 
 
 \begin{definition}
