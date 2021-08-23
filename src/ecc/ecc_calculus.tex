@@ -309,9 +309,9 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
         variables $x$ originally contained in $t$ but all occurrences of $x$ in
         $b$ as well.
 
-        If we do the substitution $[x:=a]$ on $t$, then all occurrences of $x$ in $b$
-        have not yet been substituted. Therefore the correction term $b[x:=a]$
-        is necessary if the order is changed.
+        If we do the substitution $[x:=a]$ on $t$, then all occurrences of $x$
+        in $b$ have not yet been substituted. Therefore the correction term
+        $b[x:=a]$ is necessary if the order is changed.
 
         The formal proof goes by induction on the structure of $t$.
 
@@ -526,6 +526,11 @@ $$
 
 
 
+
+
+
+
+
 \subsection{Cumulativity / Subtyping}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -547,15 +552,13 @@ $-1 \le k$. Only terms with identical arguments and same arity figure in the
 predecessor relation i.e. $\Pi \vec{x}^\vec{A}. \Any_k \prec_i \Pi
 \vec{x}^\vec{A}. \Any_l$ if $k < l$ and $i$ is the number of arguments.
 
-Based on this we define the proper subtype relation $A <_i B$ saying that $A$ is
-a proper subtype of $B$ and both are beta equivalent to some terms $A'$ and $B'$
-which figure in the predecessor relation with arity $i$ and are beta equivalent
-to $A$ and $B$ respectively.
+Based on this we define the proper subtype relation $A < B$ saying that $A$ is a
+proper subtype of $B$ and both are beta equivalent to some terms $A'$ and $B'$
+which figure in the predecessor relation for some arity $i$ and are beta
+equivalent to $A$ and $B$ respectively.
 
-By ignoring the arity we get the proper subtype relation $A < B$ and by adding
-reflexivity with respect to beta equivalence we get the subtype relation $A \le
-B$.
-
+Finally the subtype relation $A \le B$ is defined by stating that either $A$ is
+beta equivalent to $B$ or $A$ is a proper subtype of $B$.
 
 
 
@@ -600,6 +603,8 @@ B$.
 \begin{lemma}
     \label{PrecedenceSameArity}
     %%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \emph{Subsequent predecessor relations connected by equivalent terms have
+    the same aritiy}.
     $$
     \ruleh{
         A \prec_i B
@@ -686,9 +691,150 @@ B$.
 
 
 
+\begin{lemma}
+    \label{PrecedenceTransitive}
+    \emph{The predecessor relation is transitive}
+    $$
+    \ruleh{
+        A \prec_i B
+        \\
+        B \prec_i C
+    }
+    {
+        A \prec_i C
+    }
+    $$
+    \begin{proof}
+        Trivial by induction on $A \prec_i B$.
+    \end{proof}
+\end{lemma}
+
+
+
+
+
+
+\begin{lemma}
+    \label{PrecedenceEqTransitive}
+    \emph{Subsequent predecessor relations connected by equivalent terms can be
+    joined to one predecessor relation}.
+    $$
+    \ruleh{
+        A \prec_i B
+        \\
+        B' \prec_i C'
+        \\
+        B \betaeq B'
+    }
+    {
+        \exists C. C \betaeq C' \land B \prec_i C
+    }
+    $$
+
+    \begin{proof}
+        By induction on $A \prec_i B$.
+        \begin{enumerate}
+        \item
+            $$
+            \begin{array}{l|l}
+                -1 \le k < l
+                \\
+                \hline
+                \Any_k \prec_0 \Any_l
+                &
+                \ruleh {
+                    B' \prec_0 C'
+                    \\
+                    \Any_l \betaeq B'
+                }
+                {
+                    \exists C. C \betaeq C' \land \Any_l \prec_0 C
+                }
+            \end{array}
+            $$
+
+            The only possibility to make both premises in the lower right corner
+                valid is by
+            $$
+            \begin{array}{lll}
+                B' &=& \Any_l
+                \\
+                C' &=& \Any_m
+                \\
+                l &<& m
+            \end{array}
+            $$
+            The final goal is valid by setting
+            $$
+                C = \Any_m
+            $$
+            which trivially satisfies $\Any_m \betaeq \Any_m$ and $\Any_l
+            \prec_0 \Any_m$
+
+
+        \item
+            $$
+            \begin{array}{l|l}
+                B \prec_i C
+                &
+                \forall C' D'.
+                \left[
+                    \ruleh {
+                        C' \prec_i D'
+                        \\
+                        C \betaeq C'
+                    }
+                    {
+                        \exists D. D \betaeq D' \land C \prec_i D
+                    }
+                \right]
+                \\
+                \hline
+                \Pi x^A. B \prec_{i+1} \Pi x^A.C
+                &
+                \ruleh{
+                    E' \prec_{i+1} F'
+                    \\
+                    \Pi x^A.C \betaeq E'
+                }
+                {
+                    \exists F.
+                    F \betaeq F'
+                    \land
+                    \Pi x^A. C \prec_{i+1} F
+                }
+            \end{array}
+            $$
+            From $E' \prec_{i+1} F'$ we conclude the existence of $A'$, $C'$ and
+            $D'$ such that
+            $$
+            \begin{array}{lll}
+                E' &=& \Pi x^{A'}. C'
+                \\
+                F' &=& \Pi x^{A'}. D'
+                \\
+                C' &\prec_i& D'
+            \end{array}
+            $$
+            From $\Pi x^A.C \betaeq E'$ we infer
+            $$
+                A \betaeq A' \land C \betaeq C'
+            $$
+            Then we use the induction hypothesis to infer the existence of some
+            $D$ which satisfies
+            $$
+                D \betaeq D' \land C \prec_i D
+            $$
+            Finally we use $F := \Pi x^A. D$ which satisfies the final goal.
+        \end{enumerate}
+    \end{proof}
+\end{lemma}
+
+
 
 \begin{lemma}
     \label{PrecedenceIrreflexive}
+    \emph{The predecessor relation is irreflexive}.
     $$\ruleh {A \prec_i B \\ B \betaeq A}{\perp}$$
 
     \begin{proof}
@@ -734,87 +880,6 @@ B$.
 
 
 
-\begin{lemma}
-    \label{PrecedenceNonCircular}
-    $$
-    \ruleh
-    {
-        A \prec_i B
-        \\
-        B' \prec_i A'
-        \\
-        A \betaeq A'
-        \\
-        B \betaeq B'
-    }
-    {\perp}
-    $$
-    \begin{proof} Proof by induction on $A \prec_i B$.
-        \begin{enumerate}
-        \item
-            $$
-            \begin{array}{l|l}
-                -1 \le k < l
-                \\
-                \hline
-                \Any_k \prec_0 \Any_l
-                &
-                \ruleh {
-                    B' \prec_0 A'
-                    \\
-                    A' \betaeq \Any_l
-                    \\
-                    B' \betaeq \Any_k
-                }
-                {\perp}
-            \end{array}
-            $$
-            $B' \prec_0 A'$ is possible only if $B' = \Any_n$ and $A' = \Any_m$
-            with $-1 \le n < m$. From the beta equivalences we get $k = m$ and
-            $l = n$ which are impossible to satisfy because of $k < l$ and $n <
-            m$.
-
-        \item
-            $$
-            \begin{array}{l|l}
-                B \prec_i C
-                &
-                \forall B' C'.
-                \left[
-                    \ruleh{
-                        C' \prec_i B'
-                        \\
-                        C' \betaeq C
-                        \\
-                        B' \betaeq B
-                    }
-                    {\perp}
-                \right]
-                \\
-                \hline
-                \Pi x^A. B \prec_{i+1} \Pi x^A. C
-                &
-                \ruleh {
-                    D \prec_{i+1} E
-                    \\
-                    D \betaeq \Pi x^A. C
-                    \\
-                    E \betaeq \Pi x^A. B
-                }
-                {\perp}
-            \end{array}
-            $$
-            Because of $D \prec_{i+1} E$ there are some $A'$, $B'$ and $C'$
-            with $C' \prec_i B'$, $D = \Pi x^{A'}. C'$ and $E = \Pi x^{A'}. B'$.
-            The beta equivalences require $C \betaeq C'$ and $B \betaeq B'$.
-
-            The induction hypothesis is therefore sufficent to arrive at the
-            contradiction.
-        \end{enumerate}
-    \end{proof}
-\end{lemma}
-
-
 
 
 
@@ -822,11 +887,12 @@ B$.
 
 \subsubsection{Proper Subtype Relation}
 
+
+
 \begin{definition}
     \emph{Proper Subtype}
-    $A$ is a proper subtype of $B$ written as $A <_i B$ where $i$ is the arity
-    of $A$ and $B$ if and only if the
-    following rule is satisfied
+    $A$ is a proper subtype of $B$ written as $A < B$
+    of $A$ and $B$ if the following rule is satisfied
     $$
     \rulev{
         A \betaeq A'
@@ -836,48 +902,93 @@ B$.
         B' \betaeq B
     }
     {
-        A <_i B
+        A < B
     }
     $$
-    If the arity is not important we write $A < B$ to express that $A$ is a
-    proper subtype of $B$. This means that some arity $i$ exists such that $A
-    <_i B$ is valid.
 \end{definition}
 
 
 
-
-
-
-\begin{lemma}
-    \label{ProperSubtypeSameArity}
+\begin{theorem}
+    \label{ProperSubtypeIrreflexive}
+    \emph{The proper subtype relation is irreflexive}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     $$
-    \ruleh {A <_i B \\ B <_j C}{i = j}
+    \ruleh{
+        A < B
+        \\
+        A \betaeq B
+    }
+    {\perp}
     $$
+
     \begin{proof}
-        Let's assume $A <_i B$ and $B <_j C$. By definition of the relation
-        $<_k$ there exist some $A'$, $B'$, $B''$ and $C''$ such that the
-        following relations are valid
+        By definition of the proper subtype relation there exists an arity $i$ and
+        some type $A'$ and $B'$ with $A \betaeq A'$, $B \betaeq B'$ and $A'
+        \prec_i B'$.
+
+        We conclude $A' \betaeq B'$ from $A \betaeq B$. The
+        lemma~\ref{PrecedenceIrreflexive} leads immediately to the
+        contradiciton.
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\begin{theorem}
+    \label{ProperSubtypeTransitive}
+    \emph{The proper subtype relation is transitive}
+    $$
+    \ruleh{
+        A < B
+        \\
+        B < C
+    }
+    {A < C}
+    $$
+
+    \begin{proof}
+        By definition of the proper subtype relation there exist some $A'$,
+        $B'$, $B''$, $C''$, $i$ and $j$ such that the following is valid
         $$
         \begin{array}{lll}
-            A &\betaeq& A'
-            \\
             A' &\prec_i& B'
             \\
-            B' &\betaeq& B
+            A &\betaeq& A'
             \\
-            B &\betaeq& B''
+            B &\betaeq& B'
             \\
             B'' &\prec_j& C''
             \\
-            C'' &\betaeq& C
+            B &\betaeq& B''
+            \\
+            C &\betaeq& C''
         \end{array}
         $$
-        Since beta equivalence is transitive we get $B' \betaeq B''$. Together
-        with $A' \prec_i B'$ and $B'' \prec_j C''$ and
-        lemma~\ref{PrecedenceSameArity} we infer the goal $i = j$.
+        The equivalences imply $B' \betaeq B''$ which by using
+        lemma~\ref{PrecedenceSameArity} implies $i = j$.
+
+        From lemma~\ref{PrecedenceEqTransitive} we infer the existence of some
+        $C'$ with
+        $$
+            C' \betaeq C'' \land B' \prec_i C'
+        $$
+        which implies with lemma~\ref{PrecedenceTransitive}
+        $$
+            A' \prec_i C'
+        $$
+        By definition of the proper subtype relation the goal
+        $$
+            A < C
+        $$
+        is evident.
     \end{proof}
-\end{lemma}
+\end{theorem}
+
+
+
 
 
 
@@ -902,7 +1013,7 @@ B$.
     \item
         $$
         \ruleh {
-            A <_i B
+            A < B
         }
         {
             A \le B
@@ -912,8 +1023,88 @@ B$.
 \end{definition}
 
 
+\begin{theorem}
+    \emph{The subtype relation is reflexive with respect to beta equivalence}
+    $$
+    \ruleh{
+        A \betaeq B
+    }
+    {
+        A \le B
+    }
+    $$
+    \begin{proof} Trival by the first rule.
+    \end{proof}
+\end{theorem}
 
 
+
+
+
+
+\begin{theorem}
+    \emph{The subtype relation is transitive}
+    $$
+    \ruleh{
+        A \le B
+        \\
+        B \le C
+    }
+    {
+        A \le C
+    }
+    $$
+    \begin{proof}
+        We have to distinguish four cases
+        \begin{enumerate}
+        \item $A \betaeq B \land B \betaeq C$: Trivial by the transitivity of
+            beta equivalence.
+
+        \item $A < B \land B \betaeq C$: $A < C$ follows immediately from the
+            definition of $<$.
+
+        \item $A \betaeq B \land B < C$: $A < C$ follows immediately from the
+            definition of $<$.
+
+        \item $A < B \land B < C$: $A < C$ follows immediately from the
+            transitivity of $<$~\ref{ProperSubtypeTransitive}
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+\begin{theorem}
+    \emph{The subtype relation is antisymmetric with respect to beta
+    equivalence}
+    $$
+    \ruleh{
+        A \le B
+        \\
+        B \le A
+    }
+    {
+        A \betaeq B
+    }
+    $$
+    \begin{proof}
+        We have to distinguish four cases:
+        \begin{enumerate}
+        \item $A \betaeq B \land B \betaeq A$: Trivial.
+
+        \item $A < B \land B \betaeq A$: This case is not possible because
+            the irreflexivity of the proper subtype
+            relation~\ref{ProperSubtypeIrreflexive} implies a contradiction.
+
+        \item $A \betaeq B \land B < A$: Same as the previous case.
+
+        \item $A < B \land B < A$: By the transitivity of the proper subtype
+            relation~\ref{ProperSubtypeTransitive} we infer $A < A$ which
+            implies by the irreflexivity of the proper subtype
+            relation~\ref{ProperSubtypeIrreflexive} immediately a
+            contradiction.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
 
 
 
