@@ -235,13 +235,13 @@ where $A$ is either a syntactical kind or a syntactical type.
     \nu K :=
     \begin{cases}
         \nu s := \satsets
-        
+        %
         \\
 
         \nu (\Pi x^A. B) := \nu A \to \nu B & \mbox{if } A \in \skinds
-        
+        %
         \\
-
+        %
         \nu (\Pi x^A. B) := \nu B & \mbox{if } A \in \stypes
     \end{cases}
     $$
@@ -316,19 +316,241 @@ $$
 
 \begin{definition}
     \emph{Constructor Interpretation}  A constructor interpretation
-    $\typeinter{-}{\xi \Gamma}$ is a map from valid constructors $A$ in a valid
+    $\typeinter{-}{\xi \Gamma}$ is a map from valid constructors $C$ in a valid
     context $\Gamma$ with the interpretation $\xi$ of the constructor variables
     into $\satsets^*$.
     $$
     \rulev{
         \xi \vDash \Gamma
         \\
-        \Gamma \vdash A: K
+        \Gamma \vdash C: K
         \\
         K \in \skinds^*
     }
     {
-        \typeinter{A}{\xi \Gamma} \in \nu K
+        \typeinter{C}{\xi \Gamma} \in \nu K
     }
     $$
+    We define the map $\typeinter{A}{\xi \Gamma}$ recursively over the
+    construction of $C$.
+    \begin{enumerate}
+    \item $C$ is the sort $\Any_i$ where $-1 \le i$:
+        $$
+            \rulev{
+                \xi \vDash \Gamma
+                \\
+                \Gamma \vdash \Any_i: \Any_{i+1}
+                \\
+                \Any_{i+1} \in \skinds
+            }
+            {
+                \typeinter{\Any_i}{\xi\Gamma} := \SN
+            }
+        $$
+        The postcondition $\SN \in \nu \Any_{i+1}$ is satisfied, because $\nu
+        \Any_{i+1} = \satsets^*$ and $\SN \in \satsets^*$.
+
+    \item $C$ is the variable $x$:
+        $$
+            \rulev{
+                \xi \vDash \Gamma
+                \\
+                \Gamma \vdash x: K
+                \\
+                K \in \skinds^*
+            }
+            {
+                \typeinter{x}{\xi\Gamma} := \xi x
+            }
+        $$
+        Proof of the postcondition $\xi x \in \nu K$:
+
+        The condition $\Gamma \vdash x:K$ implies $\Gamma x \le K$ and $\Gamma x
+        \in \skinds^*$. Therefore by definition $\xi x \in \nu (\Gamma x)$.
+        Since $\Gamma x$ is a subtype of $K$, $\nu (\Gamma x) = \nu K$.
+
+    \item $C$ is the product $\Pi x^A. B$:
+
+        We have to distinguish the cases $A \in \stypes^*$ and $A \in \skinds^*$.
+
+        \begin{enumerate}
+        \item $A$ is a proper type $A \in \stypes^*$:
+        $$
+            \rulev{
+                \xi \vDash \Gamma
+                \\
+                \Gamma \vdash \Pi x^A.B : K
+                \\
+                K \in \skinds^*
+            }
+            {
+                \typeinter{\Pi x^A. B}{\xi\Gamma}
+                :=
+                \typeinter{A}{\xi\Gamma}
+                \tolambda
+                \typeinter{B}{\xi(\Gamma,x^A)}
+            }
+        $$
+        From $\Gamma \vdash \Pi x^A.B : K$ we infer the existence of two sorts
+                $s_A$ and $s_B$ such that $\Gamma \vdash A: s_A$ and $\Gamma,x^A
+                \vdash B: s_B$ are valid. $x$ is not a constructor since $A \in
+                \stypes^*$. Therefore the typeinterpretations of $A$ and $B$ are
+                valid and we have $\typeinter{A}{\xi\Gamma} \in \nu s_A$ and
+                $\typeinter{B}{\xi(\Gamma,x^A)} \in \nu s_B$ and $\nu s_A = \nu
+                s_B = \satsets$.
+
+        The typeinterpretations of $A$ and $B$ are saturated sets i.e. set of
+                lambda terms and therefore valid arguments for the lambda
+                function space function $\tolambda$. The resulting set of lambda
+                terms is a saturated set as well, because saturated sets are
+                closed under lambda function space construction.
+
+        Since $K$ must be beta equivalent to some sort we have $\nu K =
+                \satsets$ and therefore the postcondition of the function is
+                satisfied.
+
+        \item $A$ is a kind $A \in \skinds^*$:
+            $$
+            \rulev{
+                \xi \vDash \Gamma
+                \\
+                \Gamma \vdash \Pi x^A.B : K
+                \\
+                K \in \skinds^*
+            }
+            {
+                \typeinter{\Pi x^A. B}{\xi\Gamma}
+                :=
+                \typeinter{A}{\xi\Gamma}
+                \tolambda
+                \bigcap_{S \in \nu A}
+                \typeinter{B}{(\xi,x^S)(\Gamma,x^A)}
+            }
+            $$
+            The validity of the type interpretations of $A$ and $B$ follow from the
+            same arguments as in the previous case. However since the
+            variable $x$ is now a constructor variable the type
+            interpretation of $B$ needs an interpretation of the constructor
+            variable as well i.e. it needs the interpretation $\xi, x^S$
+            where $S \in \nu A$.
+
+            Saturated sets are closed under arbitrary intersections. Therefore the
+            intersection over all possible interpretations of the constructor
+            variable $x$ is a saturated set as well.
+
+            The final lambda function space construction results in a saturated set
+            i.e. the postcondition of the function is satisfied.
+        \end{enumerate}
+
+    \item $C$ is the abstraction $\lambda x^A. e$:
+
+        We have to distinguish the cases $A \in \stypes^*$ and $A \in \skinds^*$.
+
+        \begin{enumerate}
+        \item $A$ is a proper type $A \in \stypes^*$:
+            $$
+            \rulev{
+                \xi \vDash \Gamma
+                \\
+                \Gamma \vdash \lambda x^A.e : K
+                \\
+                K \in \skinds^*
+            }
+            {
+                \typeinter{\lambda x^A. e}{\xi\Gamma}
+                :=
+                \typeinter{e}{\xi (\Gamma,x^A)}
+            }
+            $$
+
+            From the generation lemma~\ref{GenerationLemma} we infer the
+            existence of a sort $s$ and a type $B$ such that
+            $$
+            \begin{array}{lll}
+                \Gamma &\vdash& \Pi x^A. B: s
+                \\
+                \Gamma,x^A &\vdash& e : B
+                \\
+                \Pi x^A. B &\le& K
+            \end{array}
+            $$
+            are valid. $B \in \skinds^*$, because $\Pi x^A.B \le K$ and $K \in
+            \skinds^*$.
+
+            Since $A$ is a proper type,
+            $\typeinter{e}{\xi (\Gamma,x^A)} \in \nu B$
+            is a valid type interpretation.
+
+            By definition $\nu (\Pi x^A. B) = \nu B$. Therefore
+            $\typeinter{e}{\xi (\Gamma,x^)}$ satisfies the postcondition.
+
+        \item $A$ is a kind $A \in \skinds^*$:
+            $$
+            \rulev{
+                \xi \vDash \Gamma
+                \\
+                \Gamma \vdash \lambda x^A.e : K
+                \\
+                K \in \skinds^*
+            }
+            {
+                \typeinter{\lambda x^A. e}{\xi\Gamma}
+                :=
+                (S \in \nu A) \mapsto
+                \typeinter{e}{(\xi,x^S) (\Gamma,x^A)}
+            }
+            $$
+            where $(x \in T) \mapsto e$ is a function mapping an element $t \in
+            T$ to the value $e[x:=t]$
+
+            By the same reasoning as in the previous case we infer the validity
+            of
+            $$
+            \begin{array}{lll}
+                \Gamma &\vdash& \Pi x^A. B: s
+                \\
+                \Gamma,x^A &\vdash& e : B
+                \\
+                \Pi x^A. B &\le& K
+                \\
+                B &\in& \skinds^*
+            \end{array}
+            $$
+            However $A$ is now a kind and therefore $x$ is a constructor
+            variable. We need the interpretation of constructor variables
+            $\xi,x^S$ where $S \in \nu A$ to generate a valid type
+            interpretation of $e$.
+
+            The postcondition requires the result to be in $nu K$ which is the
+            same as $\nu (\Pi x^A.B)$ which by definition is $\nu A \to \nu B$.
+            Obviously the result term satisfies the postcondition.
+
+        \end{enumerate}
+
+    \item $C$ is the application $f a$:
+        There are the preconditions
+        $$
+        \begin{array}{lll}
+            \xi &\vDash& \Gamma
+            \\
+            \Gamma &\vdash& f a: K
+            \\
+            K &\in& \skinds^*
+        \end{array}
+        $$
+        By the generation lemma~\ref{GenerationLemma} there exist the terms $A$
+        and $B$ such that
+        $$
+        \begin{array}{lll}
+            \Gamma &\vdash& f: \Pi x^A. B
+            \\
+            \Gamma &\vdash& a: A
+            \\
+            B[x:=a] &\le& K
+        \end{array}
+        $$
+        are valid.
+
+        INCOMPLETE
+    \end{enumerate}
 \end{definition}
