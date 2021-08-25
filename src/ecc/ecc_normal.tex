@@ -551,6 +551,31 @@ $$
         $$
         are valid.
 
-        INCOMPLETE
+        {\bf Why this cannot work}:
+        By the typing rule for applications we get the following
+        $$
+        \rulev{
+            [f^{\Pi x^{\Any_{i+1}}. x}] \vdash f: \Pi x^{\Any_{i+1}}. x
+            \\
+            {[}f^{\Pi x^{\Any_{i+1}}. x}] \vdash \Any_i : \Any_{i+1}
+        }
+        {
+            f \Any_i:
+            \underbrace{x[x:=\Any_i]}_{= \Any_i}
+        }
+        $$
+        Problem:
+        \begin{itemize}
+        \item $f \Any_i$ is a a constructor because its type is a syntactical
+            kind.
+
+        \item $f$ is not a constructor because its type is a syntactical type.
+
+        \end{itemize}
+
+        In the calculus of constructions this problem cannot happen. There are
+        only the two sorts $ * $ and
+        $\Box$. It is not possible to construct the
+        type $\Pi x^\Box. x$ because $\Box: s$ is invalid.
     \end{enumerate}
 \end{definition}
