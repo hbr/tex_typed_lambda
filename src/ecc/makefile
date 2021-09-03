@@ -27,6 +27,7 @@ source-files = \
 	ecc_typing.tex \
 	ecc_quasinormal.tex \
 	ecc_normal.tex \
+	ecc_normal2.tex \
 	ecc_references.tex
 
 
