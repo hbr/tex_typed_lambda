@@ -434,7 +434,7 @@ $$
                 &\reduce&
                 e[y:=v][x:=a[y:=v]]
                 \\
-                &=& \text{Double substitution lemma~\ref{DoubleSubstitution}}
+                &=& \text{by Double substitution lemma~\ref{DoubleSubstitution}}
                 \\
                 &&e[x:=a][y:=v]
             \end{array}
@@ -597,6 +597,21 @@ beta equivalent to $B$ or $A$ is a proper subtype of $B$.
 
 
 
+\begin{lemma}
+    \label{PrecedenceSubstitution}
+    \emph{Substitution does not affect the predecessor relation}
+    $$
+    \ruleh{A \prec_i B}{A[y:=b] \prec_i B[y:=b]}
+    $$
+
+    \begin{proof}
+        By induction on $A \prec_i B$.
+
+        The first case is trivial because substitution does not modify a sort.
+
+        The second case follows immediately from the induction hypothesis.
+    \end{proof}
+\end{lemma}
 
 
 
@@ -1150,7 +1165,7 @@ beta equivalent to $B$ or $A$ is a proper subtype of $B$.
                 \\
                 \Gamma, x^A \vdash B: s_2
                 \\
-                s_1 = s_2 \lor s_p = \Prop
+                s_1 = s_2 \lor s_1 = \Prop
             }
             {
                 \Gamma \vdash \Pi x^A.B : s_2
@@ -1195,7 +1210,7 @@ beta equivalent to $B$ or $A$ is a proper subtype of $B$.
                 x \notin \Gamma
             }
             {
-                \Gamma \vdash t: T
+                \Gamma, x^A \vdash t: T
             }
             $$
 
@@ -1204,9 +1219,21 @@ beta equivalent to $B$ or $A$ is a proper subtype of $B$.
             \rulev {
                 \Gamma \vdash t: T
                 \\
+                T \reduce U
+            }
+            {
+                \Gamma \vdash t: U
+            }
+            $$
+
+        \item Expansion:
+            $$
+            \rulev {
+                \Gamma \vdash t: T
+                \\
                 \Gamma \vdash U: s
                 \\
-                T \reduce U \lor U \reduce T
+                U \reduce T
             }
             {
                 \Gamma \vdash t: U
@@ -1218,9 +1245,7 @@ beta equivalent to $B$ or $A$ is a proper subtype of $B$.
             \rulev {
                 \Gamma \vdash t: T
                 \\
-                \Gamma \vdash U: s
-                \\
-                T \prec U
+                T \prec_i U
             }
             {
                 \Gamma \vdash t: U

@@ -1,6 +1,34 @@
 \section{Quasinormalization}
 
 
+\subsection{Overview}
+
+The goal of this section is to prove that any welltyped term can be reduced to a
+\emph{quasinormal form} where quasinormal means that the type contains only
+redexes whose function term has a propositional type. If the welltyped term is a
+type (i.e. a term whose type is a sort), then a quasinormal form of this type
+has the structure
+$$
+    \Pi
+    x_0^{A_0} x_1^{A_1} \ldots x_{n-1}^{A_{n-1}}
+    .
+    \left\{
+        \begin{array}{l}
+            \Any_i
+            \\
+            y \vec{a}
+        \end{array}
+    \right .
+$$
+with $0 \le n$. I.e. a type in quasinormal form is a function type with zero or
+more arguments and the result type is either a sort or a base term. The argument
+types $A_0$, $A_1$, $\ldots$ are in quasinormal form as well.
+with $0 \le n$. I.e. a type in quasinormal form is a function type with zero or
+more arguments and the result type is either a sort or a base term. The argument
+types $A_0$, $A_1$, $\ldots$ are in quasinormal form as well.
+
+
+
 
 
 
@@ -13,7 +41,7 @@ $$
 where the left hand side and the right hand side have the minimal sorts
 $$
     \begin{array}{lll}
-        (\lambda x^{\Any_i}) \Prop &:& \Any_i
+        (\lambda x^{\Any_i} . x) \Prop &:& \Any_i
         \\
         \Prop &:& \Any_0
     \end{array}

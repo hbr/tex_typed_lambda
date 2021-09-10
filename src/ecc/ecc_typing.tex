@@ -125,10 +125,12 @@
             \item Structural rules: For all structural rules we prove the final
                 goal by the induction hypothesis and by the facts
                 $$
-                \begin{array}{lll}
+                \begin{array}{llll}
                     t \reduce u &\imp& t' \reduce u'
+                    &\text{Lemma~\ref{SubstituteReduction}}
                     \\
-                    A \prec B    &\imp& A' \prec B'
+                    A \prec B    &\imp& A' \prec_i B'
+                    &\text{Lemma~\ref{PrecedenceSubstitution}}
                 \end{array}
                 $$
 
