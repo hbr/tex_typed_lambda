@@ -23,6 +23,7 @@ source-files = \
 	ecc_macros.tex \
 	ecc_intro.tex \
 	ecc_calculus.tex \
+	ecc_subtyping.tex \
 	ecc_confluence.tex \
 	ecc_typing.tex \
 	ecc_quasinormal.tex \
