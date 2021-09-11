@@ -208,3 +208,20 @@
 
 
 \subsubsection{Parallel Reduction is a Diamond}
+
+
+\begin{theorem}
+    \label{ParallelReductionDiamond}
+    \emph{Parallel reduction is a diamond}
+    $$
+    \ruleh{
+        a \preduce b
+    }
+    {
+        \forall c.
+        \left[
+        \ruleh{a \preduce c}{\exists d. b \preduce d \land c \preduce d}
+        \right]
+    }
+    $$
+\end{theorem}
