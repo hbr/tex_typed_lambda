@@ -180,31 +180,34 @@
         cases.
         \end{enumerate}
     \end{proof}
-
-
-    \begin{lemma}
-        \label{ParallelReductionProductAbstraction}
-        \emph{The product and abstraction are preserved under parallel
-        reduction}
-
-        \begin{enumerate}
-        \item
-            $\ruleh{\lambda x^A. e \preduce c}
-            {\exists B f. c = \lambda x^B. f
-                \land A \preduce B \land e \preduce f}$
-
-        \item
-            $\ruleh{\Pi x^A. B \preduce c}
-            {\exists C D. c = \Pi x^C. D
-                \land A \preduce C \land B \preduce D}$
-        \end{enumerate}
-
-        \begin{proof} By induction on the premise. In both cases only one rule
-        is syntactically possible which guarantees the existence of the
-        corresponding terms.
-        \end{proof}
-    \end{lemma}
 \end{lemma}
+
+
+\begin{lemma}
+    \label{ParallelReductionProductAbstraction}
+    \emph{The product and abstraction are preserved under parallel
+    reduction}
+
+    \begin{enumerate}
+    \item
+        $\ruleh{\lambda x^A. e \preduce c}
+        {\exists B f. c = \lambda x^B. f
+            \land A \preduce B \land e \preduce f}$
+
+    \item
+        $\ruleh{\Pi x^A. B \preduce c}
+        {\exists C D. c = \Pi x^C. D
+            \land A \preduce C \land B \preduce D}$
+    \end{enumerate}
+
+    \begin{proof} By induction on the premise. In both cases only one rule
+    is syntactically possible which guarantees the existence of the
+    corresponding terms.
+    \end{proof}
+\end{lemma}
+
+
+
 
 
 \subsubsection{Parallel Reduction is a Diamond}
@@ -224,4 +227,174 @@
         \right]
     }
     $$
+
+    \begin{proof} By induction on $a \preduce b$.
+
+        \begin{enumerate}
+        \item Reflexive
+        $$
+        \begin{array}{l|l}
+            a \preduce a
+            &
+            \forall c.
+            \left[
+                \ruleh{a \preduce c}{\exists d. c \preduce d \land a \preduce d}
+            \right]
+        \end{array}
+        $$
+        To prove the goal on the right side we assume $a \preduce c$. Then we use
+        $c$ for $d$ which satisfies the required property of $d$ trivially.
+
+        \item Redex
+        $$
+        \begin{array}{l|l}
+            e \preduce f
+            &
+            \forall g.
+            \left[
+                \ruleh{e \preduce g}{\exists h. f \preduce h \land g \preduce h}
+            \right]
+            \\
+            a \preduce b
+            &
+            \forall c.
+            \left[
+                \ruleh{b \preduce c}{\exists d. b \preduce d \land c \preduce d}
+            \right]
+            \\
+            \hline
+            (\lambda x^A. e) a \preduce f[x:=b]
+            &
+            \forall k.
+            \left[
+                \ruleh{
+                    (\lambda x^A.e) a \preduce k
+                }
+                {
+                    \exists n. k \preduce n \land f[x:=b] \preduce n
+                }
+            \right]
+        \end{array}
+        $$
+        To prove the goal in the lower right corner we assume $(\lambda x^A.e)a
+        \preduce k$ and do induction on this relation.
+
+            \begin{enumerate}
+            \item Reflexive: In that case $k = (\lambda x^A. e) a$. We use $n =
+            f[x:=b]$ which has the required property.
+
+
+            \item Redex: In that case $k = g[x:=c]$ for some $g$ and $c$ with the
+            properties $e \preduce g$ and $a \preduce c$ and the induction
+            hypotheses $\exists h. f \preduce h \land g \preduce h$ and $\exists d.
+            b \preduce d \land c \preduce d$.
+
+            We have to find a term $n$ with $f[x:=b] \preduce n \land g[x:=c]
+            \preduce n$. The term
+            $$
+                n = h[x:=d]
+            $$
+            with the terms $h$ and $d$ which exist by the induction hypotheses. It
+            is easy to see that the properties
+            $$
+            \begin{array}{lll}
+                f[x:=b] &\preduce& h[x:=d]
+                \\
+                g[x:=c] &\preduce& h[x:=d]
+            \end{array}
+            $$
+            are satisfied because of the induction hypotheses and
+            lemma~\ref{ParallelReductionSubstitution2}
+
+
+            \item Product: This case is syntactically impossible because
+            $(\lambda x^A.e) a$ cannot be a product.
+
+
+            \item Abstraction: This case is syntactically impossible because
+            $(\lambda x^A.e) a$ cannot be an abstraction.
+
+
+            \item Application: INCOMPLETE!!!!
+            \end{enumerate}
+
+
+        \item Product
+        $$
+        \begin{array}{l|l}
+            A \preduce C
+            &
+            \forall E.
+            \left[
+            \ruleh{A \preduce E}{\exists H. C \preduce H \land E \preduce H}
+            \right]
+            %
+            \\
+            B \preduce D
+            &
+            \forall F.
+            \left[
+            \ruleh{B \preduce F}{\exists J. D \preduce J \land F \preduce J}
+            \right]
+            %
+            \\
+            \hline
+            \Pi x^A. B \preduce \Pi x^C. D
+            &
+            \forall E F.
+            \left[
+            \ruleh {
+                \Pi x^A.B \preduce \Pi x^E. F
+            }
+            {
+                \exists n.
+                \Pi x^C. D \preduce n
+                \land
+                \Pi x^E. F \preduce n
+            }
+            \right]
+        \end{array}
+        $$
+        In order to prove the goal in the lower right corner we assume $\Pi x^A.
+        B \preduce \Pi x^E.F$.
+
+        Because of lemma~\ref{ParallelReductionProductAbstraction} which says
+        that parallel reduction preserves products we have chosen the more
+        specific $\Pi x^E.F$ which satisfies $A \preduce E$ and $B \preduce F$
+        instead of the more general $k$.
+
+        From the induction hypotheses we conclude the existence of the terms $H$
+        and $J$ such that
+        $$
+            n = \Pi x^H. J
+        $$
+        satisfies the required properties.
+
+        \item Abstraction: Same reasoning as with product.
+
+        \item Application
+        $$
+        \begin{array}{l|l}
+            a \preduce c
+            \\
+            b \preduce d
+            \\
+            \hline
+            a b \preduce c d
+            &
+            \forall k.
+            \left[
+            \ruleh{
+                a b \preduce k
+            }
+            {
+                \exists n. c d \preduce n \land k \preduce n
+            }
+            \right]
+        \end{array}
+        $$
+
+        INCOMPLETE!!!!
+        \end{enumerate}
+    \end{proof}
 \end{theorem}
