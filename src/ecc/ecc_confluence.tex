@@ -1,5 +1,220 @@
 \section{Confluence}
 
+One of the most important features of beta reduction is \emph{confluence} which
+states that the result of subsequent beta reductions is independent of the
+sequence of redexes reduced. In order to state that property precisely we need
+some definitions.
+
+\begin{definition}
+    \emph{Diamond Property} A relation $r$ has the diamond property if $a
+    \torel{r} b$ and $a \torel{r} c$ implies the existence of some $d$ such that
+    $b \torel{r} d$ and $c \torel{r} d$ are valid.
+
+    $$
+    \ruleh{
+        a \torel r b
+        \\
+        a \torel r c
+    }
+    {
+        \exists d. b \torel{r} d \land c \torel{r} d
+    }
+    $$
+\end{definition}
+
+We can state the diamond property of a relation $r$ more pictorially as
+$$
+\begin{array}{lll}
+    a   &  \torel{r} &   b
+    \\
+    \downarrow_r & & \downarrow_r
+    \\
+    c & \torel{r} & \exists d
+\end{array}
+$$
+which looks like a diamond if tilted by $45^\circ$ clockwise.
+
+
+\begin{definition}
+    \emph{Confluence} A relation $r$ is confluent if its reflexive transitive
+    closure $r^*$ is a diamond.
+\end{definition}
+
+
+In this section we are going to prove that beta reduction is confluent. We use
+the following reasoning.
+
+\begin{enumerate}
+
+    \item We prove the \emph{stripe lemma} stating that the reflexive transitive
+    closure of a diamond is a diamond i.e. that a diamond is confluent.
+
+    \item We define a parallel beta reduction relation $\preduce$ which a
+    superset of the beta reduction relation $\reduce$ i.e.  $(\reduce) \le
+    (\preduce)$ and a subset of the reflexive transitive closure of the beta
+    reduction i.e. $(\preduce) \le (\reducestar)$.
+
+    \item We prove that the parallel beta reduction is a diamond.
+
+    \item We use the general facts that reflexive transitive closure is
+    \begin{enumerate}
+        \item monotonic $r \le s \imp r^* \le s^*$
+
+        \item idempotent $(r^*)^* = r$
+    \end{enumerate}
+    to see that $(\reducestar) \le (\preducestar)$ and $(\preducestar) \le
+    (\reducestar)$ are satisfied which imply by antisymmetry of the order
+    relation that $(\reducestar) = (\preducestar)$.
+
+    Since $\preducestar$ is a diamond, $\reducestar$ is a diamond as well.
+    Therefore we can conclude the fact that beta reduction is confluent.
+\end{enumerate}
+
+
+
+\subsection{Stripe Lemma}
+
+In this section we prove the fact that the reflexive transitive closure of
+diamond is a diamond. We need the following helper lemma:
+
+\begin{lemma}
+    \label{StripeLemma1}
+    If $r$ is a diamond then
+    $$
+    \ruleh{
+        a \torel{r^*} b
+        \\
+        a \torel r c
+    }
+    {
+        \exists d. b \torel r d \land c \torel{r^*} d
+    }
+    $$
+    is valid.
+
+    \begin{proof}
+        By induction on $a \torel{r^*} b$.
+
+        \begin{enumerate}
+        \item In the reflexive case we have $a = b$. We choose $d = c$ which
+        satisfies the required properties.
+
+        \item
+        $$
+        \begin{array}{l|l}
+            a \torel{r^*} b
+            &
+            \forall d.
+            \left[
+            \ruleh{
+                a \torel r d
+            }
+            {
+                \exists e. b \torel r e \land d \torel{r^*} e
+            }
+            \right]
+            \\
+            b \torel r c
+            \\
+            \hline
+            a \torel{r^*} c
+            &
+            \forall d.
+            \left[
+            \ruleh{
+                a \torel r d
+            }
+            {
+                \exists f. c \torel r f \land d \torel{r^*} f
+            }
+            \right]
+        \end{array}
+        $$
+        To prove the goal in the lower right corner we assume $a \torel r d$ and
+        try to find some $f$ with the required properties.
+
+        From the induction hypothesis we find some $e$ which satisfies $b \torel
+        r e$ and $d \torel{r^*} e$.
+
+        Since $r$ is a diamond there exists some $f$ which satisfies $c \torel r
+        f$ and $e \torel r f$. Since $d \torel{r^*} e$ we conclude $d
+        \torel{r^*} f$ and have the desired properties for $f$.
+        \end{enumerate}
+    \end{proof}
+
+\end{lemma}
+
+
+
+\begin{lemma}
+    \emph{Stripe Lemma} If $r$ is a diamond, then $r^*$ is a diamond as well.
+    $$
+    \ruleh {
+        a \torel{r^*} b
+        \\
+        a \torel{r^*} c
+    }
+    {
+        \exists d. b \torel{r^*} d \land c \torel{r^*} d
+    }
+    $$
+
+    \begin{proof}
+        We assume $a \torel{r^*} b$ and do induction on $a \torel{r^*} c$
+
+        \begin{enumerate}
+        \item In the reflexive case we have $a = c$. We use $d = b$ which
+        satisfies the required properties.
+
+        \item
+        $$
+        \begin{array}{l|l}
+            a \torel{r^*} c
+            &
+            \exists e. b \torel{r^*} e \land c \torel{r^*} e
+            \\
+            c \torel r d
+            \\
+            \hline
+            a \torel{r^*} d
+            &
+            \exists f. b \torel{r^*} f \land d \torel{r^*} f
+        \end{array}
+        $$
+        We have to prove the goal in the lower right corner i.e. find some $f$
+        with the required properties.
+
+        From the induction hypothesis we find some $e$ such that
+        $$
+        \begin{array}{lll}
+            a &\torel{r^*}& b
+            \\
+            \downarrow_{r^*} & & \downarrow_{r^*}
+            \\
+            c &\torel{r^*}& e
+        \end{array}
+        $$
+        is valid. From the previous lemma~\ref{StripeLemma1} we find some $f$
+        such that
+        $$
+        \begin{array}{lll}
+            c &\torel{r^*}& e
+            \\
+            \downarrow_{r} & & \downarrow_{r}
+            \\
+            d &\torel{r^*}& f
+        \end{array}
+        $$
+        is valid. Therefore $f$ satisfies the required properties.
+        \end{enumerate}
+    \end{proof}
+\end{lemma}
+
+
+
+
+
+
 
 
 \subsection{Parallel Reduction Relation}
@@ -67,10 +282,34 @@
 \end{definition}
 
 
+\begin{lemma}
+    \emph{Parallel beta reduction is a superset of beta reduction}
+
+    \begin{proof} This fact is trivial, because all rules of beta reduction are
+    contained as special cases within the rules of parallel beta reduction.
+    \end{proof}
+\end{lemma}
 
 
 
-\subsubsection{Some basic lemmas of the parallel reduction relation}
+\begin{lemma}
+    \emph{Parallel beta reduction is a subset of the transitive closure of beta
+    reduction}
+
+    \begin{proof}
+        All rules of parallel beta reduction are satisfied by the transitive
+        closure of beta reduction. Since an inductive relation defined by some
+        rules is the smallest relation which satisfies the rules, it is evident
+        that parallel beta reduction must be smaller than the transitive closure
+        of beta reduction.
+    \end{proof}
+\end{lemma}
+
+
+
+
+
+
 
 \begin{lemma}
     \label{ParallelReductionSubstitution1}
