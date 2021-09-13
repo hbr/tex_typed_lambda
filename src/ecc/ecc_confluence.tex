@@ -277,7 +277,7 @@
         \end{array}
         $$
         To prove the goal in the lower right corner we assume $(\lambda x^A.e)a
-        \preduce k$ and do induction on this relation.
+        \preduce k$ and do a case split on the construction of this relation.
 
             \begin{enumerate}
             \item Reflexive: In that case $k = (\lambda x^A. e) a$. We use $n =
@@ -285,9 +285,7 @@
 
 
             \item Redex: In that case $k = g[x:=c]$ for some $g$ and $c$ with the
-            properties $e \preduce g$ and $a \preduce c$ and the induction
-            hypotheses $\exists h. f \preduce h \land g \preduce h$ and $\exists d.
-            b \preduce d \land c \preduce d$.
+            properties $e \preduce g$ and $a \preduce c$.
 
             We have to find a term $n$ with $f[x:=b] \preduce n \land g[x:=c]
             \preduce n$. The term
@@ -315,7 +313,41 @@
             $(\lambda x^A.e) a$ cannot be an abstraction.
 
 
-            \item Application: INCOMPLETE!!!!
+            \item Application: In that case $k = (\lambda x^B. g) c$ for some
+            $B$, $g$ and $c$ with $A \preduce B$, $e \preduce g$ and $a \preduce
+            c$. Because of lemma~\ref{ParallelReductionProductAbstraction} we
+            have chosen the more specific term $\lambda x^B. g$ instead of a
+            more general term.
+
+            We have to find a term $n$ which satisfies $(\lambda x^B. g) c
+            \preduce n$ and $f[x:=b] \preduce n$.
+
+            We use the term
+            $$
+                n = h[x:=d]
+            $$
+            with the terms $h$ and $d$ which exist by the induction hypotheses
+            satisfying
+            $$
+            \begin{array}{lll}
+                f &\preduce& h
+                \\
+                g &\preduce& h
+                \\
+                b &\preduce& d
+                \\
+                c &\preduce& d
+            \end{array}
+            $$
+            Therefore the goals
+            $$
+            \begin{array}{lll}
+                (\lambda x^B.g) c &\preduce& h[x:=d]
+                \\
+                f[x:=b] &\preduce& h[x:=d]
+            \end{array}
+            $$
+            are satisfied
             \end{enumerate}
 
 
@@ -376,8 +408,30 @@
         $$
         \begin{array}{l|l}
             a \preduce c
+            &
+            \forall e.
+            \left[
+            \ruleh{
+                a \preduce e
+            }
+            {
+                \exists g. c \preduce g \land e \preduce g
+            }
+            \right]
+            %
             \\
             b \preduce d
+            &
+            \forall f.
+            \left[
+            \ruleh{
+                b \preduce f
+            }
+            {
+                \exists h. d \preduce h \land f \preduce h
+            }
+            \right]
+            %
             \\
             \hline
             a b \preduce c d
@@ -393,8 +447,61 @@
             \right]
         \end{array}
         $$
+        To prove the goal in the lower right corner we assume $a b \preduce k$
+        and do a case split on the construction of this relation.
 
-        INCOMPLETE!!!!
+            \begin{enumerate}
+            \item Reflexive: In that case $k = a b$. We use $n = c d$ which
+            satisfies the required properties.
+
+            \item Redex: In this case $a b$ has to be a redex, let's say
+            $(\lambda x^A.m) b$. Therefore and because of
+            lemma~\ref{ParallelReductionProductAbstraction} $a b \preduce c d$
+            becomes $(\lambda x^A. m) b \preduce (\lambda x^B. o) d$ for some
+            $B$ and $o$ with $A \preduce B$ and $m \preduce o$.
+
+            $k$ has to be the reduct $p[x:=f]$ for some $p$, $f$ with $m
+            \preduce p$ and $b \preduce f$.
+
+            We have to find some term $n$ which satisfies
+            $$
+            \begin{array}{lll}
+                (\lambda x^B. o) d &\preduce& n
+                \\
+                p[x:=f] &\preduce& n
+            \end{array}
+            $$
+
+            From the first induction hypothesis and
+            lemma~\ref{ParallelReductionProductAbstraction} we postulate the
+            existence of $q$ with $o \preduce q$ and $p \preduce q$.
+
+            From the second induction hypothesis we conclude the existence of
+            some $h$ with with $d \preduce h$ and $f \preduce h$.
+
+            Therefore the term
+            $$
+                n = q[x:=h]
+            $$ satisfies the requirement.
+
+            \item Product: This case is syntactically impossible because $a b$
+            cannot be a product.
+
+            \item Abstraction: This case is syntactically impossible because $a b$
+            cannot be an abstraction.
+
+            \item Application: In that case $k = e f$ for some terms $e$, $f$ which
+            satisfy $a \preduce e$ and $b \preduce f$. We have to find some term
+            $n$ which satisfies $c d \preduce n$ and $ e f \preduce n$.
+
+            By the induction hypotheses there exist some terms $g$ and $h$
+            satisfying $c \preduce g$, $e \preduce g$, $d \preduce h$ and $f
+            \preduce h$ such that the term
+            $$
+                n = g h
+            $$
+            satisfies the requirement.
+            \end{enumerate}
         \end{enumerate}
     \end{proof}
 \end{theorem}
