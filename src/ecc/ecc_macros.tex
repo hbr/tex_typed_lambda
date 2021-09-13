@@ -22,11 +22,6 @@
 
 \def\Level{{\cal L}}
 
-\def\reduce{\stackrel{\beta}{\to}}
-\def\reducestar{\stackrel{\beta^*}{\to}}
-
-\def\preduce{\stackrel{\beta_p}{\to}}
-\def\preducestar{\stackrel{\beta_p^*}{\to}}
 
 \def\Prop{{\cal P}}
 
@@ -39,11 +34,20 @@
 
 \def\tolambda{\stackrel{\lambda}{\to}}
 
+\def\torel#1{\stackrel{#1}{\to}}
+
 \def\typeinter#1#2{{\dbrackleft #1\dbrackright}_{#2}}
 
 \def\vec#1{{\mathbf #1}}
 
 
+
+
+
+\def\preduce{\torel{\beta_p}}
+\def\preducestar{\torel{\beta_p^*}}
+\def\reduce{\torel{\beta}}
+\def\reducestar{\torel{\beta^*}}
 
 
 
