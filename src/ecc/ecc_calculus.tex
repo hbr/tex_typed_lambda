@@ -202,6 +202,11 @@ term $c$.
 
 
 
+
+
+
+
+
 \subsection{Beta Reduction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -474,6 +479,46 @@ $$
 \end{theorem}
 
 
+
+
+
+\begin{lemma}
+    \label{ReductionProductAbstraction}
+    \emph{Product and abstraction are preserved under beta reduction}
+    \begin{enumerate}
+    \item
+    $
+        \ruleh{
+            \Pi x^A.B \reduce t
+        }
+        {
+            \left( \exists C. A \preduce C \land t = \Pi x^C. B \right)
+            \lor
+            \left( \exists D. B \preduce C \land t = \Pi x^A. D \right)
+        }
+    $
+    \item
+    $
+        \ruleh{
+            \lambda x^A.e \reduce t
+        }
+        {
+            \left( \exists B. A \preduce B \land t = \lambda x^B. e \right)
+            \lor
+            \left( \exists f. e \preduce f \land t = \lambda x^A. f \right)
+        }
+    $
+    \end{enumerate}
+
+    \begin{proof}
+        The proofs for product and abstraction follow the same pattern.
+        Therefore we prove only the preservation of products.
+
+        Assume $\Pi x^A. B \reduce t$ and do induction on it. Only the two
+        product rules are syntactically possible. Each one guarantees one
+        alternative of the goal.
+    \end{proof}
+\end{lemma}
 
 
 
