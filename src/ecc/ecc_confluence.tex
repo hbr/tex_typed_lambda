@@ -758,3 +758,121 @@ diamond is a diamond. We need the following helper lemma:
         \end{enumerate}
     \end{proof}
 \end{theorem}
+
+
+
+
+\subsection{Equivalent Terms}
+
+One of the most important consequences of the Church Rosser theorem (i.e.
+confluence of beta reduction) is the fact that beta equivelent terms have a
+common reduct. I.e. for two beta equivalent terms $a$ and $b$ there exists
+always a term $c$ to which both reduce
+$$
+    \begin{array}{lllll}
+    a & & \betaeq & & b
+    \\
+    &\searrow_{\beta^*}
+    &
+    &\swarrow_{\beta^*}
+    \\
+    & & \exists c
+    \end{array}
+$$
+
+\begin{theorem}
+    \label{BetaEquivalentCommonReduct}
+    \emph{Equivalent terms have a common reduct}.
+    $$
+    \ruleh {
+        a \betaeq b
+    }
+    {
+        \exists c. a \reducestar c \land b \reducestar c
+    }
+    $$
+
+    \begin{proof}
+        By induction on $a \betaeq b$.
+        \begin{enumerate}
+            \item Reflexive: In that case $a = b$. We use $c = a$ which satisfies
+            the required properties trivially.
+
+            \item Forward rule
+            $$
+            \begin{array}{l|l}
+                a \betaeq b
+                &
+                \exists d. a \reducestar d \land b \reducestar d
+                \\
+                b \reduce c
+                \\
+                \hline
+                a \betaeq c
+                &
+                \exists e. a \reducestar e \land c \reducestar e
+            \end{array}
+            $$
+            In order to prove the goal in the lower right corner we construct
+            terms $d$ and $e$ which satisfy the following diagram and therefore
+            $e$ satisfies the required properties.
+            $$
+            \begin{array}{lllll}
+                a
+                &\betaeq
+                &b
+                &\reduce
+                &c
+                \\
+                &\searrow_{\beta^*}
+                &\downarrow_{\beta^*}
+                &
+                &\downarrow_{\beta^*}
+                \\
+                &
+                &d
+                &\reducestar
+                &e
+            \end{array}
+            $$
+            $d$ exists by the induction hypothesis and $e$ exists by
+            confluence~\ref{ChurchRosser}
+
+            \item Backward rule
+            $$
+            \begin{array}{l|l}
+                a \betaeq b
+                &
+                \exists d. a \reducestar d \land b \reducestar d
+                \\
+                c \reduce b
+                \\
+                \hline
+                a \betaeq c
+                &
+                \exists d. a \reducestar d \land c \reducestar d
+            \end{array}
+            $$
+            In order to prove the goal in the lower right corner we construct
+            term $d$ which satisfies the following diagram and therefore the
+            required properties.
+            $$
+            \begin{array}{lllll}
+                a
+                &\betaeq
+                &b
+                &\fromrel{\beta}
+                &c
+                \\
+                &\searrow_{\beta^*}
+                &\downarrow_{\beta^*}
+                &\swarrow_{\beta^*}
+                \\
+                &
+                &d
+            \end{array}
+            $$
+            The term $d$ exists by the induction hypothesis.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
