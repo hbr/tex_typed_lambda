@@ -41,34 +41,45 @@ which looks like a diamond if tilted by $45^\circ$ clockwise.
 \end{definition}
 
 
-In this section we are going to prove that beta reduction is confluent. We use
-the following reasoning.
+\begin{theorem}
+    \label{ChurchRosser}
+    \emph{Beta reduction is confluent}.
 
-\begin{enumerate}
+    \begin{proof}
+    To prove this claim we use the following reasoning.
 
-    \item We prove the \emph{stripe lemma} stating that the reflexive transitive
-    closure of a diamond is a diamond i.e. that a diamond is confluent.
-
-    \item We define a parallel beta reduction relation $\preduce$ which a
-    superset of the beta reduction relation $\reduce$ i.e.  $(\reduce) \le
-    (\preduce)$ and a subset of the reflexive transitive closure of the beta
-    reduction i.e. $(\preduce) \le (\reducestar)$.
-
-    \item We prove that the parallel beta reduction is a diamond.
-
-    \item We use the general facts that reflexive transitive closure is
     \begin{enumerate}
-        \item monotonic $r \le s \imp r^* \le s^*$
 
-        \item idempotent $(r^*)^* = r$
+        \item We prove the \emph{stripe lemma}~\ref{StripeLemma2} stating that
+        the reflexive transitive closure of a diamond is a diamond i.e. that a
+        diamond is confluent.
+
+        \item We define a parallel beta reduction relation $\preduce$ which a
+        superset of the beta reduction relation $\reduce$ i.e.  $(\reduce) \le
+        (\preduce)$ (lemma~\ref{ReductionLeParallelReduction}) and a subset of
+        the reflexive transitive closure of the beta reduction i.e. $(\preduce)
+        \le (\reducestar)$ (lemma~\ref{ParallelReductionLeReductionStar}).
+
+        \item We prove that the parallel beta reduction is a diamond
+        (theorem~\ref{ParallelReductionDiamond}).
+
+        \item We use the general facts that reflexive transitive closure is
+        \begin{enumerate}
+            \item monotonic $r \le s \imp r^* \le s^*$
+
+            \item idempotent $(r^*)^* = r$
+        \end{enumerate}
+        to see that $(\reducestar) \le (\preducestar)$ and $(\preducestar) \le
+        (\reducestar)$ are satisfied which imply by antisymmetry of the order
+        relation that $(\reducestar) = (\preducestar)$.
+
+        Since $\preducestar$ is a diamond, $\reducestar$ is a diamond as well.
+        Therefore we can conclude the fact that beta reduction is confluent.
     \end{enumerate}
-    to see that $(\reducestar) \le (\preducestar)$ and $(\preducestar) \le
-    (\reducestar)$ are satisfied which imply by antisymmetry of the order
-    relation that $(\reducestar) = (\preducestar)$.
+    \end{proof}
+\end{theorem}
 
-    Since $\preducestar$ is a diamond, $\reducestar$ is a diamond as well.
-    Therefore we can conclude the fact that beta reduction is confluent.
-\end{enumerate}
+
 
 
 
@@ -147,6 +158,7 @@ diamond is a diamond. We need the following helper lemma:
 
 
 \begin{lemma}
+    \label{StripeLemma2}
     \emph{Stripe Lemma} If $r$ is a diamond, then $r^*$ is a diamond as well.
     $$
     \ruleh {
@@ -283,6 +295,7 @@ diamond is a diamond. We need the following helper lemma:
 
 
 \begin{lemma}
+    \label{ReductionLeParallelReduction}
     \emph{Parallel beta reduction is a superset of beta reduction}
 
     \begin{proof} This fact is trivial, because all rules of beta reduction are
@@ -293,6 +306,7 @@ diamond is a diamond. We need the following helper lemma:
 
 
 \begin{lemma}
+    \label{ParallelReductionLeReductionStar}
     \emph{Parallel beta reduction is a subset of the transitive closure of beta
     reduction}
 
