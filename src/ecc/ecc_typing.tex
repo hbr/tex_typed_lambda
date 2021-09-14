@@ -276,11 +276,14 @@ the rules
 
 
 
+
+
+
 \subsection{Subject Reduction Lemma}
 
 \begin{theorem}
-    \label{subject-reduction-theorem}
-    Subject reduction theorem.
+    \label{SubjectReduction}
+    \emph{Subject reduction lemma} Reduction of a term does change its type.
     $$
     \rulev{
         \Gamma \vdash t: T
@@ -292,8 +295,184 @@ the rules
     }
     $$
 
-    \begin{proof} MISSING
+    {
+    \def\SRLeftPart#1#2#3#4{
+        \left(
+        \forall #1.
+        \ruleh{#2 \reduce #1}{#3 \vdash #1: #4}
+        \right)
+    }
+    \def\SRRightPart#1#2#3#4{
+        \left(
+        \forall #1.
+        \ruleh{#2 \reduce #1}{#1 \vdash #3: #4}
+        \right)
+    }
+
+    \begin{proof} In order to prove the subject reduction lemma we prove the
+        more general lemma
+        $$
+        \ruleh{
+            \Gamma \vdash t: T
+        }
+        {
+            \SRLeftPart u t \Gamma T
+            \land
+            \SRRightPart \Delta \Gamma t T
+        }
+        $$
+        where $\Gamma \reduce \Delta$ means that $\Delta$ is $\Gamma$ with one
+        of the variable types replaced by a reduced type.
+
+        We prove the more general lemma by induction on $\Gamma \vdash t: T$.
+        \begin{enumerate}
+            \item Introduction rules:
+            \begin{enumerate}
+                \item Sort: If $\Gamma$ is empty and $t$ is a sort, then the
+                    goal is vacuously true because neither the empty context nor
+                    a sort can reduce to anything (they are in normal form).
+
+                \item Variable:
+                    $$
+                    \begin{array}{l|l}
+                        \Gamma \vdash A : s
+                        &
+                        \SRLeftPart B A \Gamma s
+                        \land
+                        \SRRightPart {\Delta_0} \Gamma A s
+                        \\
+                        \hline
+                        \Gamma, x^A \vdash x: A
+                        &
+                        \SRLeftPart u x {\Gamma,x^A} A
+                        \land
+                        \SRRightPart \Delta {\Gamma,x^A} x A
+                    \end{array}
+                    $$
+                    The left part of the goal in the lower right corner is
+                    vacously true because a variable is in normal form and there
+                    is no term to which it reduces.
+
+                    For the right part we assume $\Gamma,x^A \reduce \Delta$.
+                    There are two possibilities:
+                    \begin{enumerate}
+                        \item $\Delta = \Delta_0,x^A$ where $\Gamma \reduce
+                            \Delta_0$ for some $\Delta_0$:
+
+                        In that case we get $\Delta_0 \vdash A: s$ from the
+                            induction hypothesis which implies the goal
+                            $\Delta_0,x^A \vdash x: A$.
+
+                        \item $\Delta = \Gamma,x^B$ where $A \reduce B$:
+
+                        In that case we get $\Gamma \vdash B : s$ from the
+                            induction hypothesis which implies the goal
+                            $\Gamma,x^B: x \vdash B$.
+                    \end{enumerate}
+
+                \item Product:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash A: s_1
+                    &
+                    \SRLeftPart C A \Gamma {s_1}
+                    \lor
+                    \SRRightPart \Delta \Gamma A {s_1}
+                    \\
+                    \Gamma,x^A \vdash B: s_2
+                    &
+                    \SRLeftPart D B {\Gamma,x^A} {s_2}
+                    \lor
+                    \SRRightPart {\Delta'} {\Gamma,x^A} B {s_2}
+                    \\
+                    s_1 = s_2 \lor s_2 = \Prop
+                    \\
+                    \hline
+                    \Gamma \vdash \Pi x^A. B : s_2
+                    &
+                    \SRLeftPart t {\Pi x^A.B} \Gamma {s_2}
+                    \land
+                    \SRRightPart \Delta \Gamma {\Pi x^A. B} {s_2}
+                \end{array}
+                $$
+                \begin{enumerate}
+                    \item Left part: We assume $\Pi x^A. B \reduce t$.
+
+                    Since products are preserved under reduction
+                        (lemma~\ref{ReductionProductAbstraction}) we have either
+                        $t = \Pi x^C. B$ where $A \reduce C$ for some $C$ or $t
+                        = \Pi x^A.D$ where $B \reduce D$ for some $D$.
+
+                    In both cases we can derive from the induction hypotheses
+                        either $\Gamma \vdash C: s_1$ or $\Gamma,x^A \vdash D:
+                        s_2$. Therefore $\Gamma \vdash \Pi x^C. B: s_2$ or $\Gamma
+                        \vdash \Pi x^A.D: s_2$ is valid trivially.
+
+                    \item Right part: Assume $\Gamma \reduce \Delta$. From the
+                        first induction hypothesis we get $\Delta \vdash A:
+                        s_1$. From the second induction hypothesis we get
+                        $\Delta, x^A \vdash B: s_2$ where we use $\Delta' =
+                        \Delta, x^A$. These facts imply $\Delta
+                        \vdash \Pi x^A. B : s_2$.
+                \end{enumerate}
+
+                \item Abstraction: Same reasoning as with product.
+
+                \item Application:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash f: \Pi x^A. B
+                    &
+                    \SRLeftPart g f \Gamma {\Pi x^A. B}
+                    \land
+                    \SRRightPart \Delta \Gamma f {\Pi x^A.B}
+                    \\
+                    \Gamma \vdash a: A
+                    &
+                    \SRLeftPart b a \Gamma A
+                    \land
+                    \SRRightPart \Delta \Gamma a A
+                    \\
+                    \hline
+                    \Gamma \vdash f a: B[x:=a]
+                    &
+                    \SRLeftPart t {f a} \Gamma {B[x:=a]}
+                    \land
+                    \SRRightPart \Delta \Gamma {f a} {B[x:=a]}
+                \end{array}
+                $$
+                \begin{enumerate}
+                    \item Left part: Assume $f a \reduce t$. We have three cases
+                        to consider.
+                    \begin{enumerate}
+                        \item $f a \reduce g a$ where $f \reduce g$: From the
+                            first induction hypothesis we get that $g$ has the
+                            same type as $f$ and therefore $g a: B[x:=a]$ is
+                            valid.
+
+                        \item $f a \reduce f b$ where $a \reduce b$:
+                            From the second induction hypothesis we get that $b$
+                            has the same type as $a$ and therefore $f b:
+                            B[x:=b]$ is valid. ?????INCOMPLETE???
+
+                        \item $(\lambda y^B. e) a \reduce e[y:=a]$:
+
+                    \end{enumerate}
+
+                    \item Right part: Immediate consequence of the induction
+                        hypotheses.
+                \end{enumerate}
+            \end{enumerate}
+
+            \item Structural rules:
+            \begin{enumerate}
+                \item Weaken:
+            \end{enumerate}
+        \end{enumerate}
+
+        INCOMPLETE!!!
     \end{proof}
+    }
 \end{theorem}
 
 
