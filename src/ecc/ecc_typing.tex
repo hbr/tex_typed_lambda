@@ -142,6 +142,129 @@ the rules
 
 
 
+\subsection{Generation Lemmata}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{theorem}
+    \label{GenerationLemma}
+    The following generation lemmata are valid
+    \begin{enumerate}
+    \item
+        $$
+        \ruleh {
+            \Gamma \vdash s_1 : T
+        }
+        {
+            \exists
+                s_2.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash s_1: s_2
+                    \\
+                    s_2 \le T
+                \end{array}
+                \right]
+        }
+        $$
+
+    \item
+        $$
+        \ruleh {
+            \Gamma \vdash x : T
+        }
+        {
+            \Gamma x \le T
+        }
+        $$
+        where $\Gamma x$ is the type of $x$ in the context $\Gamma$.
+
+    \item % product
+        $$
+        \ruleh {
+            \Gamma \vdash (\Pi x^A. B) : T
+        }
+        {
+            \exists
+                s_1, s_2.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash A: s_1
+                    \\
+                    \Gamma, x^A \vdash B: s_2
+                    \\
+                    (s_2 = \Prop \lor s_1 = s_2) \land s_2 \le T
+                \end{array}
+                \right]
+        }
+        $$
+
+    \item % abstraction
+        $$
+        \ruleh {
+            \Gamma \vdash (\lambda x^A. e) : T
+        }
+        {
+            \exists
+                B, s.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash (\Pi x^A. B): s
+                    \\
+                    \Gamma, x^A \vdash e: B
+                    \\
+                    \Pi x^A.B \le T
+                \end{array}
+                \right]
+        }
+        $$
+
+    \item % application
+        $$
+        \ruleh {
+            \Gamma \vdash f a : T
+        }
+        {
+            \exists
+                A, B.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash f: \Pi x^A. B
+                    \\
+                    \Gamma \vdash a: A
+                    \\
+                    B[x:=a] \le T
+                \end{array}
+                \right]
+        }
+        $$
+    \end{enumerate}
+
+    \begin{proof}
+        Premise in all lemmata is the validity of $\Gamma \vdash t: T$ where $t$
+        is either a sort, a variable, an application, a product or an
+        abstraction. The proof is done by induction on $\Gamma \vdash t: T$.
+
+        Only one of the introduction rules is valid. For the corresponding
+        introduction rule the proof of the goal is trivial.
+
+        The weakening rule modifies neither the term $t$ nor its type $T$.
+        Therefore the goal is proved by the corresponding induction hypothesis.
+
+        The reduction and expansion rules modify the type from the type $T$ to
+        another type $U$ with $T \betaeq U$. Since $T \betaeq U$ implies $T \le U$
+        the goal can be concluded from the induction hypothesis and the
+        transitivity of $\le$.
+
+        The subtype rule modifies the type from the type $T$ to another type $U$
+        with $T \prec_i U$. Since $T \prec_i U$ implies $T \le U$ the goal can be
+        concluded from the induction hypothesis and the transitivity of $\le$.
+    \end{proof}
+\end{theorem}
+
+
+
 
 
 \subsection{Substitution Lemma}
@@ -283,129 +406,6 @@ the rules
 
 
 
-
-
-
-\subsection{Generation Lemmata}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-\begin{theorem}
-    \label{GenerationLemma}
-    The following generation lemmata are valid
-    \begin{enumerate}
-    \item
-        $$
-        \ruleh {
-            \Gamma \vdash s_1 : T
-        }
-        {
-            \exists
-                s_2.
-                \left[
-                \begin{array}{l}
-                    \Gamma \vdash s_1: s_2
-                    \\
-                    s_2 \le T
-                \end{array}
-                \right]
-        }
-        $$
-
-    \item
-        $$
-        \ruleh {
-            \Gamma \vdash x : T
-        }
-        {
-            \Gamma x \le T
-        }
-        $$
-        where $\Gamma x$ is the type of $x$ in the context $\Gamma$.
-
-    \item % product
-        $$
-        \ruleh {
-            \Gamma \vdash (\Pi x^A. B) : T
-        }
-        {
-            \exists
-                s_1, s_2.
-                \left[
-                \begin{array}{l}
-                    \Gamma \vdash A: s_1
-                    \\
-                    \Gamma, x^A \vdash B: s_2
-                    \\
-                    (s_2 = \Prop \lor s_1 = s_2) \land s_2 \le T
-                \end{array}
-                \right]
-        }
-        $$
-
-    \item % abstraction
-        $$
-        \ruleh {
-            \Gamma \vdash (\lambda x^A. e) : T
-        }
-        {
-            \exists
-                B, s.
-                \left[
-                \begin{array}{l}
-                    \Gamma \vdash (\Pi x^A. B): s
-                    \\
-                    \Gamma, x^A \vdash e: B
-                    \\
-                    \Pi x^A.B \le T
-                \end{array}
-                \right]
-        }
-        $$
-
-    \item % application
-        $$
-        \ruleh {
-            \Gamma \vdash f a : T
-        }
-        {
-            \exists
-                A, B.
-                \left[
-                \begin{array}{l}
-                    \Gamma \vdash f: \Pi x^A. B
-                    \\
-                    \Gamma \vdash a: A
-                    \\
-                    B[x:=a] \le T
-                \end{array}
-                \right]
-        }
-        $$
-    \end{enumerate}
-
-    \begin{proof}
-        Premise in all lemmata is the validity of $\Gamma \vdash t: T$ where $t$
-        is either a sort, a variable, an application, a product or an
-        abstraction. The proof is done by induction on $\Gamma \vdash t: T$.
-
-        Only one of the introduction rules is valid. For the corresponding
-        introduction rule the proof of the goal is trivial.
-
-        The weakening rule modifies neither the term $t$ nor its type $T$.
-        Therefore the goal is proved by the corresponding induction hypothesis.
-
-        The reduction and expansion rules modify the type from the type $T$ to
-        another type $U$ with $T \betaeq U$. Since $T \betaeq U$ implies $T \le U$
-        the goal can be concluded from the induction hypothesis and the
-        transitivity of $\le$.
-
-        The subtype rule modifies the type from the type $T$ to another type $U$
-        with $T \prec_i U$. Since $T \prec_i U$ implies $T \le U$ the goal can be
-        concluded from the induction hypothesis and the transitivity of $\le$.
-    \end{proof}
-\end{theorem}
 
 
 
@@ -587,6 +587,189 @@ the rules
 \end{theorem}
 
 
+
+
+\subsection{Minimal Types}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}
+    \emph We say that $T$ is the \emph{minimal type} of term $t$ in the
+    context $\Gamma$ which we annotate as $\derivesmin \Gamma t T$ if and only
+    if
+    $$
+    (\derives \Gamma t T)
+    \land
+    \forall U. \ruleh{\derives \Gamma t U}{T \le U}
+    $$
+\end{definition}
+
+
+\begin{lemma}
+    \label{MinimalTypeOfVariable}
+    \emph{The type of an introduced variable is its minimal type}.
+    $$
+    \ruleh{
+        \derives {\Gamma,x^A} x A
+    }
+    {
+        \derivesmin {\Gamma, x^A} x A
+    }
+    $$
+
+    \begin{proof}
+        Assume $\derives {\Gamma, x^A} x A$. We have to prove the goal
+        $\derives {\Gamma, x^A} x A$ and
+        $\forall U. \derives {\Gamma, x^A} x U \imp A \le U$.
+
+        The first one is trivial because it is identical with the assumption.
+
+        For the second one we assume $\derives {\Gamma, x^A} x U$ and do
+        induction on it.
+        \begin{enumerate}
+            \item Introduction rules: The only possible introduction rule is the
+                variable introduction rule. In that case we have $U = A$ and the
+                goal is $A \le A$ which is trivially valid.
+
+            \item Structural rules:
+            \begin{enumerate}
+                \item Weakening: This rule is not possible because $x \notin
+                    \Gamma$ and therefore $\derives \Gamma x U$ is not possible.
+
+                \item Reduction:
+                $$
+                \begin{array}{l|l}
+                    \derives {\Gamma, x^A} x U
+                    &
+                    A \le U
+                    \\
+                    \derives {\Gamma, x^A} V s
+                    \\
+                    U \reduce V
+                    \\
+                    \hline
+                    \derives {\Gamma, x^A} x V
+                    &
+                    A \le V
+                \end{array}
+                $$
+                From the induction hypothesis we get $A \le U$. Since $U \reduce
+                    V$ we immidiately get the goal $A \le V$.
+
+                \item Expansion: Same reasoning as reduction.
+
+                \item Subtyping: Same reasoning as reduction.
+            \end{enumerate}
+        \end{enumerate}
+    \end{proof}
+\end{lemma}
+
+
+
+\begin{theorem}
+    \label{MinimalType}
+    \emph{For each welltyped term there exists a minimal type}
+    $$
+    \ruleh {
+        \derives \Gamma t T
+    }
+    {
+        \exists M. \derivesmin \Gamma t M
+    }
+    $$
+
+    \begin{proof} By induction on $\derives \Gamma t T$
+        \begin{enumerate}
+            \item Introduction rules:
+            \begin{enumerate}
+                \item Sort:
+                    $$
+                    \begin{array}{l|l}
+                        i \in \set{-1, 0, 1, 2, \ldots}
+                        \\
+                        \hline
+                        [] \vdash \Any_i : \Any_{i+1}
+                        &
+                        \exists U. [] \vdashmin \Any_i: U
+                    \end{array}
+                    $$
+                    Obviously $U = \Any_{i+1}$ is the minimal type.
+
+                \item Variable:
+                    $$
+                    \begin{array}{l|l}
+                        \Gamma \vdash A : s
+                        \\
+                        x \notin \Gamma
+                        \\
+                        \hline
+                        \Gamma, x^A \vdash x : A
+                        &
+                        \exists U. \derivesmin {\Gamma, x^A} x U
+                    \end{array}
+                    $$
+                    By lemma~\ref{MinimalTypeOfVariable} we use $U =A$ as the
+                    minimal type.
+
+                \item Product:
+                    $$
+                    \begin{array}{l|l}
+                        \Gamma \vdash A : s_1
+                        &
+                        \exists s_{01}. \derivesmin \Gamma A {s_{01}}
+                        \\
+                        \Gamma, x^A \vdash B: s_2
+                        &
+                        \exists s_{02}. \derivesmin {\Gamma,x^A} B {s_{02}}
+                        \\
+                        s_1 = s_2 \lor s_2 = \Prop
+                        \\
+                        \hline
+                        \Gamma \vdash \Pi x^A. B : s_2
+                        &
+                        \exists s_\pi. \derivesmin \Gamma {\Pi x^A. B} {s_\pi}
+                    \end{array}
+                    $$
+                    The type of a product is always a sort or a term which
+                    reduces to a sort. Since reduction does not change the order
+                    by definition of the order we can use the smallest sort
+                    $s_\pi$ which is the type of the product.
+
+                    We have to distinguish 3 cases:
+                    \begin{enumerate}
+                        \item $s_{02} = \Prop$: Since there is no smaller sort
+                            than $\Prop$ we can use $s_\pi = \Prop$.
+
+                        \item $s_{01} \le s_{02}$: Since $s_{02}$ is already the
+                            smallest sort for $B$ and due to the subtype rule we
+                            get $\Gamma \vdash A: s_{02}$ we can use $s_\pi =
+                            s_{02}$.
+
+                        \item $s_{01} > s_{02} \land s_{02} \ne \Prop$: In that
+                            case we have to use $s_\pi = s_{01}$ and use the
+                            subtype rule to derive $\Gamma, x^A \vdash B:
+                            s_{01}$. No smaller sort can be the type of $\Pi
+                            x^A. B$.
+                    \end{enumerate}
+
+
+
+                \item Abstraction:
+                    $$
+                    \begin{array}{l|l}
+                    \end{array}
+                    $$
+
+                \item Application:
+                    $$
+                    \begin{array}{l|l}
+                    \end{array}
+                    $$
+            \end{enumerate}
+            \item Structural rules:
+        \end{enumerate}
+        INCOMPLETE !!!
+    \end{proof}
+\end{theorem}
 
 
 

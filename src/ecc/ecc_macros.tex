@@ -38,6 +38,7 @@
 
 \def\typeinter#1#2{{\dbrackleft #1\dbrackright}_{#2}}
 
+\def\vdashmin{\vdash_\mu}
 \def\vec#1{{\mathbf #1}}
 
 
@@ -49,6 +50,8 @@
 \def\reduce{\torel{\beta}}
 \def\reducestar{\torel{\beta^*}}
 
+\def\derives#1#2#3{#1 \vdash #2: #3}
+\def\derivesmin#1#2#3{#1 \vdashmin #2: #3}
 
 
 \def\ruleh#1#2{\begin{array}{c} #1 \\ \hline #2\end{array}}
