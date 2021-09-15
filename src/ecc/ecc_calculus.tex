@@ -200,97 +200,7 @@ term $c$.
 
 
 
-
-
-
-
-
-
-
-\subsection{Beta Reduction}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Like in untyped lambda calculus, computation is done via \emph{beta reduction}.
-A beta redex has the form $(\lambda x^A. e) a$ which reduces to the reduct
-$e[x:=a]$. Beta reduction can be done in any subterm of a term.
-
-\begin{definition}
-    \emph{Beta reduction}
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    is a binary relation $a \reduce b$ where the term $a$
-    reduces to the term $b$. It is defined by the rules
-    \begin{description}
-
-        \item[redex]
-            $$
-                (\lambda x^A. e) a \reduce e[x:=a]
-            $$
-
-        \item[reduce function]
-            $$
-                \ruleh{
-                    f \reduce g
-                }
-                {
-                    f a \reduce g a
-                }
-            $$
-
-        \item[reduce argument]
-            $$
-                \ruleh{
-                    a \reduce b
-                }
-                {
-                    f a \reduce f b
-                }
-            $$
-
-        \item[reduce abstraction type]
-            $$
-                \ruleh{
-                    A \reduce B
-                }
-                {
-                    \lambda x^A. e \reduce \lambda x^B . e
-                }
-            $$
-
-        \item[reduce abstraction term]
-            $$
-                \ruleh{
-                    e \reduce f
-                }
-                {
-                    \lambda x^A. e \reduce \lambda x^A. f
-                }
-            $$
-
-        \item[reduce product type]
-            $$
-                \ruleh{
-                    A \reduce B
-                }
-                {
-                    \Pi x^A. C \reduce \Pi x^B . C
-                }
-            $$
-
-        \item[reduce product result]
-            $$
-                \ruleh{
-                    B \reduce C
-                }
-                {
-                    \Pi x^A. B \reduce \Pi x^A. C
-                }
-            $$
-    \end{description}
-\end{definition}
-
-
-
-\begin{theorem}
+\begin{lemma}
     \label{DoubleSubstitution}
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
     \emph{Double substitution lemma} If we change the order of two subsequent
@@ -379,15 +289,15 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
                 \end{enumerate}
         \end{enumerate}
     \end{proof}
-\end{theorem}
+\end{lemma}
 
 The validity of the
 \emph{double substitution lemma}~\ref{DoubleSubstitution}
 is needed to make sure that \emph{beta
-reduction} is confluent. E.g. if we have the term
-$(\lambda x^A. (\lambda y^B. t) b) a$ then we can decide whether we reduce first
-the inner redex and then the outer redex or the other way round. Because of
-confluence both possibilities shall have the same result.
+reduction} (see definition in the next section) is confluent. E.g. if we have
+the term $(\lambda x^A. (\lambda y^B. t) b) a$ then we can decide whether we
+reduce first the inner redex and then the outer redex or the other way round.
+Because of confluence both possibilities shall have the same result.
 $$
 \begin{array}{llll}
     (\lambda x^A. (\lambda y^B. t) b) a
@@ -404,6 +314,96 @@ $$
 $$
 
 
+
+
+
+
+
+
+
+\subsection{Beta Reduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Like in untyped lambda calculus, computation is done via \emph{beta reduction}.
+A beta redex has the form $(\lambda x^A. e) a$ which reduces to the reduct
+$e[x:=a]$. Beta reduction can be done in any subterm of a term.
+
+\begin{definition}
+    \emph{Beta reduction}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    is a binary relation $a \reduce b$ where the term $a$
+    reduces to the term $b$. It is defined by the rules
+    \begin{enumerate}
+
+        \item[redex]
+            $$
+                (\lambda x^A. e) a \reduce e[x:=a]
+            $$
+
+        \item Reduce function:
+            $$
+                \ruleh{
+                    f \reduce g
+                }
+                {
+                    f a \reduce g a
+                }
+            $$
+
+        \item Reduce argument:
+            $$
+                \ruleh{
+                    a \reduce b
+                }
+                {
+                    f a \reduce f b
+                }
+            $$
+
+        \item Reduce abstraction argument type:
+            $$
+                \ruleh{
+                    A \reduce B
+                }
+                {
+                    \lambda x^A. e \reduce \lambda x^B . e
+                }
+            $$
+
+        \item Reduce abstraction inner term:
+            $$
+                \ruleh{
+                    e \reduce f
+                }
+                {
+                    \lambda x^A. e \reduce \lambda x^A. f
+                }
+            $$
+
+        \item Reduce product argument type:
+            $$
+                \ruleh{
+                    A \reduce B
+                }
+                {
+                    \Pi x^A. C \reduce \Pi x^B . C
+                }
+            $$
+
+        \item Reduce product result type
+            $$
+                \ruleh{
+                    B \reduce C
+                }
+                {
+                    \Pi x^A. B \reduce \Pi x^A. C
+                }
+            $$
+    \end{enumerate}
+\end{definition}
+
+
+
 \begin{theorem}
     \label{SubstituteReduction}
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -417,6 +417,8 @@ $$
         t[y:=v] \reduce u[y:=v]
     }
     $$
+    (Note that iterated application of this lemma results in the more general
+    statement $t \reducestar u \imp t[y:=v] \reducestar u[y:=v]$.)
 
     \begin{proof}
         Proof by induction on $t \reduce u$.

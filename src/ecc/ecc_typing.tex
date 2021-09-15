@@ -396,13 +396,14 @@ the rules
         The weakening rule modifies neither the term $t$ nor its type $T$.
         Therefore the goal is proved by the corresponding induction hypothesis.
 
-        The reduction rule modifies the type from the type $T$ to another type
-        $U$ with $T \equiv U$. Since $T \equiv U$ implies $T \le U$ the goal can
-        be concluded from the induction hypothesis.
+        The reduction and expansion rules modify the type from the type $T$ to
+        another type $U$ with $T \betaeq U$. Since $T \betaeq U$ implies $T \le U$
+        the goal can be concluded from the induction hypothesis and the
+        transitivity of $\le$.
 
         The subtype rule modifies the type from the type $T$ to another type $U$
-        with $T \prec U$. Since $T \prec U$ implies $T \le U$ the goal can be
-        concluded from the induction hypothesis.
+        with $T \prec_i U$. Since $T \prec_i U$ implies $T \le U$ the goal can be
+        concluded from the induction hypothesis and the transitivity of $\le$.
     \end{proof}
 \end{theorem}
 
