@@ -17,7 +17,7 @@ The ternary \emph{typing relation} $\Gamma \vdash t: T$ which says that in
 the context $\Gamma$ then term $t$ has type $T$ is defined inductively by
 the rules
 \begin{enumerate}
-\item Introduction rules:
+    \item Introduction rules:
     \begin{enumerate}
         \item Axiom:
             $$
@@ -26,115 +26,122 @@ the rules
             { [] \vdash \Any_i : \Any_{i + 1}}
             $$
 
-    \item Variable:
-        $$
-        \rulev {
-            \Gamma \vdash A: s
-            \\
-            x \notin \Gamma
-        }
-        {
-            \Gamma, x^A \vdash x: A
-        }
-        $$
+        \item Variable:
+            $$
+            \rulev {
+                \Gamma \vdash A: s
+                \\
+                x \notin \Gamma
+            }
+            {
+                \Gamma, x^A \vdash x: A
+            }
+            $$
 
-    \item Product:
-        $$
-        \rulev {
-            \Gamma \vdash A: s_1
-            \\
-            \Gamma, x^A \vdash B: s_2
-            \\
-            s_1 = s_2 \lor s_1 = \Prop
-        }
-        {
-            \Gamma \vdash \Pi x^A.B : s_2
-        }
-        $$
+        \item Product:
+            $$
+            \rulev {
+                \Gamma \vdash A: s_1
+                \\
+                \Gamma, x^A \vdash B: s_2
+                \\
+                s_1 = s_2 \lor s_1 = \Prop
+            }
+            {
+                \Gamma \vdash \Pi x^A.B : s_2
+            }
+            $$
 
-    \item Abstraction:
-        $$
-        \rulev {
-            \Gamma \vdash \Pi x^A. B: s
-            \\
-            \Gamma, x^A \vdash e: B
-        }
-        {
-            \Gamma \vdash (\lambda x^A. e): \Pi x^A. B
-        }
-        $$
+        \item Abstraction:
+            $$
+            \rulev {
+                \Gamma \vdash \Pi x^A. B: s
+                \\
+                \Gamma, x^A \vdash e: B
+            }
+            {
+                \Gamma \vdash (\lambda x^A. e): \Pi x^A. B
+            }
+            $$
 
-    \item Application:
-        $$
-        \rulev {
-            \Gamma \vdash f: \Pi x^A. B
-            \\
-            \Gamma \vdash a: A
-        }
-        {
-            \Gamma \vdash f a: B[x:=a]
-        }
-        $$
+        \item Application:
+            $$
+            \rulev {
+                \Gamma \vdash f: \Pi x^A. B
+                \\
+                \Gamma \vdash a: A
+            }
+            {
+                \Gamma \vdash f a: B[x:=a]
+            }
+            $$
     \end{enumerate}
 
 
-\item Structural rules:
-    \begin{enumerate}
-    \item Weaken:
-        $$
-        \rulev {
-            \Gamma \vdash t: T
-            \\
-            \Gamma \vdash A: s
-            \\
-            x \notin \Gamma
-        }
-        {
-            \Gamma, x^A \vdash t: T
-        }
-        $$
+    \item Structural rules:
+        \begin{enumerate}
+            \item Weaken:
+                $$
+                \rulev {
+                    \Gamma \vdash t: T
+                    \\
+                    \Gamma \vdash A: s
+                    \\
+                    x \notin \Gamma
+                }
+                {
+                    \Gamma, x^A \vdash t: T
+                }
+                $$
 
-    \item Reduction:
-        $$
-        \rulev {
-            \Gamma \vdash t: T
-            \\
-            T \reduce U
-        }
-        {
-            \Gamma \vdash t: U
-        }
-        $$
+            \item Reduction:
+                $$
+                \rulev {
+                    \Gamma \vdash t: T
+                    \\
+                    \Gamma \vdash U: s
+                    \\
+                    T \reduce U
+                }
+                {
+                    \Gamma \vdash t: U
+                }
+                $$
 
-    \item Expansion:
-        $$
-        \rulev {
-            \Gamma \vdash t: T
-            \\
-            \Gamma \vdash U: s
-            \\
-            U \reduce T
-        }
-        {
-            \Gamma \vdash t: U
-        }
-        $$
+            \item Expansion:
+                $$
+                \rulev {
+                    \Gamma \vdash t: T
+                    \\
+                    \Gamma \vdash U: s
+                    \\
+                    U \reducestar T
+                }
+                {
+                    \Gamma \vdash t: U
+                }
+                $$
 
-    \item Subtype:
-        $$
-        \rulev {
-            \Gamma \vdash t: T
-            \\
-            T \prec_i U
-        }
-        {
-            \Gamma \vdash t: U
-        }
-        $$
+            \item Subtype:
+                $$
+                \rulev {
+                    \Gamma \vdash t: T
+                    \\
+                    \Gamma \vdash U: s
+                    \\
+                    T \prec_i U
+                }
+                {
+                    \Gamma \vdash t: U
+                }
+                $$
+        \end{enumerate}
     \end{enumerate}
-
-\end{enumerate}
 \end{definition}
+
+
+
+
 
 
 \subsection{Substitution Lemma}
@@ -143,7 +150,7 @@ the rules
 
 
 \begin{theorem}
-    \label{substitution-theorem}
+    \label{SubstitutionLemma}
     Substitution (cut) theorem.
     $$
     \rulev{
@@ -274,6 +281,309 @@ the rules
     \end{proof}
 \end{theorem}
 
+
+
+
+
+
+\subsection{Generation Lemmata}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{theorem}
+    \label{GenerationLemma}
+    The following generation lemmata are valid
+    \begin{enumerate}
+    \item
+        $$
+        \ruleh {
+            \Gamma \vdash s_1 : T
+        }
+        {
+            \exists
+                s_2.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash s_1: s_2
+                    \\
+                    s_2 \le T
+                \end{array}
+                \right]
+        }
+        $$
+
+    \item
+        $$
+        \ruleh {
+            \Gamma \vdash x : T
+        }
+        {
+            \Gamma x \le T
+        }
+        $$
+        where $\Gamma x$ is the type of $x$ in the context $\Gamma$.
+
+    \item % product
+        $$
+        \ruleh {
+            \Gamma \vdash (\Pi x^A. B) : T
+        }
+        {
+            \exists
+                s_1, s_2.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash A: s_1
+                    \\
+                    \Gamma, x^A \vdash B: s_2
+                    \\
+                    (s_2 = \Prop \lor s_1 = s_2) \land s_2 \le T
+                \end{array}
+                \right]
+        }
+        $$
+
+    \item % abstraction
+        $$
+        \ruleh {
+            \Gamma \vdash (\lambda x^A. e) : T
+        }
+        {
+            \exists
+                B, s.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash (\Pi x^A. B): s
+                    \\
+                    \Gamma, x^A \vdash e: B
+                    \\
+                    \Pi x^A.B \le T
+                \end{array}
+                \right]
+        }
+        $$
+
+    \item % application
+        $$
+        \ruleh {
+            \Gamma \vdash f a : T
+        }
+        {
+            \exists
+                A, B.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash f: \Pi x^A. B
+                    \\
+                    \Gamma \vdash a: A
+                    \\
+                    B[x:=a] \le T
+                \end{array}
+                \right]
+        }
+        $$
+    \end{enumerate}
+
+    \begin{proof}
+        Premise in all lemmata is the validity of $\Gamma \vdash t: T$ where $t$
+        is either a sort, a variable, an application, a product or an
+        abstraction. The proof is done by induction on $\Gamma \vdash t: T$.
+
+        Only one of the introduction rules is valid. For the corresponding
+        introduction rule the proof of the goal is trivial.
+
+        The weakening rule modifies neither the term $t$ nor its type $T$.
+        Therefore the goal is proved by the corresponding induction hypothesis.
+
+        The reduction rule modifies the type from the type $T$ to another type
+        $U$ with $T \equiv U$. Since $T \equiv U$ implies $T \le U$ the goal can
+        be concluded from the induction hypothesis.
+
+        The subtype rule modifies the type from the type $T$ to another type $U$
+        with $T \prec U$. Since $T \prec U$ implies $T \le U$ the goal can be
+        concluded from the induction hypothesis.
+    \end{proof}
+\end{theorem}
+
+
+
+\subsection{Type of types}
+
+\begin{theorem}
+    \label{TypeOfTypes}
+    \emph{The type of a type is a sort}
+    $$
+    \ruleh {
+        \Gamma \vdash t: T
+    }
+    {
+        \exists s. \Gamma \vdash T : s
+    }
+    $$
+
+    \begin{proof}
+        By induction of $\Gamma \vdash t : T$.
+        \begin{enumerate}
+            \item Introduction rules:
+            \begin{enumerate}
+                \item Axiom
+                $$
+                \begin{array}{l|l}
+                    [] \vdash \Any_i : \Any_{i+1}
+                    &
+                    \exists s. \Gamma \vdash \Any_{i+1}: s
+                \end{array}
+                $$
+                Use $s = \Any_{i+2}$.
+
+                \item Variable
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash A : s
+                    \\
+                    x \notin \Gamma
+                    \\
+                    \hline
+                    \Gamma, x^A \vdash x: A
+                    &
+                    \exists s_2. \Gamma,x^A \vdash A: s_2
+                \end{array}
+                $$
+                Use $s_2 = s$ and the weakening rule.
+
+                \item Product
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash A : s_1
+                    \\
+                    \Gamma,x^A \vdash B: s_2
+                    \\
+                    s_1 = s_2 \lor s_2 = \Prop
+                    \\
+                    \hline
+                    \Gamma \vdash \Pi x^A. B : s_2
+                    &
+                    \exists s_3. \Gamma \vdash s_2: s_3
+                \end{array}
+                $$
+                For $s_2 = \Any_i$ use $s_3 = \Any_{i+1}$.
+
+                \item Abstraction
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash \Pi x^A. B : s_1
+                    \\
+                    \Gamma,x^A \vdash e: B
+                    \\
+                    \hline
+                    \Gamma \vdash \lambda x^A. e : \Pi x^A. B
+                    &
+                    \exists s. \Gamma \vdash \Pi x^A. B: s
+                \end{array}
+                $$
+                Use $s = s_1$.
+
+                \item Application
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash f: \Pi x^A. B
+                    &
+                    \exists s_\pi: \Gamma \vdash \Pi x^A. B: s_\pi
+                    \\
+                    \Gamma \vdash a: A
+                    \\
+                    \hline
+                    \Gamma \vdash f a: B[x:=a]
+                    &
+                    \exists s. \Gamma \vdash B[x:=a]: s
+                \end{array}
+                $$
+                From the induction hypothesis we get a sort $s_\pi$ which is the
+                type of the product. Then we use the generation
+                lemma~\ref{GenerationLemma} for the product to get $s_B$ which
+                satisfies $\Gamma, x^A \vdash B: s_B$. Finally we use the
+                substitution lemma~\ref{SubstitutionLemma} to infer $\Gamma
+                \vdash B[x:=a] : s_B$ and use $s = s_B$.
+            \end{enumerate}
+
+            \item Structural rules:
+            \begin{enumerate}
+                \item Weaken:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t: T
+                    &
+                    \exists s_T: \Gamma \vdash T: s_T
+                    \\
+                    \Gamma \vdash A: s_A
+                    \\
+                    x \notin \Gamma
+                    \\
+                    \hline
+                    \Gamma, x^A \vdash t: T
+                    &
+                    \exists s. \Gamma, x^A \vdash T: s
+                \end{array}
+                $$
+                Use $s = s_T$ which exists by the induction hypothesis and lift
+                    the typing judgement $\Gamma \vdash T : s_T$ using the
+                    weakening rule into the context $\Gamma, x^A$.
+
+                \item Reduction:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t : T
+                    \\
+                    \Gamma \vdash U: s_U
+                    \\
+                    T \reduce U
+                    \\
+                    \hline
+                    \Gamma \vdash t: U
+                    &
+                    \exists s. \Gamma \vdash U: s
+                \end{array}
+                $$
+                Use $s = s_U$.
+
+                \item Expansion:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t : T
+                    \\
+                    \Gamma \vdash U: s_U
+                    \\
+                    U \reducestar T
+                    \\
+                    \hline
+                    \Gamma \vdash t: U
+                    &
+                    \exists s. \Gamma \vdash U: s
+                \end{array}
+                $$
+                Use $s = s_U$.
+
+                \item Subtype:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t : T
+                    \\
+                    \Gamma \vdash U: s_U
+                    \\
+                    T \prec_i U
+                    \\
+                    \hline
+                    \Gamma \vdash t: U
+                    &
+                    \exists s. \Gamma \vdash U: s
+                \end{array}
+                $$
+                Use $s = s_U$.
+            \end{enumerate}
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
 
 
 
@@ -476,128 +786,6 @@ the rules
 \end{theorem}
 
 
-
-
-
-\subsection{Generation Lemmata}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-\begin{theorem}
-    \label{GenerationLemma}
-    The following generation lemmata are valid
-    \begin{enumerate}
-    \item
-        $$
-        \ruleh {
-            \Gamma \vdash s_1 : T
-        }
-        {
-            \exists
-                s_2.
-                \left[
-                \begin{array}{l}
-                    \Gamma \vdash s_1: s_2
-                    \\
-                    s_2 \le T
-                \end{array}
-                \right]
-        }
-        $$
-
-    \item
-        $$
-        \ruleh {
-            \Gamma \vdash x : T
-        }
-        {
-            \Gamma x \le T
-        }
-        $$
-        where $\Gamma x$ is the type of $x$ in the context $\Gamma$.
-
-    \item % product
-        $$
-        \ruleh {
-            \Gamma \vdash (\Pi x^A. B) : T
-        }
-        {
-            \exists
-                s_1, s_2.
-                \left[
-                \begin{array}{l}
-                    \Gamma \vdash A: s_1
-                    \\
-                    \Gamma, x^A \vdash B: s_2
-                    \\
-                    (s_2 = \Prop \lor s_1 = s_2) \land s_2 \le T
-                \end{array}
-                \right]
-        }
-        $$
-
-    \item % abstraction
-        $$
-        \ruleh {
-            \Gamma \vdash (\lambda x^A. e) : T
-        }
-        {
-            \exists
-                B, s.
-                \left[
-                \begin{array}{l}
-                    \Gamma \vdash (\Pi x^A. B): s
-                    \\
-                    \Gamma, x^A \vdash e: B
-                    \\
-                    \Pi x^A.B \le T
-                \end{array}
-                \right]
-        }
-        $$
-
-    \item % application
-        $$
-        \ruleh {
-            \Gamma \vdash f a : T
-        }
-        {
-            \exists
-                A, B.
-                \left[
-                \begin{array}{l}
-                    \Gamma \vdash f: \Pi x^A. B
-                    \\
-                    \Gamma \vdash a: A
-                    \\
-                    B[x:=a] \le T
-                \end{array}
-                \right]
-        }
-        $$
-    \end{enumerate}
-
-    \begin{proof}
-        Premise in all lemmata is the validity of $\Gamma \vdash t: T$ where $t$
-        is either a sort, a variable, an application, a product or an
-        abstraction. The proof is done by induction on $\Gamma \vdash t: T$.
-
-        Only one of the introduction rules is valid. For the corresponding
-        introduction rule the proof of the goal is trivial.
-
-        The weakening rule modifies neither the term $t$ nor its type $T$.
-        Therefore the goal is proved by the corresponding induction hypothesis.
-
-        The reduction rule modifies the type from the type $T$ to another type
-        $U$ with $T \equiv U$. Since $T \equiv U$ implies $T \le U$ the goal can
-        be concluded from the induction hypothesis.
-
-        The subtype rule modifies the type from the type $T$ to another type $U$
-        with $T \prec U$. Since $T \prec U$ implies $T \le U$ the goal can be
-        concluded from the induction hypothesis.
-    \end{proof}
-\end{theorem}
 
 
 
