@@ -342,8 +342,11 @@ the rules
 \subsection{Condensing Lemma}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+REMARK: The proof for application is nontrivial!!
+
+
 \begin{lemma}
-    \label{Condensing}
+    %\label{Condensing}
     \emph{An unused variable can be removed from a context without affecting its
     typing judgements}
     $$
@@ -425,14 +428,48 @@ the rules
                 \item Abstraction:
                 $$
                 \begin{array}{l|l}
+                    \Gamma,x^A,\Delta \vdash \Pi y^B.C : s
+                    &
+                    \goal \Delta {\Pi y^B.C} s
+                    \\
+                    \Gamma,x^A,\Delta,y^B \vdash e: C
+                    &
+                    \goal {\Delta,y^B} e C
+                    \\
+                    \hline
+                    \Gamma,x^A,\Delta \vdash \lambda y^B. e: \Pi y^B.C
+                    &
+                    \goal \Delta {\lambda y^B. e} {\Pi y^B.C}
                 \end{array}
                 $$
+                Same reasoning as with product.
 
                 \item Application:
                 $$
                 \begin{array}{l|l}
+                    \Gamma,x^A,\Delta \vdash f: \Pi y^B.C
+                    &
+                    \goal \Delta f {\Pi y^B.C}
+                    \\
+                    \Gamma,x^A,\Delta  \vdash b : B
+                    &
+                    \goal {\Delta} b B
+                    \\
+                    \hline
+                    \Gamma,x^A,\Delta \vdash f b : C[y:=b]
+                    &
+                    \goal \Delta {f b} {C[y:=b]}
                 \end{array}
                 $$
+
+                {\bf This proof might fail here.} There seems to be no
+                possibility to prove $x \notin B$ and therefore it is
+                questionable, if the induction hypotheses can be used. Without
+                the induction hypotheses there seems to be no way to proof the
+                desired result!!!
+
+
+                INCOMPLETE!! POSSIBLY IMPOSSIBLE!!!
 
             \end{enumerate}
             \item Structural rules:
