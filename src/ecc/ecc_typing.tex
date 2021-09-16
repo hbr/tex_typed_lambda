@@ -45,7 +45,7 @@ the rules
                 \\
                 \Gamma, x^A \vdash B: s_2
                 \\
-                s_1 = s_2 \lor s_1 = \Prop
+                s_1 = s_2 \lor s_2 = \Prop
             }
             {
                 \Gamma \vdash \Pi x^A.B : s_2
@@ -141,9 +141,217 @@ the rules
 
 
 
+\subsection{Strengthening Lemma}
+
+\begin{lemma}
+    \label{Strengthening}
+    \emph{In all valid contexts $\Delta$ which at least all variables and their
+    corresponding types of the valid context $\Gamma$, the same typing
+    judgements are valid}.
+
+    $$
+    \rulev{
+        \Gamma \vdash t : T
+        \\
+        \Delta \text{ valid context}
+        \\
+        \Gamma \subseteq \Delta
+    }
+    {
+        \Delta \vdash t: T
+    }
+    $$
+
+    \begin{proof} By induction on $\Gamma \vdash t: T$.
+        {
+            \newcommand{\subgoal}[4] {
+                \begin{array}{l}
+                    {#1} \text { valid context}
+                    \\
+                    {#2} \subseteq {#1}
+                    \\
+                    \hline
+                    {#1} \vdash {#3}: {#4}
+                \end{array}
+            }
+            \newcommand{\goal}[4] {
+                \forall #1. \left( {\subgoal{#1}{#2}{#3}{#4}} \right)
+            }
+        \begin{enumerate}
+            \item Introduction rules:
+            \begin{enumerate}
+                \item Sort:
+
+                We have to prove $\Delta \vdash \Any_i : \Any_{i+1}$ for $i \in
+                    \set{-1, 0, 1, 2, 3, \ldots}$. Since $\Delta$ is a valid
+                    context this is valid by the axioms and repeated application
+                    of the weakening rule.
+
+                \item Variable:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash A: s
+                    \\
+                    x \notin \Gamma
+                    \\
+                    \hline
+                    \Gamma, x^A \vdash x : A
+                    &
+                    \goal \Delta {\Gamma,x^A} x A
+                \end{array}
+                $$
+                Since $\Gamma,x^A \subseteq \Delta$ the type judgement $x: A$
+                    must be valid in $\Delta$.
+
+                \item Product:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash A: s_1
+                    &
+                    \goal \Delta \Gamma {A} {s_1}
+                    \\
+                    \Gamma,x^A \vdash B: s_2
+                    &
+                    \goal {\Delta'} {\Gamma,x^A} B {s_2}
+                    \\
+                    s_1 = s_2 \lor s_2 = \Prop
+                    \\
+                    \hline
+                    \Gamma \vdash \Pi x^A.B : s_2
+                    &
+                    \goal \Delta \Gamma {\Pi x^A.B} {s_2}
+                \end{array}
+                $$
+                To prove the goal in the lower right corner we assume a context
+                    $\Delta$ which a valid superset of $\Gamma$. From the
+                    first induction hypothesis we derive $\Gamma \vdash A: s_1$.
+
+                Without loss of generality we assume $x \notin \Delta$,
+                    otherwise we rename it (note that $x$ is not contained
+                    in$A$).
+
+                Therefore $\Delta, x^A$ is a valid context and a superset of
+                    $\Gamma, x^A$. From the second induction hypothesis we get
+                    $\Delta, x^A \vdash B: s_2$ which leads via the product rule
+                    directly to $\Delta \vdash \Pi x^A. B: s_2$.
+
+                \item Abstraction:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash \Pi x^A. B: s
+                    &
+                    \goal \Delta \Gamma {\Pi x^A.B} s
+                    \\
+                    \Gamma,x^A \vdash e: B
+                    &
+                    \goal {\Delta'} {\Gamma, x^A} e B
+                    \\
+                    \hline
+                    \Gamma \vdash \lambda x^A. e: \Pi x^A. B
+                    &
+                    \goal \Delta \Gamma {\lambda x^A. e} {\Pi x^A. B}
+                \end{array}
+                $$
+                Same reasoning as with product.
+
+                \item Application:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash f: \Pi x^A.B
+                    &
+                    \goal \Delta \Gamma f {\Pi x^A.B}
+                    \\
+                    \Gamma \vdash a: A
+                    &
+                    \goal \Delta \Gamma a A
+                    \\
+                    \hline
+                    \Gamma \vdash f a : B[x:=a]
+                    &
+                    \goal \Delta \Gamma {f a} {B[x:=a]}
+                \end{array}
+                $$
+                The goal in the lower right corner is an immediate consequence
+                of the induction hypotheses.
+            \end{enumerate}
+
+            \item Structural rules:
+            \begin{enumerate}
+                \item Weakening:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t : T
+                    &
+                    \goal \Delta \Gamma t T
+                    \\
+                    \Gamma \vdash A : s
+                    \\
+                    x \notin \Gamma
+                    \\
+                    \hline
+                    \Gamma,x^A \vdash t: T
+                    &
+                    \goal \Delta {\Gamma,x^A} t T
+                \end{array}
+                $$
+                To prove the goal in the lower right corner we assume a valid
+                    context $\Delta$ with $\Gamma,x^A \subseteq \Delta$.
+                    Therfore $\Gamma \subseteq \Delta$ is valid. The final goal
+                    follows from the induction hypothesis.
+
+                \item Reduction:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t: T
+                    &
+                    \goal \Delta \Gamma t T
+                    \\
+                    \Gamma \vdash U: s
+                    &
+                    \goal \Delta \Gamma U s
+                    \\
+                    T \reduce U
+                    \\
+                    \hline
+                    \Gamma \vdash t : U
+                    &
+                    \goal \Delta \Gamma t U
+                \end{array}
+                $$
+                Assume a valid context $\Delta$ with $\Gamma \subseteq \Delta$.
+                    We have to prove the goal $\Delta \vdash t: U$. From the
+                    induction hypotheses we get $\Delta \vdash t: T$ and $\Delta
+                    \vdash U : s$ which immediately proves the goal by applying
+                    the reduction rule.
+
+                \item Expansion: Same reasoning as reduction.
+
+                \item Subtyping: Same reasoning as reduction
+
+            \end{enumerate}
+        \end{enumerate}
+        }
+    \end{proof}
+\end{lemma}
+
+
+
+
+
+
+
 
 \subsection{Generation Lemmata}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+A term $t$ is welltyped if there is a context $\Gamma$ and a type $T$ such that
+$\derives \Gamma t T$ is derivable. The generation lemmata postulate for each
+form of the welltyped term $t$ (i.e. sort, variable, product, abstraction and
+application) that there exists a type in a certain form which is a subtype of
+$T$. Note that the type in the certain form is not necessarily a subtype of any
+valid type of the term $t$. It is just a subtype of a certain valid type $T$ of
+$t$.
+
 
 
 
@@ -151,25 +359,17 @@ the rules
     \label{GenerationLemma}
     The following generation lemmata are valid
     \begin{enumerate}
-    \item
+    \item Sort:
         $$
         \ruleh {
-            \Gamma \vdash s_1 : T
+            \Gamma \vdash \Any_i : T
         }
         {
-            \exists
-                s_2.
-                \left[
-                \begin{array}{l}
-                    \Gamma \vdash s_1: s_2
-                    \\
-                    s_2 \le T
-                \end{array}
-                \right]
+            \Any_{i+1} \le T
         }
         $$
 
-    \item
+    \item Variable:
         $$
         \ruleh {
             \Gamma \vdash x : T
@@ -180,7 +380,7 @@ the rules
         $$
         where $\Gamma x$ is the type of $x$ in the context $\Gamma$.
 
-    \item % product
+    \item Product:
         $$
         \ruleh {
             \Gamma \vdash (\Pi x^A. B) : T
@@ -194,13 +394,15 @@ the rules
                     \\
                     \Gamma, x^A \vdash B: s_2
                     \\
-                    (s_2 = \Prop \lor s_1 = s_2) \land s_2 \le T
+                    (s_1 = s_2 \lor s_2 = \Prop)
+                    \\
+                    s_2 \le T
                 \end{array}
                 \right]
         }
         $$
 
-    \item % abstraction
+    \item Abstraction:
         $$
         \ruleh {
             \Gamma \vdash (\lambda x^A. e) : T
@@ -220,7 +422,7 @@ the rules
         }
         $$
 
-    \item % application
+    \item Application:
         $$
         \ruleh {
             \Gamma \vdash f a : T
@@ -249,17 +451,114 @@ the rules
         Only one of the introduction rules is valid. For the corresponding
         introduction rule the proof of the goal is trivial.
 
-        The weakening rule modifies neither the term $t$ nor its type $T$.
-        Therefore the goal is proved by the corresponding induction hypothesis.
+        For all structural rules the goal follows from the induction hypothesis
+        and some properties of subtyping.
 
-        The reduction and expansion rules modify the type from the type $T$ to
-        another type $U$ with $T \betaeq U$. Since $T \betaeq U$ implies $T \le U$
-        the goal can be concluded from the induction hypothesis and the
-        transitivity of $\le$.
+        All proves follow the same pattern. We give here the proof for the
+        product generation lemma.
 
-        The subtype rule modifies the type from the type $T$ to another type $U$
-        with $T \prec_i U$. Since $T \prec_i U$ implies $T \le U$ the goal can be
-        concluded from the induction hypothesis and the transitivity of $\le$.
+        {\def\goal#1#2#3#4#5#6{
+            \exists #1 #2.
+            \left[
+            \begin{array}{l}
+                \derives {#3} #4 #1
+                \\
+                \derives {#3,x^#4} #5 #2
+                \\
+                #1 = #2 \lor #2 = \Prop
+                \\
+                #2 \le #6
+            \end{array}
+            \right]
+         }
+        \begin{enumerate}
+            \item Introduction rules: Only the product rule is syntactically
+                possible.
+                $$
+                \begin{array}{l|l}
+                    \derives \Gamma A {s_1}
+                    \\
+                    \derives {\Gamma,x^A} B {s_2}
+                    \\
+                    s_1 = s_2 \lor s_2 = \Prop
+                    \\
+                    \hline
+                    \derives \Gamma {\Pi x^A. B} {s_2}
+                    &
+                    \goal {s_A} {s_B} \Gamma A B {s_2}
+                \end{array}
+                $$
+                Use $s_A = s_1$ and $s_B = s_2$.
+
+            \item Structural rules:
+            \begin{enumerate}
+                \item Weakening:
+                $$
+                \begin{array}{l|l}
+                    \derives \Gamma {\Pi x^A. B} T
+                    &
+                    \goal {s_1} {s_2} {\Gamma} A B T
+                    \\
+                    \derives \Gamma C  s
+                    \\
+                    z \notin \Gamma
+                    \\
+                    \hline
+                    \derives {\Gamma,z^C} {\Pi x^A. B} T
+                    &
+                    \goal {s_1} {s_2} {\Gamma,z^C} A B T
+                \end{array}
+                $$
+                Use $s_1$ and $s_2$ which exist by the induction hypothesis and
+                    have the properties from the induction hypothesis.
+
+                    From that we prove the four subgoals in the lower right
+                    corner.
+
+                    The first subgoal is valid by the induction hypothesis and
+                    weakening.
+
+                    For the second subgoal we need to prove that $\Gamma,z^C,
+                    x^A$ is a valid context. $\Gamma,z^C$ is certainly a valid
+                    context. Without loss of generality we can assume $x \ne z$.
+                    Therefore by the first subgoal we prove that
+                    $\Gamma,z^C,x^A$ is a valid context. From the induction
+                    hypothesis and the strengthening lemma~\ref{Strengthening}
+                    we get the second subgoal.
+
+                    The third and the forth subgoals are immediate consequences
+                    of the induction hypothesis.
+
+                \item Reduction:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash \Pi x^A.B : T
+                    &
+                    \goal {s_1} {s_2} \Gamma A B T
+                    \\
+                    \Gamma \vdash U: s
+                    \\
+                    T \reduce U
+                    \\
+                    \hline
+                    \Gamma \vdash \Pi x^A.B : U
+                    &
+                    \goal {s_1} {s_2} \Gamma A B U
+                \end{array}
+                $$
+                Use $s_1$ and $s_2$ from the induction hypothesis. The first
+                    three subgoals in the lower right corner are identical with
+                    the first three statements in the induction hypothesis. The
+                    fourth subgoal follows from the induction hypothesis and $T
+                    \reduce U$ and basic properties of $\le$.
+
+                \item Expansion: Same reasoning as reduction.
+
+                \item Subtype: Same reasoning as reduction.
+
+            \end{enumerate}
+        \end{enumerate}
+        }
     \end{proof}
 \end{theorem}
 
