@@ -1055,18 +1055,106 @@ $t$.
                 \item Abstraction:
                     $$
                     \begin{array}{l|l}
+                        \Gamma \vdash \Pi x^A. B : s
+                        \\
+                        \Gamma, x^A \vdash e: B
+                        &
+                        \exists B_0. \derivesmin {\Gamma, x^A} e {B_0}
+                        \\
+                        \hline
+                        \Gamma \vdash \lambda x^A. e: \Pi x^A. B
+                        &
+                        \exists M. \derivesmin \Gamma {\lambda x^A.e} M
                     \end{array}
                     $$
+                    From the induction hypothesis we get a term $B_0$ which is
+                    the minimal type of $e$ in $\Gamma,x^A$. We use $M = \Pi
+                    x^A. B_0$ and have to prove
+                    $$
+                    \forall U.
+                    \ruleh
+                    {\Gamma \vdash \lambda x^A. e: U}
+                    {\Pi x^A.B_0 \le U}
+                    $$
+                    Now let's assume $\Gamma \vdash \lambda x^A.e : U$. By the
+                    generation lemma for abstraction~\ref{GenerationLemma} there
+                    exist some $B_1$ and $s_1$ such that
+                    $$
+                    \begin{array}{l}
+                        \Gamma, x^A \vdash e: B_1
+                        \\
+                        \Pi x^A. B_1 \le U
+                    \end{array}
+                    $$
+                    Since $B_0$ is minimal i.e. $B_0 \le B_1$ we get
+                    $$
+                    \Pi x^A. B_0 \le \Pi x^A. B_1 \le U
+                    $$
+                    an therefore $\Pi x^A. B_0$ is really minimal.
 
                 \item Application:
                     $$
                     \begin{array}{l|l}
+                        \Gamma \vdash f: \Pi x^A.B
+                        \\
+                        \Gamma \vdash a: A
+                        \\
+                        \hline
+                        \Gamma \vdash f a: B[x:=a]
+                        &
+                        \exists M. \derivesmin \Gamma {f a} M
                     \end{array}
                     $$
+
+                    INCOMPLETE !!!
+
             \end{enumerate}
+
             \item Structural rules:
+            \begin{enumerate}
+                \item Weakening:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t: T
+                    \\
+                    \Gamma \vdash A: s
+                    \\
+                    x \notin \Gamma
+                    \\
+                    \hline
+                    \Gamma, x^A \vdash t : T
+                    &
+                    \exists M. \derivesmin {\Gamma, x^A} t T
+                \end{array}
+                $$
+                    INCOMPLETE!!!
+
+                \item Reduction:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t : T
+                    &
+                    \exists M. \derivesmin \Gamma t M
+                    \\
+                    \Gamma \vdash U : s
+                    \\
+                    T \reduce U
+                    \\
+                    \hline
+                    \Gamma \vdash t : U
+                    &
+                    \exists M. \derivesmin \Gamma t M
+                \end{array}
+                $$
+                The goal in the lower right corner follows immediately from the
+                    induction hypothesis.
+
+                \item Expansion: Same reasoning as with reduction.
+
+                \item Subtyping: Same reasoning as with reduction.
+
+            \end{enumerate}
         \end{enumerate}
-        INCOMPLETE !!!
     \end{proof}
 \end{theorem}
 
