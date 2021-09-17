@@ -1,8 +1,24 @@
 \section{Typing}
 
 
-
-
+{\scriptsize
+\begin{verbatim}
+    Substitution                Strengthening
+    Lemma                       Lemma
+      |                             |
+      |                             |
+      |                             v
+      |                         Generation
+      |                         Lemma
+      |        /--------------------|
+      |        |                    v
+      |        |                Subject
+      |        |                Reduction
+      |        v
+      \-->  Type of
+            Types
+\end{verbatim}
+}
 
 
 
@@ -138,6 +154,149 @@ the rules
         \end{enumerate}
     \end{enumerate}
 \end{definition}
+
+
+
+\subsection{Substitution Lemma}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{theorem}
+    \label{SubstitutionLemma}
+    Substitution (cut) theorem.
+    $$
+    \rulev{
+        \Gamma \vdash a: A
+        \\
+        \Gamma, x^A, \Delta \vdash t: T
+    }
+    {
+        \Gamma, \Delta[x:=a] \vdash t[x:=a]: T[x:=a]
+    }
+    $$
+
+    \begin{proof}
+        We assume
+        $\Gamma \vdash a: A$
+        and prove this theorem by induction on
+        $\Gamma, x^A, \Delta \vdash t: T$.
+
+        In order to express the proof more compactly we introduce the
+        abbreviation $t' := t[x:=a]$.
+
+        \begin{enumerate}
+            \item Axiom: This case is syntactically impossible, because the
+                context is not empty.
+
+            \item Variable: We have to prove the goal
+                $$
+                \begin{array}{l|l}
+                    \Gamma, x^A, \Delta \vdash B: s
+                    &
+                    \Gamma, \Delta' \vdash B': s
+                    \\
+                    \hline
+                    \Gamma, x^A, \Delta, y^B \vdash y: B
+                    &
+                    \Gamma, \Delta', y^{B'} \vdash y: B'
+                \end{array}
+                $$
+
+                The final goal in the lower right corner follows directly from
+                the induction hypothesis and the variable introduction rule.
+
+            \item Product:
+                $$
+                \begin{array}{l|l}
+                    \Gamma, x^A, \Delta \vdash B: s_1
+                    &
+                    \Gamma, \Delta' \vdash B': s_1
+                    \\
+                    \Gamma, x^A, \Delta, y^B \vdash C: s_2
+                    &
+                    \Gamma, \Delta', y^{B'} \vdash C': s_2
+                    \\
+                    s_2 = \Prop \lor s_1 = s2
+                    \\
+                    \hline
+                    \Gamma, x^A, \Delta \vdash \Pi y^B. C : s_2
+                    &
+                    \Gamma, \Delta' \vdash \Pi y^{B'}. C': s_2
+                \end{array}
+                $$
+
+                The final goal follows from the induction hypotheses and the
+                product introduction rule.
+
+            \item Abstraction:
+                $$
+                \begin{array}{l|l}
+                    \Gamma, x^A, \Delta \vdash \Pi y^B. C: s
+                    &
+                    \Gamma, \Delta' \vdash \Pi y^{B'}. C': s
+                    \\
+                    \Gamma, x^A, \Delta, y^B \vdash e: C
+                    &
+                    \Gamma, \Delta', y^{B'} \vdash e': C'
+                    \\
+                    \hline
+                    \Gamma, x^A, \Delta \vdash \lambda y^B. e: \Pi y^B. C
+                    &
+                    \Gamma, \Delta' \vdash \lambda y^{B'}. e' : \Pi y^{B'}. C'
+                \end{array}
+                $$
+
+                Same reasoning as above.
+
+            \item Application:
+                $$
+                \begin{array}{l|l}
+                    \Gamma, x^A, \Delta \vdash f: \Pi y^B. C
+                    &
+                    \Gamma, \Delta' \vdash f' : \Pi y^{B'}. C'
+                    \\
+                    \Gamma, x^A, \Delta \vdash b: B
+                    &
+                    \Gamma, \Delta' \vdash b': B'
+                    \\
+                    \hline
+                    \Gamma, x^A, \Delta \vdash f b: C[y:=b]
+                    &
+                    \Gamma, \Delta' \vdash f' b': C[y:=b]'
+                \end{array}
+                $$
+
+                From the induction hypotheses and the application introduction
+                rule we conclude
+                $$
+                    \Gamma, \Delta' \vdash f' b': C'[y:=b']
+                $$
+                and get the final goal by observing
+                $$
+                    C'[y:=b'] = C[y:=b]'
+                $$
+                by using the double substition lemma~\ref{DoubleSubstitution}.
+
+            \item Structural rules: For all structural rules we prove the final
+                goal by the induction hypothesis and by the facts
+                $$
+                \begin{array}{llll}
+                    t \reduce u     &\imp& t' \reduce u'
+                    &\text{Lemma~\ref{SubstituteReduction}}
+                    \\
+                    A \prec_i B     &\imp& A' \prec_i B'
+                    &\text{Lemma~\ref{PrecedenceSubstitution}}
+                \end{array}
+                $$
+
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
 
 
 
@@ -339,6 +498,629 @@ the rules
 
 
 
+\subsection{Generation Lemmata}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+A term $t$ is welltyped if there is a context $\Gamma$ and a type $T$ such that
+$\derives \Gamma t T$ is derivable. The generation lemmata postulate for each
+form of the welltyped term $t$ (i.e. sort, variable, product, abstraction and
+application) that there exists a type in a certain form which is a subtype of
+$T$. Note that the type in the certain form is not necessarily a subtype of any
+valid type of the term $t$. It is just a subtype of a certain valid type $T$ of
+$t$.
+
+
+
+
+\begin{theorem}
+    \label{GenerationLemma}
+    The following generation lemmata are valid
+    \begin{enumerate}
+    \item Sort:
+        $$
+        \ruleh {
+            \Gamma \vdash \Any_i : T
+        }
+        {
+            \Any_{i+1} \le T
+        }
+        $$
+
+    \item Variable:
+        $$
+        \ruleh {
+            \Gamma \vdash x : T
+        }
+        {
+            \Gamma x \le T
+        }
+        $$
+        where $\Gamma x$ is the type of $x$ in the context $\Gamma$.
+
+    \item Product:
+        $$
+        \ruleh {
+            \Gamma \vdash (\Pi x^A. B) : T
+        }
+        {
+            \exists
+                s_1, s_2.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash A: s_1
+                    \\
+                    \Gamma, x^A \vdash B: s_2
+                    \\
+                    (s_1 = s_2 \lor s_2 = \Prop)
+                    \\
+                    s_2 \le T
+                \end{array}
+                \right]
+        }
+        $$
+
+    \item Abstraction:
+        $$
+        \ruleh {
+            \Gamma \vdash (\lambda x^A. e) : T
+        }
+        {
+            \exists
+                B, s.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash (\Pi x^A. B): s
+                    \\
+                    \Gamma, x^A \vdash e: B
+                    \\
+                    \Pi x^A.B \le T
+                \end{array}
+                \right]
+        }
+        $$
+
+    \item Application:
+        $$
+        \ruleh {
+            \Gamma \vdash f a : T
+        }
+        {
+            \exists
+                A, B.
+                \left[
+                \begin{array}{l}
+                    \Gamma \vdash f: \Pi x^A. B
+                    \\
+                    \Gamma \vdash a: A
+                    \\
+                    B[x:=a] \le T
+                \end{array}
+                \right]
+        }
+        $$
+    \end{enumerate}
+
+    \begin{proof}
+        Premise in all lemmata is the validity of $\Gamma \vdash t: T$ where $t$
+        is either a sort, a variable, an application, a product or an
+        abstraction. The proof is done by induction on $\Gamma \vdash t: T$.
+
+        Only one of the introduction rules is valid. For the corresponding
+        introduction rule the proof of the goal is trivial.
+
+        For all structural rules the goal follows from the induction hypothesis
+        and some properties of subtyping.
+
+        All proves follow the same pattern. We give here the proof for the
+        product generation lemma.
+
+        {\def\goal#1#2#3#4#5#6{
+            \exists #1 #2.
+            \left[
+            \begin{array}{l}
+                \derives {#3} #4 #1
+                \\
+                \derives {#3,x^#4} #5 #2
+                \\
+                #1 = #2 \lor #2 = \Prop
+                \\
+                #2 \le #6
+            \end{array}
+            \right]
+         }
+        \begin{enumerate}
+            \item Introduction rules: Only the product rule is syntactically
+                possible.
+                $$
+                \begin{array}{l|l}
+                    \derives \Gamma A {s_1}
+                    \\
+                    \derives {\Gamma,x^A} B {s_2}
+                    \\
+                    s_1 = s_2 \lor s_2 = \Prop
+                    \\
+                    \hline
+                    \derives \Gamma {\Pi x^A. B} {s_2}
+                    &
+                    \goal {s_A} {s_B} \Gamma A B {s_2}
+                \end{array}
+                $$
+                Use $s_A = s_1$ and $s_B = s_2$.
+
+            \item Structural rules:
+            \begin{enumerate}
+                \item Weakening:
+                $$
+                \begin{array}{l|l}
+                    \derives \Gamma {\Pi x^A. B} T
+                    &
+                    \goal {s_1} {s_2} {\Gamma} A B T
+                    \\
+                    \derives \Gamma C  s
+                    \\
+                    z \notin \Gamma
+                    \\
+                    \hline
+                    \derives {\Gamma,z^C} {\Pi x^A. B} T
+                    &
+                    \goal {s_1} {s_2} {\Gamma,z^C} A B T
+                \end{array}
+                $$
+                Use $s_1$ and $s_2$ which exist by the induction hypothesis and
+                    have the properties from the induction hypothesis.
+
+                    From that we prove the four subgoals in the lower right
+                    corner.
+
+                    The first subgoal is valid by the induction hypothesis and
+                    weakening.
+
+                    For the second subgoal we need to prove that $\Gamma,z^C,
+                    x^A$ is a valid context. $\Gamma,z^C$ is certainly a valid
+                    context. Without loss of generality we can assume $x \ne z$.
+                    Therefore by the first subgoal we prove that
+                    $\Gamma,z^C,x^A$ is a valid context. From the induction
+                    hypothesis and the strengthening lemma~\ref{Strengthening}
+                    we get the second subgoal.
+
+                    The third and the forth subgoals are immediate consequences
+                    of the induction hypothesis.
+
+                \item Reduction:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash \Pi x^A.B : T
+                    &
+                    \goal {s_1} {s_2} \Gamma A B T
+                    \\
+                    \Gamma \vdash U: s
+                    \\
+                    T \reduce U
+                    \\
+                    \hline
+                    \Gamma \vdash \Pi x^A.B : U
+                    &
+                    \goal {s_1} {s_2} \Gamma A B U
+                \end{array}
+                $$
+                Use $s_1$ and $s_2$ from the induction hypothesis. The first
+                    three subgoals in the lower right corner are identical with
+                    the first three statements in the induction hypothesis. The
+                    fourth subgoal follows from the induction hypothesis and $T
+                    \reduce U$ and basic properties of $\le$.
+
+                \item Expansion: Same reasoning as reduction.
+
+                \item Subtype: Same reasoning as reduction.
+
+            \end{enumerate}
+        \end{enumerate}
+        }
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\subsection{Subject Reduction Lemma}
+
+\begin{theorem}
+    \label{SubjectReduction}
+    \emph{Subject reduction lemma} Reduction of a term does change its type.
+    $$
+    \rulev{
+        \Gamma \vdash t: T
+        \\
+        t \reduce u
+    }
+    {
+        \Gamma \vdash u: T
+    }
+    $$
+
+    {
+    \def\SRLeftPart#1#2#3#4{
+        \left(
+        \forall #1.
+        \ruleh{#2 \reduce #1}{#3 \vdash #1: #4}
+        \right)
+    }
+    \def\SRRightPart#1#2#3#4{
+        \left(
+        \forall #1.
+        \ruleh{#2 \reduce #1}{#1 \vdash #3: #4}
+        \right)
+    }
+
+    \begin{proof} In order to prove the subject reduction lemma we prove the
+        more general lemma
+        $$
+        \ruleh{
+            \Gamma \vdash t: T
+        }
+        {
+            \SRLeftPart u t \Gamma T
+            \land
+            \SRRightPart \Delta \Gamma t T
+        }
+        $$
+        where $\Gamma \reduce \Delta$ means that $\Delta$ is $\Gamma$ with one
+        of the variable types replaced by a reduced type.
+
+        We prove the more general lemma by induction on $\Gamma \vdash t: T$.
+        \begin{enumerate}
+            \item Introduction rules:
+            \begin{enumerate}
+                \item Sort: If $\Gamma$ is empty and $t$ is a sort, then the
+                    goal is vacuously true because neither the empty context nor
+                    a sort can reduce to anything (they are in normal form).
+
+                \item Variable:
+                    $$
+                    \begin{array}{l|l}
+                        \Gamma \vdash A : s
+                        &
+                        \SRLeftPart B A \Gamma s
+                        \land
+                        \SRRightPart {\Delta_0} \Gamma A s
+                        \\
+                        \hline
+                        \Gamma, x^A \vdash x: A
+                        &
+                        \SRLeftPart u x {\Gamma,x^A} A
+                        \land
+                        \SRRightPart \Delta {\Gamma,x^A} x A
+                    \end{array}
+                    $$
+                    The left part of the goal in the lower right corner is
+                    vacously true because a variable is in normal form and there
+                    is no term to which it reduces.
+
+                    For the right part we assume $\Gamma,x^A \reduce \Delta$.
+                    There are two possibilities:
+                    \begin{enumerate}
+                        \item $\Delta = \Delta_0,x^A$ where $\Gamma \reduce
+                            \Delta_0$ for some $\Delta_0$:
+
+                        In that case we get $\Delta_0 \vdash A: s$ from the
+                            induction hypothesis which implies the goal
+                            $\Delta_0,x^A \vdash x: A$.
+
+                        \item $\Delta = \Gamma,x^B$ where $A \reduce B$:
+
+                        In that case we get $\Gamma \vdash B : s$ from the
+                            induction hypothesis which implies the goal
+                            $\Gamma,x^B: x \vdash B$.
+                    \end{enumerate}
+
+                \item Product:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash A: s_1
+                    &
+                    \SRLeftPart C A \Gamma {s_1}
+                    \lor
+                    \SRRightPart \Delta \Gamma A {s_1}
+                    \\
+                    \Gamma,x^A \vdash B: s_2
+                    &
+                    \SRLeftPart D B {\Gamma,x^A} {s_2}
+                    \lor
+                    \SRRightPart {\Delta'} {\Gamma,x^A} B {s_2}
+                    \\
+                    s_1 = s_2 \lor s_2 = \Prop
+                    \\
+                    \hline
+                    \Gamma \vdash \Pi x^A. B : s_2
+                    &
+                    \SRLeftPart t {\Pi x^A.B} \Gamma {s_2}
+                    \land
+                    \SRRightPart \Delta \Gamma {\Pi x^A. B} {s_2}
+                \end{array}
+                $$
+                \begin{enumerate}
+                    \item Left part: We assume $\Pi x^A. B \reduce t$.
+
+                    Since products are preserved under reduction
+                        (lemma~\ref{ReductionProductAbstraction}) we have either
+                        $t = \Pi x^C. B$ where $A \reduce C$ for some $C$ or $t
+                        = \Pi x^A.D$ where $B \reduce D$ for some $D$.
+
+                    In both cases we can derive from the induction hypotheses
+                        either $\Gamma \vdash C: s_1$ or $\Gamma,x^A \vdash D:
+                        s_2$. Therefore $\Gamma \vdash \Pi x^C. B: s_2$ or $\Gamma
+                        \vdash \Pi x^A.D: s_2$ is valid trivially.
+
+                    \item Right part: Assume $\Gamma \reduce \Delta$. From the
+                        first induction hypothesis we get $\Delta \vdash A:
+                        s_1$. From the second induction hypothesis we get
+                        $\Delta, x^A \vdash B: s_2$ where we use $\Delta' =
+                        \Delta, x^A$. These facts imply $\Delta
+                        \vdash \Pi x^A. B : s_2$.
+                \end{enumerate}
+
+                \item Abstraction: Same reasoning as with product.
+
+                \item Application:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash f: \Pi x^A. B
+                    &
+                    \SRLeftPart g f \Gamma {\Pi x^A. B}
+                    \land
+                    \SRRightPart \Delta \Gamma f {\Pi x^A.B}
+                    \\
+                    \Gamma \vdash a: A
+                    &
+                    \SRLeftPart b a \Gamma A
+                    \land
+                    \SRRightPart \Delta \Gamma a A
+                    \\
+                    \hline
+                    \Gamma \vdash f a: B[x:=a]
+                    &
+                    \SRLeftPart t {f a} \Gamma {B[x:=a]}
+                    \land
+                    \SRRightPart \Delta \Gamma {f a} {B[x:=a]}
+                \end{array}
+                $$
+                \begin{enumerate}
+                    \item Left part: Assume $f a \reduce t$. We have three cases
+                        to consider.
+                    \begin{enumerate}
+                        \item $f a \reduce g a$ where $f \reduce g$:
+
+                            From the first induction hypothesis we get that $g$
+                            has the same type as $f$ and therefore $g a:
+                            B[x:=a]$ is valid.
+
+                        \item $f a \reduce f b$ where $a \reduce b$:
+
+                            From the second induction hypothesis we get
+                            $\Gamma \vdash b: A$ and therefore $\Gamma \vdash f
+                            a : B[x:=b]$.
+
+                            Since $B[x:=a]$ is a valid type and because of
+                            lemma~\ref{SubstituteReduction} we have $B[x:=a]
+                            \reduce B[x:=b]$. The expansion rule let us derive
+                            $\Gamma \vdash f b: B[x:=a]$ which is identical to
+                            the final goal.
+
+                        \item $(\lambda x^A. e) a \reduce e[x:=a]$:
+
+                            In that case we have $f = \lambda x^A. e$ i.e.
+                            $\Gamma \vdash \lambda x^A. e: \Pi x^A. B$.
+
+                            According to the generation lemma for
+                            abstractions~\ref{GenerationLemma} there is some
+                            $B_0$ with $B_0 \le B$ with $\Gamma,x^A \vdash e:
+                            B_0$. INCOMPLETE!!!
+
+                        INCOMPLETE
+
+                    \end{enumerate}
+
+                    \item Right part: Immediate consequence of the induction
+                        hypotheses.
+                \end{enumerate}
+            \end{enumerate}
+
+            \item Structural rules:
+            \begin{enumerate}
+                \item Weaken:
+            \end{enumerate}
+        \end{enumerate}
+
+        INCOMPLETE!!!
+    \end{proof}
+    }
+\end{theorem}
+
+
+
+
+
+\subsection{Type of types}
+
+\begin{theorem}
+    \label{TypeOfTypes}
+    \emph{The type of a type is a sort}
+    $$
+    \ruleh {
+        \Gamma \vdash t: T
+    }
+    {
+        \exists s. \Gamma \vdash T : s
+    }
+    $$
+
+    \begin{proof}
+        By induction of $\Gamma \vdash t : T$.
+        \begin{enumerate}
+            \item Introduction rules:
+            \begin{enumerate}
+                \item Axiom
+                $$
+                \begin{array}{l|l}
+                    [] \vdash \Any_i : \Any_{i+1}
+                    &
+                    \exists s. \Gamma \vdash \Any_{i+1}: s
+                \end{array}
+                $$
+                Use $s = \Any_{i+2}$.
+
+                \item Variable
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash A : s
+                    \\
+                    x \notin \Gamma
+                    \\
+                    \hline
+                    \Gamma, x^A \vdash x: A
+                    &
+                    \exists s_2. \Gamma,x^A \vdash A: s_2
+                \end{array}
+                $$
+                Use $s_2 = s$ and the weakening rule.
+
+                \item Product
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash A : s_1
+                    \\
+                    \Gamma,x^A \vdash B: s_2
+                    \\
+                    s_1 = s_2 \lor s_2 = \Prop
+                    \\
+                    \hline
+                    \Gamma \vdash \Pi x^A. B : s_2
+                    &
+                    \exists s_3. \Gamma \vdash s_2: s_3
+                \end{array}
+                $$
+                For $s_2 = \Any_i$ use $s_3 = \Any_{i+1}$.
+
+                \item Abstraction
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash \Pi x^A. B : s_1
+                    \\
+                    \Gamma,x^A \vdash e: B
+                    \\
+                    \hline
+                    \Gamma \vdash \lambda x^A. e : \Pi x^A. B
+                    &
+                    \exists s. \Gamma \vdash \Pi x^A. B: s
+                \end{array}
+                $$
+                Use $s = s_1$.
+
+                \item Application
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash f: \Pi x^A. B
+                    &
+                    \exists s_\pi: \Gamma \vdash \Pi x^A. B: s_\pi
+                    \\
+                    \Gamma \vdash a: A
+                    \\
+                    \hline
+                    \Gamma \vdash f a: B[x:=a]
+                    &
+                    \exists s. \Gamma \vdash B[x:=a]: s
+                \end{array}
+                $$
+                From the induction hypothesis we get a sort $s_\pi$ which is the
+                type of the product. Then we use the generation
+                lemma~\ref{GenerationLemma} for the product to get $s_B$ which
+                satisfies $\Gamma, x^A \vdash B: s_B$. Finally we use the
+                substitution lemma~\ref{SubstitutionLemma} to infer $\Gamma
+                \vdash B[x:=a] : s_B$ and use $s = s_B$.
+            \end{enumerate}
+
+            \item Structural rules:
+            \begin{enumerate}
+                \item Weaken:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t: T
+                    &
+                    \exists s_T: \Gamma \vdash T: s_T
+                    \\
+                    \Gamma \vdash A: s_A
+                    \\
+                    x \notin \Gamma
+                    \\
+                    \hline
+                    \Gamma, x^A \vdash t: T
+                    &
+                    \exists s. \Gamma, x^A \vdash T: s
+                \end{array}
+                $$
+                Use $s = s_T$ which exists by the induction hypothesis and lift
+                    the typing judgement $\Gamma \vdash T : s_T$ using the
+                    weakening rule into the context $\Gamma, x^A$.
+
+                \item Reduction:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t : T
+                    \\
+                    \Gamma \vdash U: s_U
+                    \\
+                    T \reduce U
+                    \\
+                    \hline
+                    \Gamma \vdash t: U
+                    &
+                    \exists s. \Gamma \vdash U: s
+                \end{array}
+                $$
+                Use $s = s_U$.
+
+                \item Expansion:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t : T
+                    \\
+                    \Gamma \vdash U: s_U
+                    \\
+                    U \reducestar T
+                    \\
+                    \hline
+                    \Gamma \vdash t: U
+                    &
+                    \exists s. \Gamma \vdash U: s
+                \end{array}
+                $$
+                Use $s = s_U$.
+
+                \item Subtype:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t : T
+                    \\
+                    \Gamma \vdash U: s_U
+                    \\
+                    T \prec_i U
+                    \\
+                    \hline
+                    \Gamma \vdash t: U
+                    &
+                    \exists s. \Gamma \vdash U: s
+                \end{array}
+                $$
+                Use $s = s_U$.
+            \end{enumerate}
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
 \subsection{Condensing Lemma}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -471,7 +1253,7 @@ the rules
                 In order to prove the goal in the lower right corner we assume
                 that $x$ does not occur free in $\Delta$ and $\lambda x^A.e$.
                 From the second induction hypothesis we get a term $C_0$ which
-                satisfies $\Gamma,\Delta,y^B \vdash e: C_0$ and $C_0 \le C$. 
+                satisfies $\Gamma,\Delta,y^B \vdash e: C_0$ and $C_0 \le C$.
 
                 $B$ and $C_0$ are certainly valid types in the context
                 $\Gamma,\Delta$, therefore we can derive $\Gamma,\Delta \vdash
@@ -704,553 +1486,6 @@ REMARK: The proof for application is nontrivial!!
         }
     \end{proof}
 \end{lemma}
-
-
-
-
-\subsection{Generation Lemmata}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-A term $t$ is welltyped if there is a context $\Gamma$ and a type $T$ such that
-$\derives \Gamma t T$ is derivable. The generation lemmata postulate for each
-form of the welltyped term $t$ (i.e. sort, variable, product, abstraction and
-application) that there exists a type in a certain form which is a subtype of
-$T$. Note that the type in the certain form is not necessarily a subtype of any
-valid type of the term $t$. It is just a subtype of a certain valid type $T$ of
-$t$.
-
-
-
-
-\begin{theorem}
-    \label{GenerationLemma}
-    The following generation lemmata are valid
-    \begin{enumerate}
-    \item Sort:
-        $$
-        \ruleh {
-            \Gamma \vdash \Any_i : T
-        }
-        {
-            \Any_{i+1} \le T
-        }
-        $$
-
-    \item Variable:
-        $$
-        \ruleh {
-            \Gamma \vdash x : T
-        }
-        {
-            \Gamma x \le T
-        }
-        $$
-        where $\Gamma x$ is the type of $x$ in the context $\Gamma$.
-
-    \item Product:
-        $$
-        \ruleh {
-            \Gamma \vdash (\Pi x^A. B) : T
-        }
-        {
-            \exists
-                s_1, s_2.
-                \left[
-                \begin{array}{l}
-                    \Gamma \vdash A: s_1
-                    \\
-                    \Gamma, x^A \vdash B: s_2
-                    \\
-                    (s_1 = s_2 \lor s_2 = \Prop)
-                    \\
-                    s_2 \le T
-                \end{array}
-                \right]
-        }
-        $$
-
-    \item Abstraction:
-        $$
-        \ruleh {
-            \Gamma \vdash (\lambda x^A. e) : T
-        }
-        {
-            \exists
-                B, s.
-                \left[
-                \begin{array}{l}
-                    \Gamma \vdash (\Pi x^A. B): s
-                    \\
-                    \Gamma, x^A \vdash e: B
-                    \\
-                    \Pi x^A.B \le T
-                \end{array}
-                \right]
-        }
-        $$
-
-    \item Application:
-        $$
-        \ruleh {
-            \Gamma \vdash f a : T
-        }
-        {
-            \exists
-                A, B.
-                \left[
-                \begin{array}{l}
-                    \Gamma \vdash f: \Pi x^A. B
-                    \\
-                    \Gamma \vdash a: A
-                    \\
-                    B[x:=a] \le T
-                \end{array}
-                \right]
-        }
-        $$
-    \end{enumerate}
-
-    \begin{proof}
-        Premise in all lemmata is the validity of $\Gamma \vdash t: T$ where $t$
-        is either a sort, a variable, an application, a product or an
-        abstraction. The proof is done by induction on $\Gamma \vdash t: T$.
-
-        Only one of the introduction rules is valid. For the corresponding
-        introduction rule the proof of the goal is trivial.
-
-        For all structural rules the goal follows from the induction hypothesis
-        and some properties of subtyping.
-
-        All proves follow the same pattern. We give here the proof for the
-        product generation lemma.
-
-        {\def\goal#1#2#3#4#5#6{
-            \exists #1 #2.
-            \left[
-            \begin{array}{l}
-                \derives {#3} #4 #1
-                \\
-                \derives {#3,x^#4} #5 #2
-                \\
-                #1 = #2 \lor #2 = \Prop
-                \\
-                #2 \le #6
-            \end{array}
-            \right]
-         }
-        \begin{enumerate}
-            \item Introduction rules: Only the product rule is syntactically
-                possible.
-                $$
-                \begin{array}{l|l}
-                    \derives \Gamma A {s_1}
-                    \\
-                    \derives {\Gamma,x^A} B {s_2}
-                    \\
-                    s_1 = s_2 \lor s_2 = \Prop
-                    \\
-                    \hline
-                    \derives \Gamma {\Pi x^A. B} {s_2}
-                    &
-                    \goal {s_A} {s_B} \Gamma A B {s_2}
-                \end{array}
-                $$
-                Use $s_A = s_1$ and $s_B = s_2$.
-
-            \item Structural rules:
-            \begin{enumerate}
-                \item Weakening:
-                $$
-                \begin{array}{l|l}
-                    \derives \Gamma {\Pi x^A. B} T
-                    &
-                    \goal {s_1} {s_2} {\Gamma} A B T
-                    \\
-                    \derives \Gamma C  s
-                    \\
-                    z \notin \Gamma
-                    \\
-                    \hline
-                    \derives {\Gamma,z^C} {\Pi x^A. B} T
-                    &
-                    \goal {s_1} {s_2} {\Gamma,z^C} A B T
-                \end{array}
-                $$
-                Use $s_1$ and $s_2$ which exist by the induction hypothesis and
-                    have the properties from the induction hypothesis.
-
-                    From that we prove the four subgoals in the lower right
-                    corner.
-
-                    The first subgoal is valid by the induction hypothesis and
-                    weakening.
-
-                    For the second subgoal we need to prove that $\Gamma,z^C,
-                    x^A$ is a valid context. $\Gamma,z^C$ is certainly a valid
-                    context. Without loss of generality we can assume $x \ne z$.
-                    Therefore by the first subgoal we prove that
-                    $\Gamma,z^C,x^A$ is a valid context. From the induction
-                    hypothesis and the strengthening lemma~\ref{Strengthening}
-                    we get the second subgoal.
-
-                    The third and the forth subgoals are immediate consequences
-                    of the induction hypothesis.
-
-                \item Reduction:
-                $$
-                \begin{array}{l|l}
-                    \Gamma \vdash \Pi x^A.B : T
-                    &
-                    \goal {s_1} {s_2} \Gamma A B T
-                    \\
-                    \Gamma \vdash U: s
-                    \\
-                    T \reduce U
-                    \\
-                    \hline
-                    \Gamma \vdash \Pi x^A.B : U
-                    &
-                    \goal {s_1} {s_2} \Gamma A B U
-                \end{array}
-                $$
-                Use $s_1$ and $s_2$ from the induction hypothesis. The first
-                    three subgoals in the lower right corner are identical with
-                    the first three statements in the induction hypothesis. The
-                    fourth subgoal follows from the induction hypothesis and $T
-                    \reduce U$ and basic properties of $\le$.
-
-                \item Expansion: Same reasoning as reduction.
-
-                \item Subtype: Same reasoning as reduction.
-
-            \end{enumerate}
-        \end{enumerate}
-        }
-    \end{proof}
-\end{theorem}
-
-
-
-
-
-\subsection{Substitution Lemma}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-\begin{theorem}
-    \label{SubstitutionLemma}
-    Substitution (cut) theorem.
-    $$
-    \rulev{
-        \Gamma \vdash a: A
-        \\
-        \Gamma, x^A, \Delta \vdash t: T
-    }
-    {
-        \Gamma, \Delta[x:=a] \vdash t[x:=a]: T[x:=a]
-    }
-    $$
-
-    \begin{proof}
-        We assume
-        $\Gamma \vdash a: A$
-        and prove this theorem by induction on
-        $\Gamma, x^A, \Delta \vdash t: T$.
-
-        In order to express the proof more compactly we introduce the
-        abbreviation $t' := t[x:=a]$.
-
-        \begin{enumerate}
-            \item Axiom: This case is syntactically impossible, because the
-                context is not empty.
-
-            \item Variable: We have to prove the goal
-                $$
-                \begin{array}{l|l}
-                    \Gamma, x^A, \Delta \vdash B: s
-                    &
-                    \Gamma, \Delta' \vdash B': s
-                    \\
-                    \hline
-                    \Gamma, x^A, \Delta, y^B \vdash y: B
-                    &
-                    \Gamma, \Delta', y^{B'} \vdash y: B'
-                \end{array}
-                $$
-
-                The final goal in the lower right corner follows directly from
-                the induction hypothesis and the variable introduction rule.
-
-            \item Product:
-                $$
-                \begin{array}{l|l}
-                    \Gamma, x^A, \Delta \vdash B: s_1
-                    &
-                    \Gamma, \Delta' \vdash B': s_1
-                    \\
-                    \Gamma, x^A, \Delta, y^B \vdash C: s_2
-                    &
-                    \Gamma, \Delta', y^{B'} \vdash C': s_2
-                    \\
-                    s_2 = \Prop \lor s_1 = s2
-                    \\
-                    \hline
-                    \Gamma, x^A, \Delta \vdash \Pi y^B. C : s_2
-                    &
-                    \Gamma, \Delta' \vdash \Pi y^{B'}. C': s_2
-                \end{array}
-                $$
-
-                The final goal follows from the induction hypotheses and the
-                product introduction rule.
-
-            \item Abstraction:
-                $$
-                \begin{array}{l|l}
-                    \Gamma, x^A, \Delta \vdash \Pi y^B. C: s
-                    &
-                    \Gamma, \Delta' \vdash \Pi y^{B'}. C': s
-                    \\
-                    \Gamma, x^A, \Delta, y^B \vdash e: C
-                    &
-                    \Gamma, \Delta', y^{B'} \vdash e': C'
-                    \\
-                    \hline
-                    \Gamma, x^A, \Delta \vdash \lambda y^B. e: \Pi y^B. C
-                    &
-                    \Gamma, \Delta' \vdash \lambda y^{B'}. e' : \Pi y^{B'}. C'
-                \end{array}
-                $$
-
-                Same reasoning as above.
-
-            \item Application:
-                $$
-                \begin{array}{l|l}
-                    \Gamma, x^A, \Delta \vdash f: \Pi y^B. C
-                    &
-                    \Gamma, \Delta' \vdash f' : \Pi y^{B'}. C'
-                    \\
-                    \Gamma, x^A, \Delta \vdash b: B
-                    &
-                    \Gamma, \Delta' \vdash b': B'
-                    \\
-                    \hline
-                    \Gamma, x^A, \Delta \vdash f b: C[y:=b]
-                    &
-                    \Gamma, \Delta' \vdash f' b': C[y:=b]'
-                \end{array}
-                $$
-
-                From the induction hypotheses and the application introduction
-                rule we conclude
-                $$
-                    \Gamma, \Delta' \vdash f' b': C'[y:=b']
-                $$
-                and get the final goal by observing
-                $$
-                    C'[y:=b'] = C[y:=b]'
-                $$
-                by using the double substition lemma~\ref{DoubleSubstitution}.
-
-            \item Structural rules: For all structural rules we prove the final
-                goal by the induction hypothesis and by the facts
-                $$
-                \begin{array}{llll}
-                    t \reduce u     &\imp& t' \reduce u'
-                    &\text{Lemma~\ref{SubstituteReduction}}
-                    \\
-                    A \prec_i B     &\imp& A' \prec_i B'
-                    &\text{Lemma~\ref{PrecedenceSubstitution}}
-                \end{array}
-                $$
-
-        \end{enumerate}
-    \end{proof}
-\end{theorem}
-
-
-
-
-
-
-\subsection{Type of types}
-
-\begin{theorem}
-    \label{TypeOfTypes}
-    \emph{The type of a type is a sort}
-    $$
-    \ruleh {
-        \Gamma \vdash t: T
-    }
-    {
-        \exists s. \Gamma \vdash T : s
-    }
-    $$
-
-    \begin{proof}
-        By induction of $\Gamma \vdash t : T$.
-        \begin{enumerate}
-            \item Introduction rules:
-            \begin{enumerate}
-                \item Axiom
-                $$
-                \begin{array}{l|l}
-                    [] \vdash \Any_i : \Any_{i+1}
-                    &
-                    \exists s. \Gamma \vdash \Any_{i+1}: s
-                \end{array}
-                $$
-                Use $s = \Any_{i+2}$.
-
-                \item Variable
-                $$
-                \begin{array}{l|l}
-                    \Gamma \vdash A : s
-                    \\
-                    x \notin \Gamma
-                    \\
-                    \hline
-                    \Gamma, x^A \vdash x: A
-                    &
-                    \exists s_2. \Gamma,x^A \vdash A: s_2
-                \end{array}
-                $$
-                Use $s_2 = s$ and the weakening rule.
-
-                \item Product
-                $$
-                \begin{array}{l|l}
-                    \Gamma \vdash A : s_1
-                    \\
-                    \Gamma,x^A \vdash B: s_2
-                    \\
-                    s_1 = s_2 \lor s_2 = \Prop
-                    \\
-                    \hline
-                    \Gamma \vdash \Pi x^A. B : s_2
-                    &
-                    \exists s_3. \Gamma \vdash s_2: s_3
-                \end{array}
-                $$
-                For $s_2 = \Any_i$ use $s_3 = \Any_{i+1}$.
-
-                \item Abstraction
-                $$
-                \begin{array}{l|l}
-                    \Gamma \vdash \Pi x^A. B : s_1
-                    \\
-                    \Gamma,x^A \vdash e: B
-                    \\
-                    \hline
-                    \Gamma \vdash \lambda x^A. e : \Pi x^A. B
-                    &
-                    \exists s. \Gamma \vdash \Pi x^A. B: s
-                \end{array}
-                $$
-                Use $s = s_1$.
-
-                \item Application
-                $$
-                \begin{array}{l|l}
-                    \Gamma \vdash f: \Pi x^A. B
-                    &
-                    \exists s_\pi: \Gamma \vdash \Pi x^A. B: s_\pi
-                    \\
-                    \Gamma \vdash a: A
-                    \\
-                    \hline
-                    \Gamma \vdash f a: B[x:=a]
-                    &
-                    \exists s. \Gamma \vdash B[x:=a]: s
-                \end{array}
-                $$
-                From the induction hypothesis we get a sort $s_\pi$ which is the
-                type of the product. Then we use the generation
-                lemma~\ref{GenerationLemma} for the product to get $s_B$ which
-                satisfies $\Gamma, x^A \vdash B: s_B$. Finally we use the
-                substitution lemma~\ref{SubstitutionLemma} to infer $\Gamma
-                \vdash B[x:=a] : s_B$ and use $s = s_B$.
-            \end{enumerate}
-
-            \item Structural rules:
-            \begin{enumerate}
-                \item Weaken:
-                $$
-                \begin{array}{l|l}
-                    \Gamma \vdash t: T
-                    &
-                    \exists s_T: \Gamma \vdash T: s_T
-                    \\
-                    \Gamma \vdash A: s_A
-                    \\
-                    x \notin \Gamma
-                    \\
-                    \hline
-                    \Gamma, x^A \vdash t: T
-                    &
-                    \exists s. \Gamma, x^A \vdash T: s
-                \end{array}
-                $$
-                Use $s = s_T$ which exists by the induction hypothesis and lift
-                    the typing judgement $\Gamma \vdash T : s_T$ using the
-                    weakening rule into the context $\Gamma, x^A$.
-
-                \item Reduction:
-                $$
-                \begin{array}{l|l}
-                    \Gamma \vdash t : T
-                    \\
-                    \Gamma \vdash U: s_U
-                    \\
-                    T \reduce U
-                    \\
-                    \hline
-                    \Gamma \vdash t: U
-                    &
-                    \exists s. \Gamma \vdash U: s
-                \end{array}
-                $$
-                Use $s = s_U$.
-
-                \item Expansion:
-                $$
-                \begin{array}{l|l}
-                    \Gamma \vdash t : T
-                    \\
-                    \Gamma \vdash U: s_U
-                    \\
-                    U \reducestar T
-                    \\
-                    \hline
-                    \Gamma \vdash t: U
-                    &
-                    \exists s. \Gamma \vdash U: s
-                \end{array}
-                $$
-                Use $s = s_U$.
-
-                \item Subtype:
-                $$
-                \begin{array}{l|l}
-                    \Gamma \vdash t : T
-                    \\
-                    \Gamma \vdash U: s_U
-                    \\
-                    T \prec_i U
-                    \\
-                    \hline
-                    \Gamma \vdash t: U
-                    &
-                    \exists s. \Gamma \vdash U: s
-                \end{array}
-                $$
-                Use $s = s_U$.
-            \end{enumerate}
-        \end{enumerate}
-    \end{proof}
-\end{theorem}
 
 
 
@@ -1563,224 +1798,6 @@ $t$.
 
 
 
-\subsection{Subject Reduction Lemma}
-
-\begin{theorem}
-    \label{SubjectReduction}
-    \emph{Subject reduction lemma} Reduction of a term does change its type.
-    $$
-    \rulev{
-        \Gamma \vdash t: T
-        \\
-        t \reduce u
-    }
-    {
-        \Gamma \vdash u: T
-    }
-    $$
-
-    {
-    \def\SRLeftPart#1#2#3#4{
-        \left(
-        \forall #1.
-        \ruleh{#2 \reduce #1}{#3 \vdash #1: #4}
-        \right)
-    }
-    \def\SRRightPart#1#2#3#4{
-        \left(
-        \forall #1.
-        \ruleh{#2 \reduce #1}{#1 \vdash #3: #4}
-        \right)
-    }
-
-    \begin{proof} In order to prove the subject reduction lemma we prove the
-        more general lemma
-        $$
-        \ruleh{
-            \Gamma \vdash t: T
-        }
-        {
-            \SRLeftPart u t \Gamma T
-            \land
-            \SRRightPart \Delta \Gamma t T
-        }
-        $$
-        where $\Gamma \reduce \Delta$ means that $\Delta$ is $\Gamma$ with one
-        of the variable types replaced by a reduced type.
-
-        We prove the more general lemma by induction on $\Gamma \vdash t: T$.
-        \begin{enumerate}
-            \item Introduction rules:
-            \begin{enumerate}
-                \item Sort: If $\Gamma$ is empty and $t$ is a sort, then the
-                    goal is vacuously true because neither the empty context nor
-                    a sort can reduce to anything (they are in normal form).
-
-                \item Variable:
-                    $$
-                    \begin{array}{l|l}
-                        \Gamma \vdash A : s
-                        &
-                        \SRLeftPart B A \Gamma s
-                        \land
-                        \SRRightPart {\Delta_0} \Gamma A s
-                        \\
-                        \hline
-                        \Gamma, x^A \vdash x: A
-                        &
-                        \SRLeftPart u x {\Gamma,x^A} A
-                        \land
-                        \SRRightPart \Delta {\Gamma,x^A} x A
-                    \end{array}
-                    $$
-                    The left part of the goal in the lower right corner is
-                    vacously true because a variable is in normal form and there
-                    is no term to which it reduces.
-
-                    For the right part we assume $\Gamma,x^A \reduce \Delta$.
-                    There are two possibilities:
-                    \begin{enumerate}
-                        \item $\Delta = \Delta_0,x^A$ where $\Gamma \reduce
-                            \Delta_0$ for some $\Delta_0$:
-
-                        In that case we get $\Delta_0 \vdash A: s$ from the
-                            induction hypothesis which implies the goal
-                            $\Delta_0,x^A \vdash x: A$.
-
-                        \item $\Delta = \Gamma,x^B$ where $A \reduce B$:
-
-                        In that case we get $\Gamma \vdash B : s$ from the
-                            induction hypothesis which implies the goal
-                            $\Gamma,x^B: x \vdash B$.
-                    \end{enumerate}
-
-                \item Product:
-                $$
-                \begin{array}{l|l}
-                    \Gamma \vdash A: s_1
-                    &
-                    \SRLeftPart C A \Gamma {s_1}
-                    \lor
-                    \SRRightPart \Delta \Gamma A {s_1}
-                    \\
-                    \Gamma,x^A \vdash B: s_2
-                    &
-                    \SRLeftPart D B {\Gamma,x^A} {s_2}
-                    \lor
-                    \SRRightPart {\Delta'} {\Gamma,x^A} B {s_2}
-                    \\
-                    s_1 = s_2 \lor s_2 = \Prop
-                    \\
-                    \hline
-                    \Gamma \vdash \Pi x^A. B : s_2
-                    &
-                    \SRLeftPart t {\Pi x^A.B} \Gamma {s_2}
-                    \land
-                    \SRRightPart \Delta \Gamma {\Pi x^A. B} {s_2}
-                \end{array}
-                $$
-                \begin{enumerate}
-                    \item Left part: We assume $\Pi x^A. B \reduce t$.
-
-                    Since products are preserved under reduction
-                        (lemma~\ref{ReductionProductAbstraction}) we have either
-                        $t = \Pi x^C. B$ where $A \reduce C$ for some $C$ or $t
-                        = \Pi x^A.D$ where $B \reduce D$ for some $D$.
-
-                    In both cases we can derive from the induction hypotheses
-                        either $\Gamma \vdash C: s_1$ or $\Gamma,x^A \vdash D:
-                        s_2$. Therefore $\Gamma \vdash \Pi x^C. B: s_2$ or $\Gamma
-                        \vdash \Pi x^A.D: s_2$ is valid trivially.
-
-                    \item Right part: Assume $\Gamma \reduce \Delta$. From the
-                        first induction hypothesis we get $\Delta \vdash A:
-                        s_1$. From the second induction hypothesis we get
-                        $\Delta, x^A \vdash B: s_2$ where we use $\Delta' =
-                        \Delta, x^A$. These facts imply $\Delta
-                        \vdash \Pi x^A. B : s_2$.
-                \end{enumerate}
-
-                \item Abstraction: Same reasoning as with product.
-
-                \item Application:
-                $$
-                \begin{array}{l|l}
-                    \Gamma \vdash f: \Pi x^A. B
-                    &
-                    \SRLeftPart g f \Gamma {\Pi x^A. B}
-                    \land
-                    \SRRightPart \Delta \Gamma f {\Pi x^A.B}
-                    \\
-                    \Gamma \vdash a: A
-                    &
-                    \SRLeftPart b a \Gamma A
-                    \land
-                    \SRRightPart \Delta \Gamma a A
-                    \\
-                    \hline
-                    \Gamma \vdash f a: B[x:=a]
-                    &
-                    \SRLeftPart t {f a} \Gamma {B[x:=a]}
-                    \land
-                    \SRRightPart \Delta \Gamma {f a} {B[x:=a]}
-                \end{array}
-                $$
-                \begin{enumerate}
-                    \item Left part: Assume $f a \reduce t$. We have three cases
-                        to consider.
-                    \begin{enumerate}
-                        \item $f a \reduce g a$ where $f \reduce g$:
-
-                            From the first induction hypothesis we get that $g$
-                            has the same type as $f$ and therefore $g a:
-                            B[x:=a]$ is valid.
-
-                        \item $f a \reduce f b$ where $a \reduce b$:
-
-                            From the second induction hypothesis we get
-                            $\Gamma \vdash b: A$ and therefore $\Gamma \vdash f
-                            a : B[x:=b]$.
-
-                            Since $B[x:=a]$ is a valid type and because of
-                            lemma~\ref{ReductionSubstitution} we have $B[x:=a]
-                            \reduce B[x:=b]$. The expansion rule let us derive
-                            $\Gamma \vdash f b: B[x:=a]$ which is identical to
-                            the final goal.
-
-                        \item $(\lambda x^A. e) a \reduce e[x:=a]$:
-
-                            In that case we have $f = \lambda x^A. e$ i.e.
-                            $\Gamma \vdash \lambda x^A. e: \Pi x^A. B$.
-
-                            According to the generation lemma for
-                            abstractions~\ref{GenerationLemma} there is some
-                            $B_0$ with $B_0 \le B$ with $\Gamma,x^A \vdash e:
-                            B_0$. INCOMPLETE!!!
-
-                        INCOMPLETE
-
-                    \end{enumerate}
-
-                    \item Right part: Immediate consequence of the induction
-                        hypotheses.
-                \end{enumerate}
-            \end{enumerate}
-
-            \item Structural rules:
-            \begin{enumerate}
-                \item Weaken:
-            \end{enumerate}
-        \end{enumerate}
-
-        INCOMPLETE!!!
-    \end{proof}
-    }
-\end{theorem}
-
-
-
-
-
 \subsection{Uninhabited Types}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1808,8 +1825,9 @@ context.
         \begin{enumerate}
         \item $t$ is the sort $s_1$:
 
-            By the generation lemma we postulate the existence of a sort $s_2$
-                with $[] \vdash s_1: s_2 \land s_2 \le \Pi X^s. X$. This is
+            By the generation lemma~\ref{GenerationLemma} we postulate the
+                existence of a sort $s_2$ with $[] \vdash s_1: s_2 \land s_2 \le
+                \Pi X^s. X$. This is
                 contradictory because $s_2 \le \Pi X^s.X$ is imposible.
 
         \item $t$ is a variable:
@@ -1830,8 +1848,8 @@ context.
 
         \item $t$ is the abstraction $\lambda x^A. e$:
 
-            By the generation lemma we postulate the existence of $s_2$ and $B$
-                with
+            By the generation lemma~\ref{GenerationLemma} we postulate the
+                existence of $s_2$ and $B$ with
                 $$
                 \begin{array}{l}
                     [] \vdash \Pi x^A. B: s_2
@@ -1842,7 +1860,7 @@ context.
                 \end{array}
                 $$
 
-                Because of the last statement we conclude $x = X$, $A \equiv s$
+                Because of the last statement we conclude $x = X$, $A \betaeq s$
                 and $B \le X$ where the latter implies $B = X$. I.e. we have
                 lead the existence of $e$ with $[X^A] \vdash e: X$ to a
                 contradiction.
@@ -1856,8 +1874,8 @@ context.
 
                 \item $e$ is a variable: The only variable in the context is
                     $X$. By the generation lemma we know that $A \le X$. By
-                        definition of $\le$ this is possible only if $A \equiv
-                        X$ which implies $X \equiv s$ which is contradictory.
+                        definition of $\le$ this is possible only if $A \betaeq
+                        X$ which implies $X \betaeq s$ which is contradictory.
                 \end{enumerate}
         \end{enumerate}
     \end{proof}
