@@ -1272,7 +1272,42 @@ $t$.
                     \end{array}
                     $$
 
-                    INCOMPLETE !!!
+                    From the induction hypothesis we get a term $F_0$ which is
+                    the minimal type of $f$ and therefore $F_0 \le \Pi x^A. B$.
+
+                    We have to distinguish 2 cases:
+                    \begin{enumerate}
+                        \item $F_0 \betaeq \Pi x^A. B$:
+
+                            Since $F_0$ is minimal, $\Pi x^A. B$ is minimal as
+                            well. Therefore $B$ is minimal for all $B$'s which
+                            exist according to the generation
+                            lemma~\ref{GenerationLemma} as types of expressions
+                            of the form $f a$. Therefore $B[x:=a]$ is the
+                            minimal type of $f a$.
+
+                        \item $F_0 < \Pi x^A. B$:
+                        \begin{itemize}
+                            \item By definition of $<$ there exists $i$, $F_1$
+                                and $F_2$ such that $F_0 \betaeq F_1$, $F_1
+                                \prec_i F_2$ and $F_2 \betaeq \Pi x^A. B$.
+
+                            \item Because of $F_1 \prec_i F_2$, both have to be
+                                either a sort or a product. They cannot be sorts
+                                because of $F_2 \betaeq \Pi x^A.B$. Therefore
+                                they have to be products. Let' say $F_1 = \Pi
+                                x^{A_2}. B_1$ and $F_2 = \Pi x^{A_2}. B_2$
+                                with $B_1 \prec_{i-1} B_2$, $A_2 \betaeq A$ and
+                                $B_2 \betaeq B$.
+
+                            \item Since $F_0$ is minimal, $F_1 = \Pi x^{A_2}.
+                                B_1$ is minimal as well.
+
+                            \item Therefore $B_1$ is minimal for all possible
+                                $B$s which implies that $B_1[x:=a]$ is the
+                                minimal type of $f a$.
+                        \end{itemize}
+                    \end{enumerate}
 
             \end{enumerate}
 
@@ -1282,6 +1317,7 @@ $t$.
                 $$
                 \begin{array}{l|l}
                     \Gamma \vdash t: T
+                    & \exists M. \derivesmin \Gamma t T
                     \\
                     \Gamma \vdash A: s
                     \\
