@@ -342,11 +342,212 @@ the rules
 \subsection{Condensing Lemma}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+\begin{lemma}
+    \label{Condensing1}
+    $$
+    \rulev {
+        \Gamma,x^A,\Delta \vdash t: T
+        \\
+        x \notin \Delta, t
+    }
+    {
+        \exists U. \Gamma, \Delta \vdash t : U \land U \le T
+    }
+    $$
+
+    \begin{proof}
+        {\newcommand{\goal}[4]{
+            \ruleh {
+                x \notin #1, #2
+            }
+            {
+                \exists #3.
+                \left[
+                \begin{array}{l}
+                    \Gamma,#1 \vdash #2 : #3
+                    \\
+                    #3 \le #4
+                \end{array}
+                \right]
+            }
+         }
+        By induction on $\Gamma,x^A,\Delta \vdash t: T$.
+
+        \begin{enumerate}
+            \item Introduction rules:
+            \begin{enumerate}
+                \item Sort: This rule is syntactically impossible because the
+                    context is not empty.
+
+                \item Variable:
+                $$
+                \begin{array}{l|l}
+                    \Gamma,x^A,\Delta \vdash B : s
+                    &
+                    \goal \Delta B {s_0} s
+                    \\
+                    y \notin \Gamma,x^A,\Delta
+                    \\
+                    \hline
+                    \Gamma,x^A,\Delta,y^B \vdash y :B
+                    &
+                    \goal {\Delta,y^B} y U B
+                \end{array}
+                $$
+                To prove the goal in the lower right corner we assume that $x$
+                    does not occur in the free variable of $\Delta$, $y$ and
+                    $B$. The by the induction hypothesis we get $\Gamma,\Delta
+                    \vdash B: s_0$. $s_0$ is a sort, because only sorts can be
+                    subtypes of a sort.
+
+                    Using the variable introduction rule we get
+                    $\Gamma,\Delta,y^B \vdash y : B$. Using $U = B$ proves the
+                    final goal.
+
+                \item Product:
+                $$
+                \begin{array}{l|l}
+                    \Gamma,x^A,\Delta \vdash B: s_B
+                    &
+                    \goal \Delta B {s_{B0}} {s_B}
+                    \\
+                    \Gamma,x^A,\Delta,y^B \vdash C: s_C
+                    &
+                    \goal {\Delta,y^B} C {s_{C0}}{s_C}
+                    \\
+                    s_B = s_C \lor s_C = \Prop
+                    \\
+                    \hline
+                    \Gamma,x^A,\Delta \vdash \Pi y^B.C : s_C
+                    &
+                    \goal \Delta {\Pi y^B.C} s {s_C}
+                \end{array}
+                $$
+                In order to prove the goal in the lower right corner we assume
+                    that $x$ does not occur free in $\Delta$ and $\Pi y^B.C$.
+                    Furthermore we have $x \ne y$, otherwise the second
+                    condition in the rule would not be possible.
+
+                Therefore both induction hypotheses are applicable and we get
+                    $s_{B0}$ and $s_{C0}$ satisfying the corresponding
+                    properties.
+
+                To prove the final goal we have to find a term $s$ which is a
+                    subtype of $s_C$ (and therefore a sort) and satisfies
+                    $\Gamma,\Delta \vdash \Pi y^B. C: s$. There are three cases
+                    to distinguish.
+                \begin{enumerate}
+                    \item $s_C = \Prop$: In that case $s_{C0} = \Prop$ and we
+                        use $s = s_{C0}$ which satisfies the goal by applying
+                        the product introduction rule.
+
+                    \item $s_B = s_C \land s_{B0} \le s_{C0}$: We use $s =
+                        s_{C0}$, prove $\Gamma,\Delta \vdash B: s_{C0}$ by
+                        repeated application of the weakening rule and prove the
+                        final goal by applying the production introduction rule.
+
+                    \item $s_B = s_C \land s_{B0} > s_{C0}$: We use $s =
+                        s_{B0}$, prove $\Gamma,\Delta,y^B \vdash C: s_{B0}$ by
+                        repeated application of the weakening rule and prove the
+                        final goal by applying the production introduction rule.
+                \end{enumerate}
+
+                \item Abstraction:
+                $$
+                \begin{array}{l|l}
+                    \Gamma,x^A,\Delta \vdash \Pi y^B.C : s
+                    \\
+                    \Gamma,x^A,\Delta,y^B \vdash e: C
+                    &
+                    \goal {\Delta,y^B} e {C_0} C
+                    \\
+                    \hline
+                    \Gamma,x^A,\Delta \vdash \lambda y^B. e: \Pi y^B.C
+                    &
+                    \goal \Delta {\lambda y^B. e} U {\Pi y^B.C}
+                \end{array}
+                $$
+                In order to prove the goal in the lower right corner we assume
+                that $x$ does not occur free in $\Delta$ and $\lambda x^A.e$.
+                From the second induction hypothesis we get a term $C_0$ which
+                satisfies $\Gamma,\Delta,y^B \vdash e: C_0$ and $C_0 \le C$. 
+
+                $B$ and $C_0$ are certainly valid types in the context
+                $\Gamma,\Delta$, therefore we can derive $\Gamma,\Delta \vdash
+                \Pi y^B.C_0 : s_\pi$ for some $s_\pi$.
+
+                We use the abstraction introduction rule to derive
+                $\Gamma,\Delta \vdash \lambda y^B. e: \Pi y^B. C_0$. Using $U =
+                \Pi y^B. C_0$ satisfies the final goal because $\Pi y^B. C_0 \le
+                \Pi y^B. C$ is valid.
+
+                \item Application:
+                $$
+                \begin{array}{l|l}
+                    \Gamma,x^A,\Delta \vdash f: \Pi y^B.C
+                    &
+                    %\goal \Delta f {\Pi y^B.C}
+                    \\
+                    \Gamma,x^A,\Delta  \vdash b : B
+                    &
+                    %\goal {\Delta} b B
+                    \\
+                    \hline
+                    \Gamma,x^A,\Delta \vdash f b : C[y:=b]
+                    &
+                    \goal \Delta {f b} U {C[y:=b]}
+                \end{array}
+                $$
+
+                {\bf This proof might fail here.} There seems to be no
+                possibility to prove $x \notin B$ and therefore it is
+                questionable, if the induction hypotheses can be used. Without
+                the induction hypotheses there seems to be no way to proof the
+                desired result!!!
+
+
+                INCOMPLETE!! POSSIBLY IMPOSSIBLE!!!
+
+            \end{enumerate}
+            \item Structural rules:
+            \begin{enumerate}
+                \item Weakening:
+                $$
+                \begin{array}{l|l}
+                \end{array}
+                $$
+
+                \item Reduction:
+                $$
+                \begin{array}{l|l}
+                \end{array}
+                $$
+
+                \item Expansion:
+                $$
+                \begin{array}{l|l}
+                \end{array}
+                $$
+
+                \item Subtyping:
+                $$
+                \begin{array}{l|l}
+                \end{array}
+                $$
+
+            \end{enumerate}
+        \end{enumerate}
+        }
+    \end{proof}
+\end{lemma}
+
+
 REMARK: The proof for application is nontrivial!!
 
 
 \begin{lemma}
-    %\label{Condensing}
+    %\label{Condensing2}
     \emph{An unused variable can be removed from a context without affecting its
     typing judgements}
     $$
@@ -1528,17 +1729,27 @@ $t$.
                     \item Left part: Assume $f a \reduce t$. We have three cases
                         to consider.
                     \begin{enumerate}
-                        \item $f a \reduce g a$ where $f \reduce g$: From the
-                            first induction hypothesis we get that $g$ has the
-                            same type as $f$ and therefore $g a: B[x:=a]$ is
-                            valid.
+                        \item $f a \reduce g a$ where $f \reduce g$:
+
+                            From the first induction hypothesis we get that $g$
+                            has the same type as $f$ and therefore $g a:
+                            B[x:=a]$ is valid.
 
                         \item $f a \reduce f b$ where $a \reduce b$:
-                            From the second induction hypothesis we get that $b$
-                            has the same type as $a$ and therefore $f b:
-                            B[x:=b]$ is valid. ?????INCOMPLETE???
+
+                            From the second induction hypothesis we get
+                            $\Gamma \vdash b: A$ and therefore $\Gamma \vdash f
+                            a : B[x:=b]$.
+
+                            Since $B[x:=a]$ is a valid type and because of
+                            lemma~\ref{ReductionSubstitution} we have $B[x:=a]
+                            \reduce B[x:=b]$. The expansion rule let us derive
+                            $\Gamma \vdash f b: B[x:=a]$ which is identical to
+                            the final goal.
 
                         \item $(\lambda y^B. e) a \reduce e[y:=a]$:
+
+                        INCOMPLETE
 
                     \end{enumerate}
 
