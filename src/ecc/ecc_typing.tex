@@ -1747,7 +1747,15 @@ $t$.
                             $\Gamma \vdash f b: B[x:=a]$ which is identical to
                             the final goal.
 
-                        \item $(\lambda y^B. e) a \reduce e[y:=a]$:
+                        \item $(\lambda x^A. e) a \reduce e[x:=a]$:
+
+                            In that case we have $f = \lambda x^A. e$ i.e.
+                            $\Gamma \vdash \lambda x^A. e: \Pi x^A. B$.
+
+                            According to the generation lemma for
+                            abstractions~\ref{GenerationLemma} there is some
+                            $B_0$ with $B_0 \le B$ with $\Gamma,x^A \vdash e:
+                            B_0$. INCOMPLETE!!!
 
                         INCOMPLETE
 
