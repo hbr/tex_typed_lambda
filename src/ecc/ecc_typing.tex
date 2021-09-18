@@ -27,6 +27,8 @@
 \subsection{Typing Relation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{comment}
+\end{comment}
 
 \begin{definition}
 The ternary \emph{typing relation} $\Gamma \vdash t: T$ which says that in
@@ -110,34 +112,6 @@ the rules
                 }
                 $$
 
-            \item Reduction:
-                $$
-                \rulev {
-                    \Gamma \vdash t: T
-                    \\
-                    \Gamma \vdash U: s
-                    \\
-                    T \reduce U
-                }
-                {
-                    \Gamma \vdash t: U
-                }
-                $$
-
-            \item Expansion:
-                $$
-                \rulev {
-                    \Gamma \vdash t: T
-                    \\
-                    \Gamma \vdash U: s
-                    \\
-                    U \reducestar T
-                }
-                {
-                    \Gamma \vdash t: U
-                }
-                $$
-
             \item Subtype:
                 $$
                 \rulev {
@@ -145,12 +119,13 @@ the rules
                     \\
                     \Gamma \vdash U: s
                     \\
-                    T \prec_i U
+                    T \le U
                 }
                 {
                     \Gamma \vdash t: U
                 }
                 $$
+
         \end{enumerate}
     \end{enumerate}
 \end{definition}
@@ -263,7 +238,7 @@ the rules
                     \hline
                     \Gamma, x^A, \Delta \vdash f b: C[y:=b]
                     &
-                    \Gamma, \Delta' \vdash f' b': C[y:=b]'
+                    \Gamma, \Delta' \vdash f' b': (C[y:=b])'
                 \end{array}
                 $$
 
@@ -274,21 +249,55 @@ the rules
                 $$
                 and get the final goal by observing
                 $$
-                    C'[y:=b'] = C[y:=b]'
+                    C'[y:=b'] = (C[y:=b])'
                 $$
                 by using the double substition lemma~\ref{DoubleSubstitution}.
 
-            \item Structural rules: For all structural rules we prove the final
-                goal by the induction hypothesis and by the facts
+            \item Structural rules:
+            \begin{enumerate}
+                \item Weakening:
                 $$
-                \begin{array}{llll}
-                    t \reduce u     &\imp& t' \reduce u'
-                    &\text{Lemma~\ref{SubstituteReduction}}
+                \begin{array}{l|l}
+                    \Gamma,x^A,\Delta \vdash t: T
+                    &
+                    \Gamma,\Delta' \vdash t' : T'
                     \\
-                    A \prec_i B     &\imp& A' \prec_i B'
-                    &\text{Lemma~\ref{PrecedenceSubstitution}}
+                    \Gamma,x^A,\Delta \vdash B: s
+                    &
+                    \Gamma,\Delta' \vdash B' : s'
+                    \\
+                    \hline
+                    \Gamma,x^A,\Delta,y^B \vdash t : T
+                    &
+                    \Gamma,\Delta',y^{B'} \vdash t' : T'
                 \end{array}
                 $$
+                The goal in the lower right corner can be proved by the
+                    induction hypotheses and the weakening rule.
+
+                \item Subtype:
+                $$
+                \begin{array}{l|l}
+                    \Gamma,x^A,\Delta \vdash t : T
+                    &
+                    \Gamma,\Delta' \vdash t' : T'
+                    \\
+                    \Gamma,x^A,\Delta \vdash U : s
+                    &
+                    \Gamma,\Delta' \vdash U' : s'
+                    \\
+                    T \le U
+                    \\
+                    \hline
+                    \Gamma,x^A,\Delta \vdash t : U
+                    &
+                    \Gamma,\Delta' \vdash t' : U'
+                \end{array}
+                $$
+                From the theorem~\ref{SubtypeReduction} we get $T' \le U'$. The
+                    goal in the lower right corner can be proved by the
+                    induction hypotheses and by applying the subtype rule.
+            \end{enumerate}
 
         \end{enumerate}
     \end{proof}
@@ -304,8 +313,8 @@ the rules
 
 \begin{lemma}
     \label{Strengthening}
-    \emph{In all valid contexts $\Delta$ which at least all variables and their
-    corresponding types of the valid context $\Gamma$, the same typing
+    \emph{In all valid contexts $\Delta$ which contains at least all variables
+    and their corresponding types of the valid context $\Gamma$, the same typing
     judgements are valid}.
 
     $$
@@ -458,7 +467,7 @@ the rules
                     Therfore $\Gamma \subseteq \Delta$ is valid. The final goal
                     follows from the induction hypothesis.
 
-                \item Reduction:
+                \item Subtype:
                 $$
                 \begin{array}{l|l}
                     \Gamma \vdash t: T
@@ -469,7 +478,7 @@ the rules
                     &
                     \goal \Delta \Gamma U s
                     \\
-                    T \reduce U
+                    T \le U
                     \\
                     \hline
                     \Gamma \vdash t : U
@@ -477,16 +486,10 @@ the rules
                     \goal \Delta \Gamma t U
                 \end{array}
                 $$
-                Assume a valid context $\Delta$ with $\Gamma \subseteq \Delta$.
-                    We have to prove the goal $\Delta \vdash t: U$. From the
-                    induction hypotheses we get $\Delta \vdash t: T$ and $\Delta
-                    \vdash U : s$ which immediately proves the goal by applying
-                    the reduction rule.
-
-                \item Expansion: Same reasoning as reduction.
-
-                \item Subtyping: Same reasoning as reduction
-
+                To prove the goal in the lower right corner we assume a valid
+                    context $\Delta$ with $\Gamma \subseteq \Delta$. The final
+                    goal is a consequence of the induction hypotheses and the
+                    subtype rule.
             \end{enumerate}
         \end{enumerate}
         }
@@ -686,7 +689,7 @@ $t$.
                     The third and the forth subgoals are immediate consequences
                     of the induction hypothesis.
 
-                \item Reduction:
+                \item Subtype:
                 $$
                 \begin{array}{l|l}
                     \Gamma \vdash \Pi x^A.B : T
@@ -695,7 +698,7 @@ $t$.
                     \\
                     \Gamma \vdash U: s
                     \\
-                    T \reduce U
+                    T \le U
                     \\
                     \hline
                     \Gamma \vdash \Pi x^A.B : U
@@ -706,13 +709,8 @@ $t$.
                 Use $s_1$ and $s_2$ from the induction hypothesis. The first
                     three subgoals in the lower right corner are identical with
                     the first three statements in the induction hypothesis. The
-                    fourth subgoal follows from the induction hypothesis and $T
-                    \reduce U$ and basic properties of $\le$.
-
-                \item Expansion: Same reasoning as reduction.
-
-                \item Subtype: Same reasoning as reduction.
-
+                    fourth subgoal follows from transitivity of
+                    $\le$~\ref{SubtypeTransitive}.
             \end{enumerate}
         \end{enumerate}
         }
@@ -903,22 +901,38 @@ $t$.
 
                             Since $B[x:=a]$ is a valid type and because of
                             lemma~\ref{SubstituteReduction} we have $B[x:=a]
-                            \reduce B[x:=b]$. The expansion rule let us derive
+                            \reduce B[x:=b]$ and therefore $B[x:=b] \le
+                            B[x:=a]$. The subtype rule let us derive
                             $\Gamma \vdash f b: B[x:=a]$ which is identical to
                             the final goal.
 
                         \item $(\lambda x^A. e) a \reduce e[x:=a]$:
 
                             In that case we have $f = \lambda x^A. e$ i.e.
-                            $\Gamma \vdash \lambda x^A. e: \Pi x^A. B$.
+                            $\Gamma \vdash \lambda x^A. e: \Pi x^A. B$ and have
+                            to prove the goal $\Gamma \vdash e[x:=a] : B[x:=a]$.
 
                             According to the generation lemma for
                             abstractions~\ref{GenerationLemma} there is some
-                            $B_0$ with $B_0 \le B$ with $\Gamma,x^A \vdash e:
-                            B_0$. INCOMPLETE!!!
-
-                        INCOMPLETE
-
+                            $B_0$ and $s$ with
+                            $$
+                            \begin{array}{l}
+                                \Gamma,x^A \vdash e: B_0
+                                \\
+                                \Pi x^A.  B_0 \le \Pi x^A.B
+                            \end{array}
+                            $$
+                            which imply
+                            $$
+                            \begin{array}{l}
+                                \Gamma \vdash e[x:=a]: B_0[x:=a]
+                                \\
+                                B_0 \le B
+                            \end{array}
+                            $$
+                            by the substitution lemma~\ref{SubstitutionLemma}
+                            and \ref{SubtypeProduct}. We get the final goal by
+                            applying the subtype rule.
                     \end{enumerate}
 
                     \item Right part: Immediate consequence of the induction
@@ -929,10 +943,101 @@ $t$.
             \item Structural rules:
             \begin{enumerate}
                 \item Weaken:
+                $$
+                \begin{array}{l|l}
+                \Gamma \vdash t : T
+                &
+                \SRLeftPart u t \Gamma T
+                \land
+                \SRRightPart {\Delta_0} \Gamma t T
+                \\
+                \Gamma \vdash A : s
+                &
+                \SRLeftPart B A \Gamma s
+                \land
+                \SRRightPart {\Delta_0} \Gamma A s
+                \\
+                x \notin \Gamma
+                \\
+                \hline
+                \Gamma, x^A \vdash t : T
+                &
+                \SRLeftPart u t {\Gamma, x^A} T
+                \land
+                \SRRightPart \Delta {\Gamma,x^A} t T
+                \end{array}
+                $$
+                \begin{enumerate}
+                    \item Left part: Assume $t \reduce u$. From the first
+                        induction hypothesis we get $\Gamma \vdash u : T$ which
+                        derives the final goal by applying the variable
+                        introduction rule.
+
+                    \item Right part:
+                        We assume $\Gamma,x^A \reduce \Delta$ and have to
+                        distinguish two cases.
+                        \begin{enumerate}
+                        \item
+                            $\Delta = (\Delta_0, x^A)
+                            \land \Gamma \reduce \Delta_0$:
+
+                            In that case we get $\Delta_0 \vdash t : T$ and
+                                $\Delta_0 \vdash A : s$ from the induction
+                                hypotheses which imply the final goal $\Delta_0,
+                                x^A \vdash t : T$ by application of the
+                                weakening rule.
+
+                        \item
+                            $\Delta = (\Gamma, x^B)
+                            \land A \reduce B$:
+
+                            In that case we get $\Gamma \vdash B : s$ from the
+                                second induction hypothesis which implies the
+                                final goal $\Gamma, x^B \vdash t : T$ by
+                                application of the weakening rule.
+                    \end{enumerate}
+                \end{enumerate}
+
+
+                \item Subtype:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t : T
+                    &
+                    \SRLeftPart u t \Gamma T
+                    \land
+                    \SRRightPart \Delta \Gamma t T
+                    \\
+                    \Gamma \vdash U : s
+                    &
+                    \text{not needed }
+                    \land
+                    \SRRightPart \Delta \Gamma U s
+                    \\
+                    T \le U
+                    \\
+                    \hline
+                    \Gamma \vdash t : U
+                    &
+                    \SRLeftPart u t \Gamma U
+                    \land
+                    \SRRightPart \Delta \Gamma t U
+                \end{array}
+                $$
+                \begin{enumerate}
+                    \item Left part: Assume $t \reduce u$. We get $\Gamma \vdash
+                        u: T$ by the first induction hypothesis. The final goal
+                        $\Gamma \vdash u: U$ is obtained by applying the subtype
+                        rule.
+
+                    \item Right part: Assume $\Gamma \reduce \Delta$. From the
+                        first induction hypothesis we derive $\Delta \vdash t :
+                        T$ and from the second induction hypothesis we derive
+                        $\Delta \vdash U : s$. The final goal $\Delta \vdash t:
+                        U$ is obtained by applying the subtype rule.
+                \end{enumerate}
             \end{enumerate}
         \end{enumerate}
-
-        INCOMPLETE!!!
     \end{proof}
     }
 \end{theorem}
@@ -1063,40 +1168,6 @@ $t$.
                     the typing judgement $\Gamma \vdash T : s_T$ using the
                     weakening rule into the context $\Gamma, x^A$.
 
-                \item Reduction:
-                $$
-                \begin{array}{l|l}
-                    \Gamma \vdash t : T
-                    \\
-                    \Gamma \vdash U: s_U
-                    \\
-                    T \reduce U
-                    \\
-                    \hline
-                    \Gamma \vdash t: U
-                    &
-                    \exists s. \Gamma \vdash U: s
-                \end{array}
-                $$
-                Use $s = s_U$.
-
-                \item Expansion:
-                $$
-                \begin{array}{l|l}
-                    \Gamma \vdash t : T
-                    \\
-                    \Gamma \vdash U: s_U
-                    \\
-                    U \reducestar T
-                    \\
-                    \hline
-                    \Gamma \vdash t: U
-                    &
-                    \exists s. \Gamma \vdash U: s
-                \end{array}
-                $$
-                Use $s = s_U$.
-
                 \item Subtype:
                 $$
                 \begin{array}{l|l}
@@ -1104,7 +1175,7 @@ $t$.
                     \\
                     \Gamma \vdash U: s_U
                     \\
-                    T \prec_i U
+                    T \le U
                     \\
                     \hline
                     \Gamma \vdash t: U
@@ -1113,6 +1184,7 @@ $t$.
                 \end{array}
                 $$
                 Use $s = s_U$.
+
             \end{enumerate}
         \end{enumerate}
     \end{proof}

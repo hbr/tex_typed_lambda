@@ -1,3 +1,13 @@
+\begin{comment}
+    todo:
+
+    - prove A <= B => t -> u => A[x:=t] <= B[x:=u]
+
+    - prove all (x:A1): B1 <= all (x:A2): B2 => A1 ~ A2 and B1 <= B2
+
+\end{comment}
+
+
 \section{Cumulativity / Subtyping}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -505,6 +515,48 @@ beta equivalent to $B$ or $A$ is a proper subtype of $B$.
 \end{definition}
 
 
+
+\begin{theorem}
+    \label{SubtypeReduction}
+    \emph{Reduction does not effect the subtype relation}
+    $$
+    \ruleh {
+        A \le B
+        \\
+        t \reduce u
+    }
+    {
+        A[x:=t] \le B[x:=u]
+    }
+    $$
+
+    \begin{proof}
+        MISSING !!! MISSING !!!
+    \end{proof}
+\end{theorem}
+
+
+
+\begin{theorem}
+    \label{SubtypeProduct}
+    \emph{If a product is a subtype of another product, then the argument type
+    are beta equivalent and the result type figure in the subtype relation.}
+    $$
+    \ruleh {
+        \Pi x^{A_1}. B_1 \le \Pi x^{A_2}. B_2
+    }
+    {
+        A_1 \betaeq A_2 \land B_1 \le B_2
+    }
+    $$
+
+    \begin{proof}
+        MISSING !!! MISSING !!!
+    \end{proof}
+\end{theorem}
+
+
+
 \begin{theorem}
     \emph{The subtype relation is reflexive with respect to beta equivalence}
     $$
@@ -525,6 +577,7 @@ beta equivalent to $B$ or $A$ is a proper subtype of $B$.
 
 
 \begin{theorem}
+    \label{SubtypeTransitive}
     \emph{The subtype relation is transitive}
     $$
     \ruleh{
