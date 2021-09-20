@@ -373,6 +373,42 @@ beta equivalent to $B$ or $A$ is a proper subtype of $B$.
 
 
 
+\subsection{Proper Subtype Relation (Luo)}
+
+
+\begin{definition}
+    \emph{Proper Subtype}
+    The proper subtype relation $A <_i B$ with aritiy $i$ is defined inductively
+    by the rules
+
+    \begin{enumerate}
+        \item
+        $$
+        \rulev{
+            -1 \le k < l
+            \\
+            A \betaeq \Any_k
+            \\
+            \Any_l \betaeq B
+        }
+        {
+            A <_0 B
+        }
+        $$
+
+        \item
+        $$
+        \rulev{
+            A_1 \betaeq A_2
+            \\
+            B_1 <_i B_2
+        }
+        {
+            \Pi x^{A_1}. B_1  <_{i+1} \Pi x^{A_2}. B_2
+        }
+        $$
+    \end{enumerate}
+\end{definition}
 
 
 
