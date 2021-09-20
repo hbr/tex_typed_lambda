@@ -558,6 +558,51 @@ beta equivalent to $B$ or $A$ is a proper subtype of $B$.
 
 
 \begin{theorem}
+    \label{SubtypeProduct2}
+    $$
+    \ruleh {
+        A_1 \betaeq A_2 \land B_1 \le B_2
+    }
+    {
+        \Pi x^{A_1}. B_1 \le \Pi x^{A_2}. B_2
+    }
+    $$
+
+    \begin{proof}
+        MISSING !!! MISSING !!!
+    \end{proof}
+\end{theorem}
+
+
+
+\begin{theorem}
+    \label{SubtypeProduct3}
+    $$
+    \ruleh {
+        F_0 \le \Pi x^A. B
+    }
+    {
+        \exists A_1 B_1.
+        \left[
+        \begin{array}{l}
+            F_0 \reducestar \Pi x^{A_1}.B_1 \le \Pi x^A. B
+            \\
+            A_1 \betaeq A
+            \\
+            B_1 \le B
+        \end{array}
+        \right]
+    }
+    $$
+
+    \begin{proof}
+        MISSING !!! MISSING !!!
+    \end{proof}
+\end{theorem}
+
+
+
+\begin{theorem}
     \emph{The subtype relation is reflexive with respect to beta equivalence}
     $$
     \ruleh{
