@@ -931,7 +931,7 @@ $t$.
                             \end{array}
                             $$
                             by the substitution lemma~\ref{SubstitutionLemma}
-                            and \ref{SubtypeProduct}. We get the final goal by
+                            and \ref{SubtypeProduct1}. We get the final goal by
                             applying the subtype rule.
                     \end{enumerate}
 
@@ -1498,6 +1498,17 @@ typing judgement. In order to prove this lemma we need a helper lemma.
 \subsection{Minimal Types}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+In many type lambda calculi we can prove that types are unique up to beta
+equivalence. The presence of the subtype rule contradicts the uniquencess of
+types in the extended calculus of constructions.
+
+However there is a similar statement. We can prove that for each welltyped term
+there is a \emph{minimal type} which is unique up to beta equivalence. Before
+proving this we define what we mean by a \emph{minimal type}, then we prove that
+the type of a variable in a valid context is its minimal type and finally we
+prove that each welltyped term has a minimal type.
+
+
 \begin{definition}
     \emph We say that $T$ is the \emph{minimal type} of term $t$ in the
     context $\Gamma$ which we annotate as $\derivesmin \Gamma t T$ if and only
@@ -1538,32 +1549,30 @@ typing judgement. In order to prove this lemma we need a helper lemma.
 
             \item Structural rules:
             \begin{enumerate}
-                \item Weakening: This rule is not possible because $x \notin
-                    \Gamma$ and therefore $\derives \Gamma x U$ is not possible.
+                \item Weakening: In order to derive $\Gamma,x^A \vdash x: U$ by
+                    the weaking rule we would need $\Gamma \vdash x : U$.
+                    However this is not possible because $x \notin \Gamma$.
 
-                \item Reduction:
+                \item Subtype:
                 $$
                 \begin{array}{l|l}
+                    \derives {\Gamma, x^A} x T
+                    &
+                    A \le T
+                    \\
+                    \derives {\Gamma, x^A} U s
+                    \\
+                    T \le U
+                    \\
+                    \hline
                     \derives {\Gamma, x^A} x U
                     &
                     A \le U
-                    \\
-                    \derives {\Gamma, x^A} V s
-                    \\
-                    U \reduce V
-                    \\
-                    \hline
-                    \derives {\Gamma, x^A} x V
-                    &
-                    A \le V
                 \end{array}
                 $$
-                From the induction hypothesis we get $A \le U$. Since $U \reduce
-                    V$ we immidiately get the goal $A \le V$.
-
-                \item Expansion: Same reasoning as reduction.
-
-                \item Subtyping: Same reasoning as reduction.
+                From the induction hypothesis we get $A \le U$. By transitivity
+                    of the subtype relation~\ref{SubtypeTransitive} we
+                    immediately get the final goal $A \le U$.
             \end{enumerate}
         \end{enumerate}
     \end{proof}
@@ -1697,59 +1706,68 @@ typing judgement. In order to prove this lemma we need a helper lemma.
                     $$
                     \Pi x^A. B_0 \le \Pi x^A. B_1 \le U
                     $$
-                    an therefore $\Pi x^A. B_0$ is really minimal.
+                    Therefore we can use $M = \Pi x^A. B_1$ which satisfies the
+                    final goal $M \le U$.
 
                 \item Application:
                     $$
                     \begin{array}{l|l}
                         \Gamma \vdash f: \Pi x^A.B
+                        & \exists F_0.\, \derivesmin \Gamma f {F_0}
                         \\
                         \Gamma \vdash a: A
                         \\
                         \hline
                         \Gamma \vdash f a: B[x:=a]
                         &
-                        \exists M. \derivesmin \Gamma {f a} M
+                        \exists M.\, \derivesmin \Gamma {f a} M
                     \end{array}
                     $$
 
-                    From the induction hypothesis we get a term $F_0$ which is
-                    the minimal type of $f$ and therefore $F_0 \le \Pi x^A. B$.
+                    \begin{itemize}
+                        \item
+                        From the induction hypothesis we get a term $F_0$ which is
+                        the minimal type of $f$ and therefore $F_0 \le \Pi x^A. B$
+                        which implies by~\ref{SubtypeProduct3} the existence of
+                        $A_1$ and $B_1$ with
+                        $$
+                        \begin{array}{l}
+                            F_0 \reducestar \Pi x^{A_1}. B_1 \le \Pi x^A.B
+                            \\
+                            A_1 \betaeq A
+                            \\
+                            B_1 \le B
+                        \end{array}
+                        $$
 
-                    We have to distinguish 2 cases:
-                    \begin{enumerate}
-                        \item $F_0 \betaeq \Pi x^A. B$:
+                        \item We use $M = B_1[x:=a]$ and have to prove that for
+                            all $U$ with $\Gamma \vdash f a: U$ we get
+                            $B_1[x:=a] \le U$.
 
-                            Since $F_0$ is minimal, $\Pi x^A. B$ is minimal as
-                            well. Therefore $B$ is minimal for all $B$'s which
-                            exist according to the generation
-                            lemma~\ref{GenerationLemma} as types of expressions
-                            of the form $f a$. Therefore $B[x:=a]$ is the
-                            minimal type of $f a$.
+                        \item So let's assume $\Gamma \vdash f a: U$. By the
+                            generation lemma~\ref{GenerationLemma} there exist some
+                                $A_U$ and $B_U$ with
+                            $$
+                            \begin{array}{l}
+                                \Gamma \vdash f: \Pi x^{A_U}. B_U
+                                \\
+                                \Gamma \vdash a : A_U
+                                \\
+                                B_U[x:=a] \le U
+                            \end{array}
+                            $$
 
-                        \item $F_0 < \Pi x^A. B$:
-                        \begin{itemize}
-                            \item By definition of $<$ there exists $i$, $F_1$
-                                and $F_2$ such that $F_0 \betaeq F_1$, $F_1
-                                \prec_i F_2$ and $F_2 \betaeq \Pi x^A. B$.
-
-                            \item Because of $F_1 \prec_i F_2$, both have to be
-                                either a sort or a product. They cannot be sorts
-                                because of $F_2 \betaeq \Pi x^A.B$. Therefore
-                                they have to be products. Let' say $F_1 = \Pi
-                                x^{A_2}. B_1$ and $F_2 = \Pi x^{A_2}. B_2$
-                                with $B_1 \prec_{i-1} B_2$, $A_2 \betaeq A$ and
-                                $B_2 \betaeq B$.
-
-                            \item Since $F_0$ is minimal, $F_1 = \Pi x^{A_2}.
-                                B_1$ is minimal as well.
-
-                            \item Therefore $B_1$ is minimal for all possible
-                                $B$s which implies that $B_1[x:=a]$ is the
-                                minimal type of $f a$.
-                        \end{itemize}
-                    \end{enumerate}
-
+                        \item Since $\Pi x^{A_1}. B_1$ is the minimal type of
+                            $f$ in the context $\Gamma$ we have $\Pi x^{A_1}.
+                            {B_1} \le \Pi x^{A_U}. B_U$ which implies by
+                            lemma~\ref{SubtypeProduct1} $B_1 \le B_U$ and
+                            therefore by lemma~\ref{SubtypeReduction} $B_1[x:=a]
+                            \le B_U[x:=a]$. Therefore the final goal
+                            $$
+                            M = B_1[x:=a] \le B_U[x:=a] \le U
+                            $$ is proven by transitivity of
+                            subtype~\ref{SubtypeTransitive}
+                    \end{itemize}
             \end{enumerate}
 
             \item Structural rules:
@@ -1758,7 +1776,7 @@ typing judgement. In order to prove this lemma we need a helper lemma.
                 $$
                 \begin{array}{l|l}
                     \Gamma \vdash t: T
-                    & \exists M. \derivesmin \Gamma t T
+                    & \exists M_0.\, \derivesmin \Gamma t T
                     \\
                     \Gamma \vdash A: s
                     \\
@@ -1767,12 +1785,31 @@ typing judgement. In order to prove this lemma we need a helper lemma.
                     \hline
                     \Gamma, x^A \vdash t : T
                     &
-                    \exists M. \derivesmin {\Gamma, x^A} t T
+                    \exists M.\, \derivesmin {\Gamma, x^A} t T
                 \end{array}
                 $$
-                    INCOMPLETE!!!
+                    By the induction hypothesis there exists a term $M_0$ which
+                    is the minimal type of $t$ in the context $\Gamma$.
 
-                \item Reduction:
+                    We use $M = M_0$ and have to prove
+                    \begin{itemize}
+                        \item $\Gamma,x^A \vdash M_0$: This is valid by
+                            weakening.
+
+                        \item
+                            $\forall U.
+                            \ruleh{\Gamma,x^A \vdash t : U}{M_0 \le U}
+                            $:
+
+                            Assume $\Gamma,x^A \vdash t : U$. By the condensing
+                            helper lemma~\ref{CondensingHelper} there is some
+                            $U_0$ with $\Gamma \vdash t: U_0$ and $U_0 \le U$.
+                            Since $M_0$ is already the minimal type of $t$ in
+                            the context $\Gamma$ we get by
+                            transitivity~\ref{SubtypeTransitive} $M_0 \le U$.
+                    \end{itemize}
+
+                \item Subtype:
                 $$
                 \begin{array}{l|l}
                     \Gamma \vdash t : T
@@ -1781,7 +1818,7 @@ typing judgement. In order to prove this lemma we need a helper lemma.
                     \\
                     \Gamma \vdash U : s
                     \\
-                    T \reduce U
+                    T \le U
                     \\
                     \hline
                     \Gamma \vdash t : U
@@ -1791,11 +1828,6 @@ typing judgement. In order to prove this lemma we need a helper lemma.
                 $$
                 The goal in the lower right corner follows immediately from the
                     induction hypothesis.
-
-                \item Expansion: Same reasoning as with reduction.
-
-                \item Subtyping: Same reasoning as with reduction.
-
             \end{enumerate}
         \end{enumerate}
     \end{proof}
