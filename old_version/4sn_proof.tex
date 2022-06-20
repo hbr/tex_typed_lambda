@@ -184,43 +184,48 @@ leftmost application is a redex.
 \subsection{Model Sets}
 
 \begin{definition}
-  A model is either a saturated set of terms or a function mapping a set of
-  models to another set of models. The function $\nu$ maps kinds to collection
-  of models and is defined as
+    A {\em model set} is one of the following:
+    \begin{enumerate}
+    \item The set of saturated sets $\SAT$.
+
+    \item The singleton set with the empty set as the only element
+
+    \item A set of functions mapping one model set to another model set.
+        $\set{\empty}$.
+    \end{enumerate}
+\end{definition}
+
+\begin{definition}
+    We define a {\em model set function $\nu$} which maps any term to a model
+    set. 
   %
   $$
   \nu(A) :=
   \begin{cases}
-    \nu(s) := \SAT
+      \nu(s) &:= \SAT
     \\
-    \nu(\Pi x^A.B) := \nu(B) & A \in \Types, B \in \Kinds
+      \nu(\Pi x^A.B) &:= \{ f \mid f:\nu(A) \to \nu(B)\} \quad A,B \in \Kinds
     \\
-    \nu(\Pi x^A.B) := \{ f \mid f:\nu(A) \to \nu(B)\} & A,B \in \Kinds
+      \nu(\Pi x^A.B) &:= \nu(B) \quad A \notin \Kinds, B \in \Kinds
     \\
-    \nu(\lambda x^A. B) := \nu(B)       & B \in \Kinds
-    \\
-    \nu(A B) := \nu(A)                  & A \in \Kinds
+      \nu(t) &:= \set{empty} \quad \text{otherwise}
   \end{cases}
   $$
 \end{definition}
 
 
 \begin{definition}
-  Let $A$ be a kind. Then we define a canonical model $\nu^c(A) \in \nu(A)$
-  according to the definition
+    For each term we define a \em{canonical model}.
   $$
   \nu^c(A) :=
   \begin{cases}
-    \nu^c(s) := \SN
+      \nu^c(s) &:= \SN
     \\
-    \nu^c(\Pi x^A. B) := \nu^c(B) & A \in \Types, B \in \Kinds
+      \nu^c(\Pi x^A. B) &:= \bullet \mapsto \nu^c(B) \quad A,B \in \Kinds
     \\
-    \nu^c(\Pi x^A. B) := \bullet \mapsto \nu^c(B) & A,B \in \Kinds
+      \nu^c(\Pi x^A. B) &:= \nu^c(B) \quad A \notin \Kinds, B \in \Kinds
     \\
-    \nu^c(\lambda x^A. B) := \nu^c(B)       & B \in \Kinds
-    \\
-    \nu^c(A B) := \nu^c(A)                  & A \in \Kinds
-
+      \nu^c (t) &:= \emptyset \quad \text{otherwise}
   \end{cases}
   $$
 \end{definition}
