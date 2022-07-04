@@ -1,0 +1,605 @@
+\section{The Calculus}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+\subsection{Sorts}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+In the calculus of constructions terms and types are in the same
+syntactic category. All welldefined terms have types and therefore types must
+have types as well. In order to have types for types we start with the
+introduction of sorts which are the types of types.
+
+\begin{definition}
+    \emph{Sorts:} There are the two sorts $\Prop$ and $\Any$ in the calculus of
+    constructions.
+
+    Sorts or universes are the types of types. Sorts are usually abbreviated by
+    the variable $s$.
+\end{definition}
+
+
+
+
+
+\subsection{Terms}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}
+    The \emph{terms} are defined by the grammar where $s$ ranges over sorts, $x$
+    ranges over some countably infinite set of variables and $t$ ranges over
+    terms.
+    $$
+    \begin{array}{llll}
+        t
+
+        &::=& s & \text{sorts}
+
+        \\
+
+        &\mid & x & \text{variable}
+
+        \\
+
+        &\mid & \Pi x^t. t & \text{product}
+
+        \\
+
+        &\mid & \lambda x^t. t & \text{abstraction}
+
+        \\
+
+        &\mid & t t & \text{application}
+    \end{array}
+    $$
+\end{definition}
+
+
+
+
+
+
+
+\subsection{Contexts}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{definition}
+    A \emph{context} is a sequence of variables and their corresponding types.
+    Contexts are usually abbreviated by upper greek letters and types are terms
+    which are usually abbreviated by uppercase letters.
+
+    Contexts are defined by the grammar
+    $$
+    \begin{array}{llll}
+        \Gamma
+        &:=& [] & \text{empty context}
+
+        \\
+
+        &\mid& \Gamma, x^A & \text{one more variable $x$ with its type $A$}
+    \end{array}
+    $$
+\end{definition}
+
+
+
+
+
+
+
+\subsection{Free Variables}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}
+    The set of \emph{free variables} $\FV t$ of a term $t$ is defined by the function
+    $$
+    \FV t :=
+        \begin{cases}
+            \FV s &:= \emptyset
+
+            \\
+
+            \FV x &:= \{ x \}
+
+            \\
+
+            \FV (a b) &:= \FV a \cup \FV b
+
+            \\
+
+            \FV (\lambda x^A. e) &:= \FV A \cup (\FV e - \{x\})
+
+            \\
+
+            \FV (\Pi x^A. B) &:= \FV A \cup (\FV B - \{x\})
+        \end{cases}
+    $$
+    where $s$ ranges over sorts, $x$ ranges over variables and $a$, $b$,
+    $e$, $A$ and $B$ range over arbitrary terms.
+\end{definition}
+
+A variable which is not free is called a bound variable. E.g. if $x$ is a free
+variable in the term $e$, it is no longer free in $\lambda x^A. e$. Therefore we
+call $\lambda x^A. e$ a binder, because it makes the variable $x$ bound. The
+same applies to the term $\Pi x^A. B$  where the variable $x$ is bound, but can
+appear free in $B$.
+
+
+It is possible to rename bound variables within a term. The renaming of a bound
+variable does not change the term. We consider two terms which only differ in
+the name of bound variables as identical. Examples of some identical terms:
+$$
+\begin{array}{lll}
+    \lambda x^\Prop. x  &=& \lambda y^\Prop. y
+
+    \\
+
+    \Pi x^z. x   &=& \Pi y^z. y
+\end{array}
+$$
+
+
+
+\subsection{Substitution}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{definition}
+    \emph{Substitution:}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    The term $t[y:=c]$ is the term $t$ where the term $c$ is substituted for all
+    free occurrences of the variable $y$. It is defined as a recursive function
+    which iterates over all subterms until variables or sorts are encountered.
+    $$
+    t[y:=c] :=
+        \begin{cases}
+            s[y:=c] &:= s
+
+            \\
+
+            y[y:=c] &:= c
+
+            \\
+
+            x[y:=c] &:= x \quad \text{if } x \ne y
+
+            \\
+
+            (a b)[y:=c] &:= a[y:=c] b[y:=c]
+
+            \\
+
+            (\lambda x^A . e)[y:=c]
+            &:=
+            \lambda x^{A[y:=c]}. e[y:=c]
+                \quad \text{if } x \notin \FV c
+
+            \\
+
+            (\Pi x^A . B)[y:=c]
+            &:=
+            \Pi x^{A[y:=c]}. B[y:=c]
+                \quad \text{if } x \notin \FV c
+        \end{cases}
+    $$
+\end{definition}
+The condition $x \notin \FV c$ is not a restriction, because the bound variable
+$x$ can always be renamed to annother variable which does not occur free in the
+term $c$.
+
+
+
+\begin{lemma}
+    \label{SubstitutionToSort}
+    \emph{Substitution to sort lemma:}
+    If the result of a substitution is a sort then either the term in
+    which the substitution occurs is the term or the term is the variable to be
+    replaced and the substitution term is the sort.
+    $$
+        \rulev{
+            a[x:=b] \reduce s
+        }
+        {
+            a = s \lor (a = x \land b = s)
+        }
+    $$
+    \begin{proof}
+        From the definition of the substitution it is evident that only the
+        first two case can result in a sort. All other case to cannot
+        syntactically result in a sort. The first two case prove exactly the
+        goal.
+    \end{proof}
+\end{lemma}
+
+
+\begin{lemma}
+    \label{DoubleSubstitution}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+    \emph{Double substitution lemma} If we change the order of two subsequent
+    substitutions, then it is necessary to introduce a correction term.
+    $$
+    \ruleh{
+        x \ne y
+        \\
+        y \notin \FV a
+    }
+    {
+        t[y:=b][x:=a]
+        =
+        t[x:=a][y:=b[x:=a]]
+    }
+    $$
+    \begin{proof}
+        The intuitive proof is quite evident. If we substitute $b$ for the
+        variable $y$ in the term $t$ and then substitute $a$ for the variable
+        $x$ in the result we replace in the second substitution not only all
+        variables $x$ originally contained in $t$ but all occurrences of $x$ in
+        $b$ as well.
+
+        If we do the substitution $[x:=a]$ on $t$, then all occurrences of $x$
+        in $b$ have not yet been substituted. Therefore the correction term
+        $b[x:=a]$ is necessary if the order is changed.
+
+        The formal proof goes by induction on the structure of $t$.
+
+        \begin{enumerate}
+
+            \item If $t$ is a sort then the equality is trivial because a sort
+                does not have any variables.
+
+            \item If $t$ is an application, an abstraction or a product, then
+                the goal follows immediately from the induction hypotheses.
+
+            \item The only interesting case is when $t$ is a variable. Let's
+                call the variable $z$. Then we have to distinguish the cases
+                that $z$ is $x$ or $z$ is $y$ or $z$ is different from $x$ and
+                $y$.
+
+                \begin{enumerate}
+                    \item Case $z = x$:
+                        $$
+                        \begin{array}{llll}
+                            x[y:=b][x:=a]
+                            &=& x[x:=a]
+                            \\
+                            &=& a
+                            \\
+                            \\
+                            x[x:=a][y:=b[x:=a]]
+                            &=& a[y:=b[x:=a]]
+                            \\
+                            &=& a & y \notin \FV a
+                        \end{array}
+                        $$
+
+                    \item Case $z = y$:
+                        $$
+                        \begin{array}{llll}
+                            y[y:=b][x:=a]
+                            &=& b[x:=a]
+                            \\
+                            \\
+                            y[x:=a][y:=b[x:=a]]
+                            &=& y[y:=b[x:=a]]
+                            \\
+                            &=&b[x:=a]
+                        \end{array}
+                        $$
+
+                    \item Case $z \ne x \land z \ne y$:
+                        $$
+                        \begin{array}{llll}
+                            z[y:=b][x:=a]
+                            &=& z
+                            \\
+                            \\
+                            z[x:=a][y:=b[x:=a]]
+                            &=& z
+                        \end{array}
+                        $$
+
+                \end{enumerate}
+        \end{enumerate}
+    \end{proof}
+\end{lemma}
+
+The validity of the
+\emph{double substitution lemma}~\ref{DoubleSubstitution}
+is needed to make sure that \emph{beta
+reduction} (see definition in the next section) is confluent. E.g. if we have
+the term $(\lambda x^A. (\lambda y^B. t) b) a$ then we can decide whether we
+reduce first the inner redex and then the outer redex or the other way round.
+Because of confluence both possibilities shall have the same result.
+$$
+\begin{array}{llll}
+    (\lambda x^A. (\lambda y^B. t) b) a
+    &\reduce& (\lambda x^A. t[y:=b]) a
+    \\
+    &\reduce& t[y:=b][x:=a]
+    \\
+    \\
+    (\lambda x^A. (\lambda y^B. t) b) a
+    &\reduce& (\lambda y^B. t[x:=a]) b[x:=a]
+    \\
+    &\reduce& t[x:=a][y:=b[x:=a]]
+\end{array}
+$$
+
+
+
+
+
+
+
+
+
+\subsection{Beta Reduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Like in untyped lambda calculus, computation is done via \emph{beta reduction}.
+A beta redex has the form $(\lambda x^A. e) a$ which reduces to the reduct
+$e[x:=a]$. Beta reduction can be done in any subterm of a term.
+
+\begin{definition}
+    \emph{Beta reduction}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    is a binary relation $a \reduce b$ where the term $a$
+    reduces to the term $b$. It is defined by the rules
+    \begin{enumerate}
+        \item Redex:
+            $$
+                (\lambda x^A. e) a \reduce e[x:=a]
+            $$
+
+        \item Reduce function:
+            $$
+                \ruleh{
+                    f \reduce g
+                }
+                {
+                    f a \reduce g a
+                }
+            $$
+
+        \item Reduce argument:
+            $$
+                \ruleh{
+                    a \reduce b
+                }
+                {
+                    f a \reduce f b
+                }
+            $$
+
+        \item Reduce abstraction argument type:
+            $$
+                \ruleh{
+                    A \reduce B
+                }
+                {
+                    \lambda x^A. e \reduce \lambda x^B . e
+                }
+            $$
+
+        \item Reduce abstraction inner term:
+            $$
+                \ruleh{
+                    e \reduce f
+                }
+                {
+                    \lambda x^A. e \reduce \lambda x^A. f
+                }
+            $$
+
+        \item Reduce product argument type:
+            $$
+                \ruleh{
+                    A \reduce B
+                }
+                {
+                    \Pi x^A. C \reduce \Pi x^B . C
+                }
+            $$
+
+        \item Reduce product result type
+            $$
+                \ruleh{
+                    B \reduce C
+                }
+                {
+                    \Pi x^A. B \reduce \Pi x^A. C
+                }
+            $$
+    \end{enumerate}
+\end{definition}
+
+\begin{lemma}
+    \emph{Reduction to sort lemma}: A term which reduces to a sort must be a
+    redex where the sort is the body or the body is the variable and the
+    argument is the sort.
+    $$
+    \ruleh{
+        t \reduce s
+    }
+    {
+        t = (\lambda x^A. e) a \land (e = s \lor e = x \land a = s)
+    }
+    $$
+
+    \begin{proof}
+        All rules except the redex rule reduce to something which cannot be
+        syntactically a sort. Therefore the term has to be a redex which in
+        general has the form $(\lambda x^A.e) a$. The redex reduces to $e[x:=a]$
+        which by the substitution to sort lemma~\ref{SubstitutionToSort} proves
+        the goal.
+    \end{proof}
+\end{lemma}
+
+
+\begin{theorem}
+    \label{SubstituteReduction}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \emph{Substitute Reduction} A reduction remains valid if we do the same
+    substitution before and after the reduction.
+    $$
+    \ruleh{
+        t \reduce u
+    }
+    {
+        t[y:=v] \reduce u[y:=v]
+    }
+    $$
+    (Note that iterated application of this lemma results in the more general
+    statement $t \reducestar u \imp t[y:=v] \reducestar u[y:=v]$.)
+
+    \begin{proof}
+        Proof by induction on $t \reduce u$.
+
+
+        \begin{enumerate}
+
+        \item Redex: We have to prove the goal
+            $$
+                ((\lambda x^A. e) a)[y:=v] \reduce e[x:=a][y:=v]
+            $$
+
+            We can see this by the sequence
+            $$
+            \begin{array}{lll}
+                ((\lambda x^A. e) a)[y:=v]
+                &=&
+                (\lambda x^{A[y:=v]}. e[y:=v]) a[y:=v]
+                \\
+                &\reduce&
+                e[y:=v][x:=a[y:=v]]
+                \\
+                &=& \text{by Double substitution lemma~\ref{DoubleSubstitution}}
+                \\
+                &&e[x:=a][y:=v]
+            \end{array}
+            $$
+
+        \item Reduce function: We have to prove the goal
+            $$
+            \begin{array}{l|l}
+                f \reduce g
+                & f[y:=v] \reduce g[y:=v]
+                \\
+                \hline
+                f a \reduce g a
+                &(f a)[y:=v] \reduce (g a)[y:=v]
+            \end{array}
+            $$
+            The validity of the final goal in the right lower corner can be seen
+            by the following reasoning
+            $$
+            \begin{array}{lll}
+                (f a)[y:=v]
+                &=&
+                f[y:=v] a[y:=v]
+                \\
+                &\reduce&
+                g[y:=v] a[y:=v]
+                \\
+                &=&
+                (g a)[y:=v]
+            \end{array}
+            $$
+
+        \item Other rules: All other rules follow the same pattern as the proof
+            of the rule \emph{reduce function}.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\begin{lemma}
+    \label{ReductionProductAbstraction}
+    \emph{Product and abstraction are preserved under beta reduction}
+    \begin{enumerate}
+    \item
+    $
+        \ruleh{
+            \Pi x^A.B \reduce t
+        }
+        {
+            \left( \exists C. A \preduce C \land t = \Pi x^C. B \right)
+            \lor
+            \left( \exists D. B \preduce C \land t = \Pi x^A. D \right)
+        }
+    $
+    \item
+    $
+        \ruleh{
+            \lambda x^A.e \reduce t
+        }
+        {
+            \left( \exists B. A \preduce B \land t = \lambda x^B. e \right)
+            \lor
+            \left( \exists f. e \preduce f \land t = \lambda x^A. f \right)
+        }
+    $
+    \end{enumerate}
+
+    \begin{proof}
+        The proofs for product and abstraction follow the same pattern.
+        Therefore we prove only the preservation of products.
+
+        Assume $\Pi x^A. B \reduce t$ and do induction on it. Only the two
+        product rules are syntactically possible. Each one guarantees one
+        alternative of the goal.
+    \end{proof}
+\end{lemma}
+
+
+
+\subsection{Beta Equivalence}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{definition}
+    We define \emph{beta equivalence} as a binary relation $a \equiv b$ between
+    the terms $a$ and $b$ inductively by the rules
+    \begin{enumerate}
+    \item
+        $$ a \equiv a$$
+
+    \item
+        $$
+        \rulev
+        {
+            a \equiv b
+            \\
+            b \reduce c
+        }
+        {
+            a \equiv c
+        }
+        $$
+
+    \item
+        $$
+        \rulev
+        {
+            a \equiv b
+            \\
+            c \reduce b
+        }
+        {
+            a \equiv c
+        }
+        $$
+    \end{enumerate}
+
+    In other words the beta equivalence relation $\equiv$ is the smallest
+    equivalence relation which contains beta reduction $\reduce$.
+\end{definition}
