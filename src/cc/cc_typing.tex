@@ -950,7 +950,9 @@ the rules
 
 \begin{corollary}
     \label{AnyNoSubterm}
-    \emph{$\Any$ cannot be a subterm of a welltyped term}.
+    \emph{$\Any$ cannot be a subterm of a welltyped term}. This implies that
+    terms like $\lambda x^\Any. e$, $\lambda x^A. \Any$, $\Pi x^\Any. B$ or $\Pi
+    x^A. \Any$ cannot be welltyped, because they have $\Any$ as a subterm.
 
     \begin{proof}
         Assume that $\Any$ is a subterm of a welltyped term. Then by the
@@ -958,6 +960,33 @@ the rules
         contradicts corollary~\ref{AnyNotWelltyped}.
     \end{proof}
 \end{corollary}
+
+
+
+
+
+\subsection{Subject Reduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{theorem}
+    \label{SubjectReductionTheorem}
+    \emph{Subject Reduction Theorem}
+    $$
+    \rulev{
+        \Gamma \vdash t : T
+        \\
+        t \reduce u
+    }
+    {
+        \Gamma \vdash u: T
+    }
+    $$
+
+    \begin{proof}
+        MISSING!!!
+    \end{proof}
+\end{theorem}
 
 
 
@@ -983,8 +1012,10 @@ the rules
 
     \begin{proof}
         By induction on the structure of $t$ using the generation
-        lemmata~\ref{GenerationLemmata}.
-        MISSING!!!
+        lemmata~\ref{GenerationLemmata}. The generation lemma for each form of
+        $t$ guarantees the existence of a term $V$ for which $V \betaeq T$ and
+        $V \betaeq U$ is valid. By transitivity of beta equivalence $T \betaeq
+        U$ is implied.
     \end{proof}
 \end{theorem}
 
@@ -995,11 +1026,11 @@ the rules
     \emph{All types of beta equivalent terms are beta equivalent}
     $$
     \rulev{
+        t \betaeq u
+        \\
         \Gamma \vdash t : T
         \\
         \Gamma \vdash u : U
-        \\
-        t \betaeq u
     }
     {
         T \betaeq U
@@ -1007,7 +1038,15 @@ the rules
     $$
 
     \begin{proof}
-        MISSING!!!
+        $ t \betaeq u$ implies by the Church Rosser Theorem~\ref{ChurchRosser2}
+        the existence of a term $v$ such that $t \reducestar v$ and $u
+        \reducestar v$ are valid.
+
+        By repeated application of the subject reduction theorem we get $\Gamma
+        \vdash v : T$ and $\Gamma \vdash v : U$.
+
+        This implies by the previous theorem~\ref{TypeUniqueness1} the validity
+        of $T \betaeq U$.
     \end{proof}
 \end{theorem}
 

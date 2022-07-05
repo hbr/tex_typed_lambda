@@ -571,18 +571,18 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
     the terms $a$ and $b$ inductively by the rules
     \begin{enumerate}
     \item
-        $$ a \equiv a$$
+        $$ a \betaeq a$$
 
     \item
         $$
         \rulev
         {
-            a \equiv b
+            a \betaeq b
             \\
             b \reduce c
         }
         {
-            a \equiv c
+            a \betaeq c
         }
         $$
 
@@ -590,16 +590,47 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
         $$
         \rulev
         {
-            a \equiv b
+            a \betaeq b
             \\
             c \reduce b
         }
         {
-            a \equiv c
+            a \betaeq c
         }
         $$
     \end{enumerate}
 
-    In other words the beta equivalence relation $\equiv$ is the smallest
-    equivalence relation which contains beta reduction $\reduce$.
+    In other words the beta betaeqalence relation $\betaeq$ is the smallest
+    betaeqalence relation which contains beta reduction $\reduce$.
 \end{definition}
+
+
+
+\subsection{Church Rosser Theorem}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{theorem}
+    \label{ChurchRosser1}
+    BLABLA
+    \begin{proof}
+        MISSING!!!
+    \end{proof}
+\end{theorem}
+
+
+\begin{theorem}
+    \label{ChurchRosser2}
+    $$
+    \ruleh{
+        t \betaeq u
+    }
+    {
+        \exists v.
+        t \reducestar v \land u \reducestar v
+    }
+    $$
+    \begin{proof}
+        MISSING!!!
+    \end{proof}
+\end{theorem}
