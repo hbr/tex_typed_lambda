@@ -84,14 +84,14 @@ the rules
                 }
                 $$
 
-            \item Reduction:
+            \item Type equivalence:
                 $$
                 \rulev {
                     \Gamma \vdash t: T
                     \\
                     \Gamma \vdash U: s
                     \\
-                    T \reduce U \lor U \reduce T
+                    T \betaeq U
                 }
                 {
                     \Gamma \vdash t: U
@@ -245,7 +245,6 @@ the rules
         \end{enumerate}
     \end{proof}
 \end{theorem}
-
 
 
 
@@ -445,7 +444,7 @@ the rules
             well. The goal follows immediately from the first induction
             hypothesis.
 
-        \item Reduction:
+        \item Type reduction:
 
             $$
             \begin{array}{l|l}
@@ -471,7 +470,7 @@ the rules
                         \Delta \vdash U : s
                     }\right]
                 \\
-                T \reduce U \lor U \reduce T
+                T \betaeq U
                 \\
                 \hline
                 \Gamma \vdash t : U
@@ -489,8 +488,8 @@ the rules
 
             Let's assume a valid context $\Delta$ which is a superset of
             $\Gamma$. From the two induction hypotheses we get $\Delta \vdash t
-            : T$ and $\Gamma \vdash U : s$. We conclude the final goal by
-            applying the reduction rule.
+            : T$ and $\Delta \vdash U : s$. We conclude the final goal by
+            applying the type equivalence rule.
         \end{enumerate}
     \end{proof}
 \end{theorem}
@@ -696,7 +695,7 @@ the rules
                         proposition in the induction hypothesis.
                 \end{enumerate}
 
-            \item Reduction:
+            \item Type equivalence:
                 $$
                 \begin{array}{l|l}
                     \Gamma \vdash \Pi x^A. B : T
@@ -714,7 +713,7 @@ the rules
                     \\
                     \Gamma \vdash U : s
                     \\
-                    T \reduce U \lor U \reduce T
+                    T \betaeq U
                     \\
                     \hline
                     \Gamma \vdash \Pi x^A. B : U
@@ -968,7 +967,7 @@ the rules
                 The goal in the lower right corner can be proved by the
                     induction hypotheses and the weakening rule.
 
-                \item Reduction:
+                \item Type equivalence:
                 $$
                 \begin{array}{l|l}
                     \Gamma,x^A,\Delta \vdash t : T
@@ -979,7 +978,7 @@ the rules
                     &
                     \Gamma,\Delta' \vdash U' : s'
                     \\
-                    T \reduce U \lor U \reduce T
+                    T \betaeq U
                     \\
                     \hline
                     \Gamma,x^A,\Delta \vdash t : U
@@ -987,13 +986,103 @@ the rules
                     \Gamma,\Delta' \vdash t' : U'
                 \end{array}
                 $$
+                From the theorem~\ref{SubstituteEquivalence} we conclude that
+                    $T'$ and $U'$ are beta equivalent.
                 The goal in the lower right corner is an immediate consequence
-                of the induction hypotheses and the reduction rule.
+                of the induction hypotheses and the type equivalence rule.
             \end{enumerate}
 
         \end{enumerate}
     \end{proof}
 \end{theorem}
+
+
+
+
+\subsection{Type of Types}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{theorem}
+    \label{TypeOfTypes}
+    \emph{A term in the type position of a context is either $\Any$ or it is a
+    valid type of some sort}.
+
+    $$
+    \rulev{
+        \Gamma \vdash t : T
+    }
+    {
+        T = \Any \lor \exists s. \Gamma \vdash T : s
+    }
+    $$
+
+    \begin{proof}
+        By induction on $\Gamma \vdash t : T$:
+        \begin{enumerate}
+        \item Sort: Trivial
+
+        \item Variable: Trivial by the premise of the variable introduction
+            rule.
+
+        \item Product: Easy, because there are only two sorts. If the sort is
+            $\Prop$ then by the start lemma~\ref{StartLemma} $\Gamma\vdash
+                \Prop: \Any$ is valid in any valid context. If the sort is
+                $\Any$ then the goal is trivial.
+
+        \item Abstraction:
+            $$
+            \begin{array}{l|l}
+                \Gamma \vdash \Pi x^A. B : s_0
+                \\
+                \Gamma,x^A \vdash e: B
+                \\
+                \hline
+                \Gamma \vdash \lambda x^A. e: \Pi x^A. B
+                &
+                \exists s. \Gamma \vdash \Pi x^A. B : s
+            \end{array}
+            $$
+
+            Take $s = s_0$.
+
+        \item Application:
+            $$
+            \begin{array}{l|l}
+                \Gamma \vdash f: \Pi x^A. B
+                & \exists s_0. \Gamma \vdash \Pi x^A. B: s_0
+                \\
+                \Gamma \vdash a: A
+                \\
+                \hline
+                \Gamma \vdash f a: B[x:=a]
+                &
+                \exists s. \Gamma \vdash B[x:=a]: s
+            \end{array}
+            $$
+            Remark: Since $\Any \ne \Pi x^A. B$ only the second alternative is
+                interesting.
+
+            From the induction hypothesis and the generation
+                lemma~\ref{GenerationLemmata} for products we conclude the
+                existence of a sort $s_2$ such that $\Gamma,x^A\vdash B: s_2$ is
+                valid.
+
+                By applying the substitution lemma~\ref{SubstitutionLemma} we
+                get $\Gamma \vdash B[x:=a] : s_2$ which proves the goal.
+
+
+        \item Weaken:
+            The goal is easy to prove by the induction hypothesis and the
+                weakening rule.
+
+        \item Type Equivalence:
+
+            The goal is a immediate consequence of one of the premises of the
+                type equivalence rule.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
 
 
 
@@ -1007,10 +1096,10 @@ the rules
 
 \begin{theorem}
     \label{SubjectReductionTheorem}
-    \emph{Subject Reduction Theorem}
+    \emph{Subject reduction lemma} Reduction of a term does change its type.
     $$
     \rulev{
-        \Gamma \vdash t : T
+        \Gamma \vdash t: T
         \\
         t \reduce u
     }
@@ -1019,9 +1108,319 @@ the rules
     }
     $$
 
-    \begin{proof}
-        MISSING!!!
+    {
+    \def\SRLeftPart#1#2#3#4{
+        \left(
+        \forall #1.
+        \ruleh{#2 \reduce #1}{#3 \vdash #1: #4}
+        \right)
+    }
+    \def\SRRightPart#1#2#3#4{
+        \left(
+        \forall #1.
+        \ruleh{#2 \reduce #1}{#1 \vdash #3: #4}
+        \right)
+    }
+
+    \begin{proof} In order to prove the subject reduction lemma we prove the
+        more general lemma
+        $$
+        \ruleh{
+            \Gamma \vdash t: T
+        }
+        {
+            \SRLeftPart u t \Gamma T
+            \land
+            \SRRightPart \Delta \Gamma t T
+        }
+        $$
+        where $\Gamma \reduce \Delta$ means that $\Delta$ is $\Gamma$ with one
+        of the variable types replaced by a reduced type.
+
+        We prove the more general lemma by induction on $\Gamma \vdash t: T$.
+        \begin{enumerate}
+            \item Introduction rules:
+            \begin{enumerate}
+                \item Sort: If $\Gamma$ is empty and $t$ is a sort, then the
+                    goal is vacuously true because neither the empty context nor
+                    a sort can reduce to anything (they are in normal form).
+
+                \item Variable:
+                    $$
+                    \begin{array}{l|l}
+                        \Gamma \vdash A : s
+                        &
+                        \SRLeftPart B A \Gamma s
+                        \land
+                        \SRRightPart {\Delta_0} \Gamma A s
+                        \\
+                        \hline
+                        \Gamma, x^A \vdash x: A
+                        &
+                        \SRLeftPart u x {\Gamma,x^A} A
+                        \land
+                        \SRRightPart \Delta {\Gamma,x^A} x A
+                    \end{array}
+                    $$
+                    The left part of the goal in the lower right corner is
+                    vacously true because a variable is in normal form and there
+                    is no term to which it reduces.
+
+                    For the right part we assume $\Gamma,x^A \reduce \Delta$.
+                    There are two possibilities:
+                    \begin{enumerate}
+                        \item $\Delta = \Delta_0,x^A$ where $\Gamma \reduce
+                            \Delta_0$ for some $\Delta_0$:
+
+                        In that case we get $\Delta_0 \vdash A: s$ from the
+                            induction hypothesis which implies the goal
+                            $\Delta_0,x^A \vdash x: A$.
+
+                        \item $\Delta = \Gamma,x^B$ where $A \reduce B$:
+
+                        In that case we get $\Gamma \vdash B : s$ from the
+                            induction hypothesis which implies the goal
+                            $\Gamma,x^B: x \vdash B$.
+                    \end{enumerate}
+
+                \item Product:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash A: s_1
+                    &
+                    \SRLeftPart C A \Gamma {s_1}
+                    \lor
+                    \SRRightPart \Delta \Gamma A {s_1}
+                    \\
+                    \Gamma,x^A \vdash B: s_2
+                    &
+                    \SRLeftPart D B {\Gamma,x^A} {s_2}
+                    \lor
+                    \SRRightPart {\Delta'} {\Gamma,x^A} B {s_2}
+                    \\
+                    \hline
+                    \Gamma \vdash \Pi x^A. B : s_2
+                    &
+                    \SRLeftPart t {\Pi x^A.B} \Gamma {s_2}
+                    \land
+                    \SRRightPart \Delta \Gamma {\Pi x^A. B} {s_2}
+                \end{array}
+                $$
+                \begin{enumerate}
+                    \item Left part: We assume $\Pi x^A. B \reduce t$.
+
+                    Since products are preserved under reduction
+                        (lemma~\ref{ReductionProductAbstraction}) we have either
+                        $t = \Pi x^C. B$ where $A \reduce C$ for some $C$ or $t
+                        = \Pi x^A.D$ where $B \reduce D$ for some $D$.
+
+                    In both cases we can derive from the induction hypotheses
+                        either $\Gamma \vdash C: s_1$ or $\Gamma,x^A \vdash D:
+                        s_2$. Therefore $\Gamma \vdash \Pi x^C. B: s_2$ or $\Gamma
+                        \vdash \Pi x^A.D: s_2$ is valid trivially.
+
+                    \item Right part: Assume $\Gamma \reduce \Delta$. From the
+                        first induction hypothesis we get $\Delta \vdash A:
+                        s_1$. From the second induction hypothesis we get
+                        $\Delta, x^A \vdash B: s_2$ where we use $\Delta' =
+                        \Delta, x^A$. These facts imply $\Delta
+                        \vdash \Pi x^A. B : s_2$.
+                \end{enumerate}
+
+                \item Abstraction: Same reasoning as with product.
+
+                \item Application:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash f: \Pi x^A. B
+                    &
+                    \SRLeftPart g f \Gamma {\Pi x^A. B}
+                    \land
+                    \SRRightPart \Delta \Gamma f {\Pi x^A.B}
+                    \\
+                    \Gamma \vdash a: A
+                    &
+                    \SRLeftPart b a \Gamma A
+                    \land
+                    \SRRightPart \Delta \Gamma a A
+                    \\
+                    \hline
+                    \Gamma \vdash f a: B[x:=a]
+                    &
+                    \SRLeftPart t {f a} \Gamma {B[x:=a]}
+                    \land
+                    \SRRightPart \Delta \Gamma {f a} {B[x:=a]}
+                \end{array}
+                $$
+                \begin{enumerate}
+                    \item Left part: Assume $f a \reduce t$. We have three cases
+                        to consider.
+                    \begin{enumerate}
+                        \item $f a \reduce g a$ where $f \reduce g$:
+
+                            From the first induction hypothesis we get that $g$
+                            has the same type as $f$ and therefore $g a:
+                            B[x:=a]$ is valid.
+
+                        \item $f a \reduce f b$ where $a \reduce b$:
+
+                            From the second induction hypothesis we get
+                            $\Gamma \vdash b: A$ and therefore $\Gamma \vdash f
+                            a : B[x:=b]$.
+
+                            Since $B[x:=a]$ is a valid type and because of
+                            lemma~\ref{SubstituteReduction} we have $B[x:=a]
+                            \reduce B[x:=b]$ and therefore $B[x:=b] \le
+                            B[x:=a]$. The subtype rule let us derive
+                            $\Gamma \vdash f b: B[x:=a]$ which is identical to
+                            the final goal.
+
+                        \item $(\lambda x^A. e) a \reduce e[x:=a]$:
+
+                            NOT YET COMPLETE!!!
+
+                            In that case we have to prove
+                            $$
+                                \rulev{
+                                    \Gamma \vdash \lambda x^A. e: \Pi x^A.B
+                                    \\
+                                    \Gamma \vdash a: A
+                                }
+                                {
+                                    \Gamma \vdash e[x:=a]: B[x:=a]
+                                }
+                            $$
+
+                            According to the generation lemma for
+                            abstractions~\ref{GenerationLemmata} there is some
+                            $B_0$ and $s_0$ with
+                            $$
+                            \begin{array}{l}
+                                \Gamma \vdash \Pi x^A. B_0 : s_0
+                                \\
+                                \Gamma,x^A \vdash e: B_0
+                                \\
+                                \Pi x^A.  B_0 \betaeq \Pi x^A.B
+                            \end{array}
+                            $$
+                            The second one together with $\Gamma\vdash a:A$ and
+                            the substitution lemma~\ref{SubstitutionLemma} gives
+                            us $\Gamma \vdash e[x:=a] : B_0[x:=a]$.
+
+                            The third one with the Church Rosser
+                            theorem~\ref{ChurchRosser2} give $B \betaeq B_0$
+                            which by the theorem~\ref{SubstituteEquivalence}
+                            results in $B[x:=a] \betaeq B_0[x:=a]$.
+
+
+                            MISSING
+                    \end{enumerate}
+
+                    \item Right part: Immediate consequence of the induction
+                        hypotheses.
+                \end{enumerate}
+            \end{enumerate}
+
+            \item Structural rules:
+            \begin{enumerate}
+                \item Weaken:
+                $$
+                \begin{array}{l|l}
+                \Gamma \vdash t : T
+                &
+                \SRLeftPart u t \Gamma T
+                \land
+                \SRRightPart {\Delta_0} \Gamma t T
+                \\
+                \Gamma \vdash A : s
+                &
+                \SRLeftPart B A \Gamma s
+                \land
+                \SRRightPart {\Delta_0} \Gamma A s
+                \\
+                x \notin \Gamma
+                \\
+                \hline
+                \Gamma, x^A \vdash t : T
+                &
+                \SRLeftPart u t {\Gamma, x^A} T
+                \land
+                \SRRightPart \Delta {\Gamma,x^A} t T
+                \end{array}
+                $$
+                \begin{enumerate}
+                    \item Left part: Assume $t \reduce u$. From the first
+                        induction hypothesis we get $\Gamma \vdash u : T$ which
+                        derives the final goal by applying the variable
+                        introduction rule.
+
+                    \item Right part:
+                        We assume $\Gamma,x^A \reduce \Delta$ and have to
+                        distinguish two cases.
+                        \begin{enumerate}
+                        \item
+                            $\Delta = (\Delta_0, x^A)
+                            \land \Gamma \reduce \Delta_0$:
+
+                            In that case we get $\Delta_0 \vdash t : T$ and
+                                $\Delta_0 \vdash A : s$ from the induction
+                                hypotheses which imply the final goal $\Delta_0,
+                                x^A \vdash t : T$ by application of the
+                                weakening rule.
+
+                        \item
+                            $\Delta = (\Gamma, x^B)
+                            \land A \reduce B$:
+
+                            In that case we get $\Gamma \vdash B : s$ from the
+                                second induction hypothesis which implies the
+                                final goal $\Gamma, x^B \vdash t : T$ by
+                                application of the weakening rule.
+                    \end{enumerate}
+                \end{enumerate}
+
+
+                \item Subtype:
+                $$
+                \begin{array}{l|l}
+                    \Gamma \vdash t : T
+                    &
+                    \SRLeftPart u t \Gamma T
+                    \land
+                    \SRRightPart \Delta \Gamma t T
+                    \\
+                    \Gamma \vdash U : s
+                    &
+                    \text{not needed }
+                    \land
+                    \SRRightPart \Delta \Gamma U s
+                    \\
+                    T \le U
+                    \\
+                    \hline
+                    \Gamma \vdash t : U
+                    &
+                    \SRLeftPart u t \Gamma U
+                    \land
+                    \SRRightPart \Delta \Gamma t U
+                \end{array}
+                $$
+                \begin{enumerate}
+                    \item Left part: Assume $t \reduce u$. We get $\Gamma \vdash
+                        u: T$ by the first induction hypothesis. The final goal
+                        $\Gamma \vdash u: U$ is obtained by applying the subtype
+                        rule.
+
+                    \item Right part: Assume $\Gamma \reduce \Delta$. From the
+                        first induction hypothesis we derive $\Delta \vdash t :
+                        T$ and from the second induction hypothesis we derive
+                        $\Delta \vdash U : s$. The final goal $\Delta \vdash t:
+                        U$ is obtained by applying the subtype rule.
+                \end{enumerate}
+            \end{enumerate}
+        \end{enumerate}
     \end{proof}
+    }
 \end{theorem}
 
 
