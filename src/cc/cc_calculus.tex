@@ -606,6 +606,30 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
 
 
 
+\begin{theorem}
+    \label{SubstituteEquivalence}
+    \emph{The same substitution applied to beta equivalent terms results in beta
+    equivalent terms}.
+    $$
+    \ruleh{
+        t \betaeq u
+    }
+    {
+        t[x:=a] \betaeq u[x:=a]
+    }
+    $$
+
+    \begin{proof}
+        By induction on $t \betaeq u$:
+
+        The first case is trivial, because $t$ and $u$ are identical.
+
+        For the other two case the goal is a consequence of the induction
+        hypothesis and the transitivity of beta equivalence.
+    \end{proof}
+\end{theorem}
+
+
 \subsection{Church Rosser Theorem}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
