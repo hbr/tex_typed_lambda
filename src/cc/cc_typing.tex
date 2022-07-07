@@ -1319,8 +1319,9 @@ the rules
                             us $\Gamma \vdash e[x:=a] : B_0[x:=a]$.
 
                             The third one with the Church Rosser
-                            theorem~\ref{BetaEquivalentCommonReduct} give $B \betaeq B_0$
-                            which by the theorem~\ref{SubstituteEquivalence}
+                            theorem~\ref{BetaEquivalentCommonReduct} give $B
+                            \betaeq B_0$ which by the
+                            theorem~\ref{SubstituteEquivalence}
                             results in $B[x:=a] \betaeq B_0[x:=a]$.
 
                             Finally we can convert $\Gamma \vdash e[x:=a] :
@@ -1439,6 +1440,58 @@ the rules
 
 
 
+\begin{corollary}
+    \label{NoReductionToAny}
+    \emph{No welltyped term can reduce to $\Any$}.
+    $$
+    \ruleh{
+        A \reducestar \Any
+        \\
+        \Gamma \vdash A: T
+    }
+    {
+        \perp
+    }
+    $$
+    \begin{proof}
+        Assume $\Gamma \vdash A : T$. By the subject reduction
+        theorem~\ref{SubjectReductionTheorem} (applied zero or more times) we
+        get $\Gamma \vdash \Any : T$ which contradicts the fact that $\Any$ is
+        not welltyped~\ref{AnyNotWelltyped}.
+    \end{proof}
+\end{corollary}
+
+
+
+
+
+\begin{corollary}
+    \label{NoEquivalentToAny}
+    \emph{No welltyped term can be beta equivalent to $\Any$}.
+    $$
+    \ruleh{
+        \Gamma \vdash A: T
+        \\
+        A \betaeq \Any
+    }
+    {
+        \perp
+    }
+    $$
+    \begin{proof}
+        Assume $\Gamma \vdash A: T$. Since $A$ and $\Any$ are beta equivalent,
+        by~\ref{BetaEquivalentCommonReduct} they must have a common reduct and
+        since $\Any$ cannot reduce to anything (it is in normal form) the common
+        reduct must be $\Any$.
+
+        Because of the previous theorem~\ref{NoReductionToAny} $A$ cannot
+        reduce to $\Any$ and we get the desired contradiction.
+    \end{proof}
+\end{corollary}
+
+
+
+
 
 \subsection{Type Uniqueness}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1497,4 +1550,3 @@ the rules
         of $T \betaeq U$.
     \end{proof}
 \end{theorem}
-
