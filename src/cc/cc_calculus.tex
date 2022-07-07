@@ -570,10 +570,10 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
     We define \emph{beta equivalence} as a binary relation $a \equiv b$ between
     the terms $a$ and $b$ inductively by the rules
     \begin{enumerate}
-    \item
+    \item Reflexive:
         $$ a \betaeq a$$
 
-    \item
+    \item Forward:
         $$
         \rulev
         {
@@ -586,7 +586,7 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
         }
         $$
 
-    \item
+    \item Backward:
         $$
         \rulev
         {
@@ -605,6 +605,56 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
 \end{definition}
 
 
+\begin{theorem}
+    \label{BetaEquivalenceTransitive}
+    \emph{Beta equivalence is transitive}.
+    $$
+    \rulev{a \betaeq b \\ b \betaeq c}{a \betaeq c}
+    $$
+    \begin{proof}
+        Assume $a \betaeq b$. We prove the goal by induction on $b \betaeq
+        c$.
+        \begin{enumerate}
+        \item Reflexive: Trivial.
+
+        \item Forward:
+            $$
+            \begin{array}{l|l}
+                b \betaeq c
+                &
+                a \betaeq c
+                \\
+                c \reduce d
+                \\
+                \hline
+                b \betaeq d
+                &
+                a \betaeq d
+            \end{array}
+            $$
+            The goal in the lower right corner is proved by the induction
+                hypothesis and applying the forward rule.
+
+        \item Backward:
+            $$
+            \begin{array}{l|l}
+                b \betaeq c
+                &
+                a \betaeq c
+                \\
+                d \reduce c
+                \\
+                \hline
+                b \betaeq d
+                &
+                a \betaeq d
+            \end{array}
+            $$
+            The goal in the lower right corner is proved by the induction
+                hypothesis and applying the backward rule.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
 
 \begin{theorem}
     \label{SubstituteEquivalence}
@@ -622,10 +672,11 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
     \begin{proof}
         By induction on $t \betaeq u$:
 
-        The first case is trivial, because $t$ and $u$ are identical.
+        The reflexive case is trivial, because $t$ and $u$ are identical.
 
-        For the other two case the goal is a consequence of the induction
-        hypothesis and the transitivity of beta equivalence.
+        For the other two cases the goal is a consequence of the induction
+        hypothesis and the transitivity of beta
+        equivalence~\ref{BetaEquivalenceTransitive}.
     \end{proof}
 \end{theorem}
 
