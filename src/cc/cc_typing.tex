@@ -1550,3 +1550,47 @@ the rules
         of $T \betaeq U$.
     \end{proof}
 \end{theorem}
+
+
+\begin{corollary}
+    \label{TypeUniqueness3}
+    \emph{Two types a welltyped term are either both $\Any$ or they are types of
+    the same sort}.
+    $$
+    \ruleh{
+        \Gamma \vdash t : T
+        \\
+        \Gamma \vdash t : U
+    }
+    {
+        T = U = \Any
+        \lor
+        \exists s.
+        \left[
+        \begin{array}{l}
+            \Gamma \vdash T : s
+            \\
+            \Gamma \vdash U : s
+        \end{array}
+        \right]
+    }
+    $$
+
+    \begin{proof}
+        By~\ref{TypeUniqueness1} we get $T \betaeq U$ and by the type of types
+        theorem~\ref{TypeOfTypes} both are either $\Any$ or types of some sort.
+
+        The mixed case is not possible since a welltyped term cannot be beta
+        equivalent to $\Any$ by~\ref{NoEquivalentToAny}.
+
+        It remains to prove that both being welltyped implies that they are
+        types of the same sort.
+
+        Since both $T$ and $U$ are beta equivalent, their sorts have to be beta
+        equivalent as well by~\ref{TypeUniqueness2}. The mixed case that one
+        sort is $\Prop$ and the other is $\Any$ is not possible, because $\Prop$
+        is welltyped (it has type $\Any$ in any valid context) and a welltyped
+        term cannot be beta equivalent to $\Any$ by~\ref{NoEquivalentToAny}.
+        Therefore both sorts are either $\Prop$ or $\Any$.
+    \end{proof}
+\end{corollary}
