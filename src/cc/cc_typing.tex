@@ -1277,8 +1277,6 @@ the rules
 
                         \item $(\lambda x^A. e) a \reduce e[x:=a]$:
 
-                            NOT YET COMPLETE!!!
-
                             In that case we have to prove
                             $$
                                 \rulev{
@@ -1291,9 +1289,22 @@ the rules
                                 }
                             $$
 
-                            According to the generation lemma for
-                            abstractions~\ref{GenerationLemmata} there is some
-                            $B_0$ and $s_0$ with
+                            We assume $\Gamma \vdash \lambda x^A. e: \Pi x^A.B$
+                            and $\Gamma \vdash a : A$ and prove the final goal.
+
+                            Since $\Pi x^A.B$ is not $\Any$ the type of types
+                            lemma~\ref{TypeOfTypes} states the existence of a
+                            sort $s$ such that $\Gamma \vdash \Pi x^A. B : s$ is
+                            valid and then by the generation
+                            lemma~\ref{GenerationLemmata} for products we get
+                            the existence of some $s_B$ such that $\Gamma, x^A
+                            \vdash B: s_B$ is valid which implies by the
+                            substitution lemma~\ref{SubstitutionLemma} $\Gamma
+                            \vdash B[x:=a]: s_B$.
+
+                            According to the generation
+                            lemma~\ref{GenerationLemmata} for abstractions there
+                            are some $B_0$ and $s_0$ with
                             $$
                             \begin{array}{l}
                                 \Gamma \vdash \Pi x^A. B_0 : s_0
@@ -1312,8 +1323,10 @@ the rules
                             which by the theorem~\ref{SubstituteEquivalence}
                             results in $B[x:=a] \betaeq B_0[x:=a]$.
 
-
-                            MISSING
+                            Finally we can convert $\Gamma \vdash e[x:=a] :
+                            B_0[x:=a]$, $\Gamma \vdash B[x:=a]: s_B$ and
+                            $B[x:=a] \betaeq B_0[x:=a]$ via the type equivalence
+                            rule into the final goal.
                     \end{enumerate}
 
                     \item Right part: Immediate consequence of the induction
@@ -1380,7 +1393,7 @@ the rules
                 \end{enumerate}
 
 
-                \item Subtype:
+                \item Type equivalence:
                 $$
                 \begin{array}{l|l}
                     \Gamma \vdash t : T
@@ -1391,11 +1404,11 @@ the rules
                     \\
                     \Gamma \vdash U : s
                     &
-                    \text{not needed }
+                    \ldots
                     \land
                     \SRRightPart \Delta \Gamma U s
                     \\
-                    T \le U
+                    T \betaeq U
                     \\
                     \hline
                     \Gamma \vdash t : U
@@ -1408,14 +1421,14 @@ the rules
                 \begin{enumerate}
                     \item Left part: Assume $t \reduce u$. We get $\Gamma \vdash
                         u: T$ by the first induction hypothesis. The final goal
-                        $\Gamma \vdash u: U$ is obtained by applying the subtype
-                        rule.
+                        $\Gamma \vdash u: U$ is obtained by applying the type
+                        equivalence rule.
 
                     \item Right part: Assume $\Gamma \reduce \Delta$. From the
                         first induction hypothesis we derive $\Delta \vdash t :
                         T$ and from the second induction hypothesis we derive
                         $\Delta \vdash U : s$. The final goal $\Delta \vdash t:
-                        U$ is obtained by applying the subtype rule.
+                        U$ is obtained by applying the type equivalence rule.
                 \end{enumerate}
             \end{enumerate}
         \end{enumerate}
