@@ -22,6 +22,7 @@ source-files = \
 	cc.tex \
 	cc_macros.tex \
 	cc_calculus.tex \
+	cc_confluence.tex \
 	cc_typing.tex \
 	cc_snproof.tex
 
