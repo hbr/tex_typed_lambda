@@ -906,3 +906,44 @@ $$
         normal form) which is possible only if $u$ and $v$ are the same term.
     \end{proof}
 \end{theorem}
+
+
+
+
+
+\subsection{Equivalent Binders}
+
+\begin{theorem}
+    \emph{In beta equivalent binders i.e. terms of the form $\lambda x^A. e$ or
+    $\Pi x^A.B$ corresponding subterms are beta equivalent}.
+    $$
+    \ruleh{
+        \Pi x^A.B \betaeq \Pi x^C.D
+    }
+    {
+        A \betaeq C \land B \betaeq D
+    }
+    \quad
+    \ruleh{
+        \lambda x^A.e \betaeq \lambda x^B.f
+    }
+    {
+        A \betaeq B \land e \betaeq f
+    }
+    $$
+
+    \begin{proof}
+        We proof only the theorem for products, because the proof for
+        abstraction is practically the same.
+
+        Since both products are beta equivalent they have
+        by~\ref{BetaEquivalentCommonReduct} a common reduct.
+        By~\ref{ReductionProductAbstraction} products (and abstractions) are
+        preserved by beta reduction. Therefore the common reduct must have the
+        form $\Pi x^E.F$ with $A \reducestar E$, $B \reducestar F$, $C
+        \reducestar E$ and $D \reducestar F$.
+
+        Since reduction implies beta equivalence and beta equivalence is
+        transitive and symmetric we get $A \betaeq C$ and $B \betaeq D$.
+    \end{proof}
+\end{theorem}
