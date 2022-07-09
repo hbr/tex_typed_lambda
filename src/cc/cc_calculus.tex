@@ -524,7 +524,7 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
 
 \begin{lemma}
     \label{ReductionProductAbstraction}
-    \emph{Product and abstraction are preserved under beta reduction}
+    \emph{Products and abstractions are preserved under beta reduction}
     \begin{enumerate}
     \item
     $
@@ -532,9 +532,9 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
             \Pi x^A.B \reduce t
         }
         {
-            \left( \exists C. A \preduce C \land t = \Pi x^C. B \right)
+            \left( \exists C. A \reduce C \land t = \Pi x^C. B \right)
             \lor
-            \left( \exists D. B \preduce C \land t = \Pi x^A. D \right)
+            \left( \exists D. B \reduce C \land t = \Pi x^A. D \right)
         }
     $
     \item
@@ -543,9 +543,9 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
             \lambda x^A.e \reduce t
         }
         {
-            \left( \exists B. A \preduce B \land t = \lambda x^B. e \right)
+            \left( \exists B. A \reduce B \land t = \lambda x^B. e \right)
             \lor
-            \left( \exists f. e \preduce f \land t = \lambda x^A. f \right)
+            \left( \exists f. e \reduce f \land t = \lambda x^A. f \right)
         }
     $
     \end{enumerate}
