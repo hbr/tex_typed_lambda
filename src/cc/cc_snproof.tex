@@ -4,30 +4,23 @@
 \subsection{Model Set}
 
 \begin{definition}
-$$
-    \nu(T) :=
-    \left \{
-    \begin{array}{llll}
-        \nu(\Prop) &:=& \SAT
-        \\
-        \nu(\Pi x^A. B) &:=& \nu(A)\to \nu(B) & A,B \in \Kinds
-        \\
-        \nu(\Pi x^A. B) &:=& \nu(B) & A \notin \Kinds \land B \in \Kinds
-        \\
-        \nu (T) &:=& \set{\emptyset} &\text{otherwise}
-    \end{array}
-    \right.
-$$
+    \emph{Model Set}
+    $$
+        \nu(T) :=
+        \left \{
+        \begin{array}{llll}
+            \nu(\Prop) &:=& \SAT
+            \\
+            \nu(\Pi x^A. B) &:=& \nu(A)\to \nu(B) & A,B \in \Kinds
+            \\
+            \nu(\Pi x^A. B) &:=& \nu(B) & A \notin \Kinds \land B \in \Kinds
+            \\
+            \nu (T) &:=& \set{\emptyset} &\text{otherwise}
+        \end{array}
+        \right.
+    $$
 \end{definition}
 
-
-\subsection{Type Interpretation}
-
-The goal of this section is to find a function which maps any welltyped term $t$
-for all types $T$ it can have in a certain context $\Gamma$ into a value
-$\typeinter{t}{\xi\Gamma}$ which is an element of $\nu (T)$. The function is
-based on a variable interpretation $\xi$ which assigns to each variable $x$ of
-type $A$ in the context a model which is an element of $\nu(A)$.
 
 The following property of $\nu$ is convenient:
 $$
@@ -111,19 +104,63 @@ In order to prove the property we prove first a similar lemma for kinds.
 
 \begin{theorem}
     $$
-        \rulev{
-            \Gamma \vdash t: T
-            \\
-            \Gamma \vdash t: U
-        }
-        {
-            \nu(T) = \nu(U)
-        }
+    \rulev{
+        \Gamma \vdash t: T
+        \\
+        \Gamma \vdash t: U
+    }
+    {
+        \nu(T) = \nu(U)
+    }
     $$
 
     \begin{proof}
-        MISSING
+        From~\ref{TypeUniqueness1} we infer $T \betaeq U$ and
+        from~\ref{TypeUniqueness3} we infer that either both are $\Any$ or both
+        are types of the same sort.
+
+        If both are $\Any$, then $\nu(T) = \nu(U)$ is trivial.
+
+        Assume both are types of the same sort i.e. we have $\Gamma \vdash T: s$
+        and $\Gamma \vdash U: s$. We have to distinguish $s = \Any$ and $s =
+        \Prop$.
+
+        \begin{enumerate}
+        \item $s = \Any$:
+            In that case the assumptions of lemma~\ref{ModelEquivalentKinds} are
+                valid and we infer the goal by applying the lemma.
+
+        \item $s = \Prop$:
+            In that case neither $T$ nor $U$ are kinds and therefore by
+                definition $\nu(T) = \nu(U) = \set{\emptyset}$ is valid.
+        \end{enumerate}
     \end{proof}
 \end{theorem}
 
+
+
+
+\subsection{Context Interpretation}
+
+\begin{definition}
+    \emph{Context Interpretation}:
+    We call $\xi = [x_1^{M_1}, x_2^{M_2}, \ldots, x_n^{M_n}]$ an interpretation
+    of a context $\Gamma$ which we write
+    $$
+        \xi \vDash \Gamma
+    $$
+    if and only if $\Gamma = [x_1^{A_1}, x_2^{A_2}, \ldots, x_n^{A_n}]$ is a
+    valid context and $M_i \in \nu(A_i)$ is valid for all $i \in \set{1, 2,
+    \ldots, n}$.
+\end{definition}
+
+
+
+\subsection{Type Interpretation}
+
+The goal of this section is to find a function which maps any welltyped term $t$
+for all types $T$ it can have in a certain context $\Gamma$ into a value
+$\typeinter{t}{\xi\Gamma}$ which is an element of $\nu (T)$. The function is
+based on a context interpretation $\xi$ which assigns to each variable $x$ of
+type $A$ in the context a model which is an element of $\nu(A)$.
 
