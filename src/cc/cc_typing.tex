@@ -1554,13 +1554,15 @@ the rules
 
 \begin{corollary}
     \label{TypeUniqueness3}
-    \emph{Two types a welltyped term are either both $\Any$ or they are types of
-    the same sort}.
+    \emph{Two types $T$ and $U$ of beta equivalent terms $t$ and $u$ are either
+    both $\Any$ or they are types of the same sort}.
     $$
     \ruleh{
+        t \betaeq u
+        \\
         \Gamma \vdash t : T
         \\
-        \Gamma \vdash t : U
+        \Gamma \vdash u : U
     }
     {
         T = U = \Any
@@ -1577,10 +1579,10 @@ the rules
     $$
 
     \begin{proof}
-        By~\ref{TypeUniqueness1} we get $T \betaeq U$ and by the type of types
+        By~\ref{TypeUniqueness2} we get $T \betaeq U$ and by the type of types
         theorem~\ref{TypeOfTypes} both are either $\Any$ or types of some sort.
 
-        The mixed case is not possible since a welltyped term cannot be beta
+        The mixed cases are not possible since a welltyped term cannot be beta
         equivalent to $\Any$ by~\ref{NoEquivalentToAny}.
 
         It remains to prove that both being welltyped implies that they are
@@ -1594,6 +1596,7 @@ the rules
         Therefore both sorts are either $\Prop$ or $\Any$.
     \end{proof}
 \end{corollary}
+
 
 
 
@@ -1696,9 +1699,13 @@ the rules
     \end{proof}
 \end{theorem}
 
+
+
+
+
 \begin{theorem}
     \label{KindImpliesTypeAny}
-    \emph{Every valid kind $K$ has type $\Any$.}
+    \emph{Every welltyped syntactical kind $K$ has type $\Any$.}
     $$
     \rulev{
         K \in \Kinds
@@ -1724,5 +1731,31 @@ the rules
                 the introduction rule for products we get $\Gamma \vdash \Pi
                 x^A. K : \Any$.
         \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\begin{theorem}
+    \label{KindImpliesTypeAny2}
+    \emph{Every syntactical kind in the type position of a typing judgement has
+    type $\Any$}.
+    $$
+    \rulev{
+        K \in \Kinds
+        \\
+        \Gamma \vdash A: K
+    }
+    {
+        \Gamma \vdash K: \Any
+    }
+    $$
+    \begin{proof}
+        By~\ref{TypeOfTypes} either $K = \Any$ or $\Gamma \vdash K : s$ must be
+        valid for some sort $s$. Only the latter is possible.
+
+        By the previous theorem~\ref{KindImpliesTypeAny} we infer the goal.
     \end{proof}
 \end{theorem}

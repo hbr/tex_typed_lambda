@@ -914,6 +914,7 @@ $$
 \subsection{Equivalent Binders}
 
 \begin{theorem}
+    \label{EquivalentBinders}
     \emph{In beta equivalent binders i.e. terms of the form $\lambda x^A. e$ or
     $\Pi x^A.B$ corresponding subterms are beta equivalent}.
     $$
@@ -933,7 +934,7 @@ $$
     $$
 
     \begin{proof}
-        We proof only the theorem for products (the proof for
+        We only prove the theorem for products (the proof for
         abstractions is practically the same).
 
         Since both products are beta equivalent they have
@@ -945,5 +946,37 @@ $$
 
         Since reduction implies beta equivalence and beta equivalence is
         transitive and symmetric we get $A \betaeq C$ and $B \betaeq D$.
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\subsection{Binders are not Equivalent to Variables or Sorts}
+
+\begin{theorem}
+    \label{BinderNotEquivalentSortVariable}
+    \emph{Binders (products or abstractions) cannot be beta equivalent to
+    variables or sorts}.
+    \begin{proof}
+        We only prove
+        $$
+        \ruleh{
+            \Pi x^A.B \betaeq s
+        }
+        {
+            \perp
+        }
+        $$
+        because the proofs of the other variants follow the same pattern.
+
+        Assume $\Pi x^A.B \betaeq s$. Both terms must have a common reduct
+        by~\ref{BetaEquivalentCommonReduct} which must be the sort $s$ since a
+        sort is already in normal form. I.e. we get $\Pi x^A.B \reducestar s$.
+
+        Since reduction preserves the form of binders
+        by~\ref{ReductionProductAbstraction} $\Pi x^A.B \reducestar s$ is not
+        possible and we get the desired contradiction.
     \end{proof}
 \end{theorem}

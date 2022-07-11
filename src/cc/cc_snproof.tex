@@ -40,3 +40,90 @@ $$
         \nu(T) = \nu(U)
     }
 $$
+
+
+In order to prove the property we prove first a similar lemma for kinds.
+
+\begin{lemma}
+    \label{ModelEquivalentKinds}
+    \emph{The model set of a kind is the same as the model set of any beta
+    equivalent type}.
+    $$
+    \rulev{
+        K \in \Kinds
+        \\
+        \Gamma \vdash K: \Any
+        \\
+        \Gamma \vdash T: s_T
+        \\
+        K \betaeq T
+    }
+    {
+        \nu(K) = \nu(T)
+    }
+    $$
+
+    \begin{proof}
+        By induction on the structure of $K$.
+
+        General observation: Since $K$ and $T$ are betaequivalent we get from
+        theorem~\ref{TypeUniqueness3} $s_T = \Any$ and
+        by~\ref{TypeAnyImpliesKind} that $T$ is a syntactical kind. This is
+        valid for all induction hypotheses.
+
+        For the induction proof we distiguish three cases:
+        \begin{enumerate}
+        \item $K = \Prop$: Using the general observation above we conclude that
+            $T$ is a syntactical kind. $\Prop$ is the only possible syntactical
+                kind beta equivalent to $\Prop$. Therefore $T = \Prop$ which
+                implies the goal $\nu(T) = \nu(\Prop)$ trivially.
+
+        \item $K = \Pi x^{K_1}. K_2$:
+            Since $T$ is a syntactical kind betaequivalent to $K$ it must have
+                the form of a product ($\Prop$ not possible). I.e. $T = \Pi
+                x^A.B$ for some types $A$ and $B$.
+
+            By theorem~\ref{EquivalentBinders} we get the equivalences $K_1
+                \betaeq A$ and $K_2 \betaeq B$.
+
+            From both induction hypotheses we conclude $\nu(K_1) = \nu(A)$ and
+            $\nu(K_2) = \nu(B)$.
+
+
+        \item $K = \Pi x^A . K_2$ (where $A \notin \Kinds$):
+            By the same reasoning as above we get $T = \Pi x^{A_T}.B$ for some
+            types $A_T$ and $B$ with $A \betaeq A_T$ and $ K_2 \betaeq B$.
+
+                From the induction hypothesis we get $\nu(K_2) = \nu(B)$.
+
+            Since both $A$ and $A_T$ are valid types and $A$ is not a
+                syntactical kind, we conclude by using~\ref{TypeUniqueness3}
+                that $A_T$ cannot be a syntactical kind either.
+
+            Therefore we get
+            $$
+                \nu(K) = \nu(K_2) = \nu(B) = \nu(T).
+            $$
+        \end{enumerate}
+    \end{proof}
+\end{lemma}
+
+
+\begin{theorem}
+    $$
+        \rulev{
+            \Gamma \vdash t: T
+            \\
+            \Gamma \vdash t: U
+        }
+        {
+            \nu(T) = \nu(U)
+        }
+    $$
+
+    \begin{proof}
+        MISSING
+    \end{proof}
+\end{theorem}
+
+
