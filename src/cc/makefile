@@ -24,7 +24,8 @@ source-files = \
 	cc_calculus.tex \
 	cc_confluence.tex \
 	cc_typing.tex \
-	cc_snproof.tex
+	cc_snproof.tex \
+	cc_references.tex
 
 
 run-latex = (cd $(build-dir); pdflatex cc.tex)
