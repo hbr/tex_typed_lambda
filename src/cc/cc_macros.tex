@@ -19,8 +19,6 @@
 
 \def\Kinds{\mathbb{K}}
 
-\def\keyreduce{\stackrel{\beta_{\text{k}}}{\to}}
-
 
 
 \def\Prop{{\cal P}}
@@ -35,6 +33,7 @@
 \def\torel#1{\stackrel{#1}{\to}}
 \def\fromrel#1{\stackrel{#1}{\leftarrow}}
 
+\def\terminter#1#2{{\banana{#1}_{#2}}}
 \def\typeinter#1#2{{\dbrackleft #1\dbrackright}_{#2}}
 
 \def\vdashmin{\vdash_\mu}
@@ -44,10 +43,12 @@
 
 
 
-\def\preduce{\torel{\beta_p}}
-\def\preducestar{\torel{\beta_p^*}}
 \def\reduce{\torel{\beta}}
 \def\reducestar{\torel{\beta^*}}
+\def\preduce{\torel{\beta_p}}
+\def\preducestar{\torel{\beta_p^*}}
+\def\keyreduce{\stackrel{\beta_{\text{k}}}{\to}}
+
 
 \def\derives#1#2#3{#1 \vdash #2: #3}
 \def\derivesmin#1#2#3{#1 \vdashmin #2: #3}

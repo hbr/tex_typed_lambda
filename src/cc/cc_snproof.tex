@@ -1,21 +1,47 @@
 \section{Proof of Strong Normalization}
 
+Barendregt~1993~\cite{barendregt1993}, Geuvers~1994~\cite{geuvers1994}.
+
+
+
 
 \subsection{Model Set}
 
 \begin{definition}
-    \emph{Model Set}
+    \emph{Model Set} For $T \in \Kinds \cup \set{\Any}$ we define the model set
+    $\nu(T)$ by
     $$
         \nu(T) :=
         \left \{
         \begin{array}{llll}
-            \nu(\Prop) &:=& \SAT
+            \nu(s) &:=& \SAT & s \text{ is a sort}
             \\
             \nu(\Pi x^A. B) &:=& \nu(A)\to \nu(B) & A,B \in \Kinds
             \\
             \nu(\Pi x^A. B) &:=& \nu(B) & A \notin \Kinds \land B \in \Kinds
+        \end{array}
+        \right.
+    $$
+\end{definition}
+
+
+
+\begin{definition}
+    \emph{Canonical Model} For $T \in \Kinds \cup \set{\Any}$ we define the
+    canonical model $\nu^c(T)$ by
+    $$
+        \nu(T) :=
+        \left \{
+        \begin{array}{llll}
+            \nu^c(s) &:=& \SN & s \text{ is a sort}
             \\
-            \nu (T) &:=& \set{\emptyset} &\text{otherwise}
+            \nu^c(\Pi x^A. B)
+            &:=&
+            \bullet \mapsto \nu^c(B) & A,B \in \Kinds
+            \\
+            \nu^c(\Pi x^A. B)
+            &:=&
+            \nu^c(B) & A \notin \Kinds \land B \in \Kinds
         \end{array}
         \right.
     $$
@@ -103,6 +129,11 @@ In order to prove the property we prove first a similar lemma for kinds.
 
 
 \begin{theorem}
+    \label{ModelAllTypesSame}
+    \emph{If a term $t$ is welltyped, then the model set of all its possible
+    types is the same}.
+
+    NEEDS REWORK!!!
     $$
     \rulev{
         \Gamma \vdash t: T
@@ -132,7 +163,7 @@ In order to prove the property we prove first a similar lemma for kinds.
 
         \item $s = \Prop$:
             In that case neither $T$ nor $U$ are kinds and therefore by
-                definition $\nu(T) = \nu(U) = \set{\emptyset}$ is valid.
+                definition $\nu(T) = \nu(U) = \SAT$ is valid.
         \end{enumerate}
     \end{proof}
 \end{theorem}
@@ -160,7 +191,304 @@ In order to prove the property we prove first a similar lemma for kinds.
 
 The goal of this section is to find a function which maps any welltyped term $t$
 for all types $T$ it can have in a certain context $\Gamma$ into a value
-$\typeinter{t}{\xi\Gamma}$ which is an element of $\nu (T)$. The function is
-based on a context interpretation $\xi$ which assigns to each variable $x$ of
-type $A$ in the context a model which is an element of $\nu(A)$.
+$\typeinter{t}{\xi\Gamma} \in \nu (T)$ or $\Any$ into
+$\typeinter{\Any}{\xi\Gamma} \in \SAT$. The function is based on a context
+interpretation $\xi$ which assigns to each variable $x$ of type $A$ in the
+context a model which is an element of $\nu(A)$.
 
+\begin{definition}
+    \label{SpecificationTypeInterpretation}
+    \emph{The type interpretation function $\typeinter{t}{\xi\Gamma}$ must
+    satisfy the following specification}.
+    $$
+    \rulev{
+        \xi \vDash \Gamma
+        \\
+        \Gamma \vdash t : T
+    }
+    {
+        \typeinter{t}{\xi\Gamma} \in \nu(T)
+    }
+    \land
+    \ruleh{
+        \xi \vDash \Gamma
+    }
+    {
+        \typeinter{\Any}{\xi\Gamma} \in \SAT
+    }
+    $$
+
+    I.e. it has the preconditions
+    \begin{itemize}
+    \item The context $\Gamma$ has to be valid and $\xi$ is a context
+        interpretation (i.e. $\xi \vdash \Gamma$.
+
+    \item $t$ is either $\Any$ or it is a welltyped constructor (i.e. there
+        exist some type $T \in \Kinds \cap \set{\Any}$ such that $\Gamma \vdash
+            t : T$ is
+    valid.
+    \end{itemize}
+
+    In case that $t$ is a welltyped constructor, then the typeinterpretation has
+    to be an element of $\nu(T)$ for all possible types of $t$. If $t$ is $\Any$
+    then the typeinterpretation must be a saturated set.
+\end{definition}
+
+
+\begin{definition}
+    \label{DefinitionTypeInterpretation}
+    \emph{The type interpretation function $\typeinter{t}{\xi\Gamma}$ is defined
+    recursively on the structure of $t$}.
+
+    Note that by theorem~\ref{ModelAllTypesSame} we can choose any type of a
+    welltyped term to prove the satisfaction of the specification.
+
+    \begin{enumerate}
+    \item Sort:
+        $$
+        \typeinter{s}{\xi\Gamma} := \SN
+        $$
+        This definition satisfies the
+            specification~\ref{SpecificationTypeInterpretation}. There are two
+            cases possible.
+
+            If $s = \Prop$ then it is welltyped and its type is $\Any$ and we
+            have $\SN \in \SAT$ and $\SAT = \nu(\Any)$.
+
+            If $s = \Any$ then the specification is trivially satisfied.
+
+    \item Variable:
+        $$
+        \typeinter{x}{\xi\Gamma} := M
+        $$
+        where $x^{M} \in \xi$.
+
+        The precondition $\xi \vDash \Gamma$ is possible only if there is a type
+            $A$ such that $x^A \in \Gamma$ and $\Gamma \vdash A: \Any$ is valid. By the start
+            lemma~\ref{StartLemma} $\Gamma \vdash x : A$ is valid and since
+            $\xi$ is a valid context interpretation for the context $\Gamma$ we
+            get $M \in \nu(A)$.
+
+
+    \item Product:
+        $$
+            \typeinter{\Pi x^A.B}{\xi\Gamma}
+            :=
+            \left\{
+            \begin{array}{ll}
+                \typeinter{A}{\xi\Gamma}
+                \tolambda
+                \typeinter{B}{(\xi,x^\SN)(\Gamma,x^A)}
+                & \text{if } A \notin \Kinds
+                \\
+                \typeinter{A}{\xi\Gamma}
+                \tolambda
+                \bigcap_{M\in\nu(A)}
+                \typeinter{B}{(\xi,x^M)(\Gamma,x^A)}
+                & \text{if }  A \in \Kinds
+            \end{array}
+            \right.
+        $$
+
+        By the precondition of the type interpretation function we can assume
+            that $\Gamma$ is a valid context, $\xi$ is a context
+            interpretation i.e. $\xi \vDash \Gamma$. Since a product is not
+            $\Any$ we have to prove the desired property from the specification
+            only for welltyped terms $\Pi x^A.B$.
+
+            From the generation lemma~\ref{GenerationLemmata} for products we
+            postulate the existence of the sorts $s_A$ and $s_B$ such that
+            $\Gamma\vdash A: s_A$ and $\Gamma,x^A\vdash B: s_B$ are valid and
+            $s_B$ is beta equivalent to any type of $\Pi x^A.B$ in the context
+            $\Gamma$.
+
+
+            MISSING!!!
+
+    \item Abstraction:
+
+            MISSING!!!
+
+    \item Application:
+
+            MISSING!!!
+    \end{enumerate}
+\end{definition}
+
+
+
+\subsection{Term Interpretation}
+
+$\terminter{t}{\rho}$
+
+
+
+\subsection{Context Model}
+
+\begin{definition}
+    \label{DefinitionContextModel}
+    \emph{Context Model}: We call a term interpretation $\rho$ and a context
+    interpretation $\xi$ (i.e. $\xi \vDash \Gamma$) a model of a context which
+    we write
+    $$
+        \rho\xi \vDash \Gamma
+    $$
+    when
+    $\rho$ and $\Gamma$ have the form
+    $$
+    \begin{array}{lll}
+        \Gamma &=& [x_1^{A_1}, \ldots, x_n^{A_n}]
+        \\
+        \rho   &=& [x_1^{t_1}, \ldots, x_n^{t_n}]
+    \end{array}
+    $$
+    where $t_i \in \typeinter{A_i}{\xi\Gamma}$ for all $i \in \set{1,\ldots,n}$.
+\end{definition}
+
+
+
+
+\subsection{Soundness Theorem}
+
+\begin{theorem}
+    $$
+    \rulev{
+        \Gamma \vdash t : T
+        \\
+        \rho\xi \vDash \Gamma
+    }
+    {
+        \terminter{t}{\rho} \in \typeinter{T}{\xi\Gamma}
+    }
+    $$
+    \def\goal#1#2#3#4#5{
+        \forall #1 #2.
+        \left[
+        \ruleh{
+            #1#2 \vDash #3
+        }
+        {
+            \terminter{#4}{#1} \in \typeinter{#5}{#2#3}
+        }
+        \right]
+    }
+
+    \begin{proof}
+        By induction on $\Gamma \vdash t : T$.
+
+        \begin{enumerate}
+        \item Sort:
+
+            MISSING
+        \item Variable:
+
+            MISSING
+        \item Product:
+            $$
+            \begin{array}{l|l}
+                \Gamma \vdash A : s_A
+                &\goal \rho \xi \Gamma A {s_A}
+                \\
+                \Gamma, x^A \vdash B: s_B
+                & \goal {\rho'} {\xi'} {\Gamma,x^A} B {s_B}
+                \\
+                \hline
+                \Gamma \vdash \Pi x^A. B : s_B
+                &
+                \goal \rho \xi \Gamma {\Pi x^A.B} {s_B}
+            \end{array}
+            $$
+
+            Assume $\rho\xi \vDash \Gamma$. We have to prove the goal
+                $\terminter{\Pi x^A.B}{\rho} \in \SN$ which by definition of the
+                terminterpretation is equivalent to the two goals
+                $\terminter{A}\rho \in \SN$
+                and $\terminter{B}{\rho,x^x} \in SN$.
+
+            From the first induction hypothesis we can prove
+            the first subgoal $\terminter{A}{\rho} \in \SN$.
+
+            In order to prove the second subgoal we distinguish two cases:
+            \begin{enumerate}
+            \item $A \notin \Kinds$:
+                We choose $\rho' = \rho,x^x$ and $\xi' = \xi$.
+                Since $A$ is not a kind, $\xi' \vDash \Gamma,x^A$ is
+                certainly valid. Therefore the second induction hypothesis
+                    proves the second subgoal.
+
+            \item $A \in \Kinds$:
+                We choose $\rho' = \rho, x^x$ and $\xi' = \xi,x^{\nu^c(A)}$
+                    which makes $\rho'\xi' \vDash \Gamma,x^A$ valid. We use the
+                    second induction hypothesis to prove the second subgoal.
+            \end{enumerate}
+
+        \item Abstraction:
+            $$
+            \begin{array}{l|l}
+                \Gamma \vdash \Pi x^A.B : s
+                \\
+                \Gamma, x^A \vdash e : B
+                &
+                \goal {\rho'} {\xi'} {(\Gamma,x^A)} e B
+                \\
+                \hline
+                \Gamma \vdash \lambda x^A.e : \Pi x^A. B
+                &
+                \goal \rho \xi \Gamma {\lambda x^A.e} {\Pi x^A.B}
+            \end{array}
+            $$
+
+            Assume $\rho\xi \vDash \Gamma$. We have to prove the goal
+            $\terminter{\lambda x^A.e}{\rho} \in [I_A \tolambda I_B]$ where
+            $$
+            \begin{array}{lll}
+                I_A &=& \typeinter{A}{\xi\Gamma}
+                \\
+                I_B &=&
+                \begin{cases}
+                    \typeinter{B}{\xi\Gamma}
+                    &
+                    A \notin \Kinds
+                    \\
+                    \bigcap_{M \in \nu(A)}
+                    \typeinter{B}{(\xi,x^M)(\Gamma,x^A)}
+                    &
+                    A \in \Kinds
+                \end{cases}
+            \end{array}
+            $$
+            Remember that $I_A \tolambda I_B$ is defined as the set of terms
+            $\set{f | \forall a. a \in I_A \imp f a \in I_B}$.
+
+            In order to prove the goal we assume $a \in I_A$ and have to prove
+            $\terminter{\lambda x^A. e}{\rho} a \in I_B$.
+
+            From the definition of the term interpretation we get the following
+            $$
+            \begin{array}{lll}
+                \terminter{\lambda x^A. e}{\rho} a
+                &=&
+                (\lambda x^{\terminter{A}{\rho}}. \terminter{e}{\rho,x^x}) a
+                \\
+                &\keyreduce&
+                \terminter{e}{\rho,x^x} [x:=a]
+                \\
+                &=&
+                \terminter{e}{\rho,x^a}
+            \end{array}
+            $$
+
+            MISSING
+
+        \item Application:
+
+            MISSING
+        \item Weaken:
+
+            MISSING
+        \item Type equivalence:
+
+            MISSING
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
