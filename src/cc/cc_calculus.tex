@@ -203,7 +203,7 @@ term $c$.
     replaced and the substitution term is the sort.
     $$
         \rulev{
-            a[x:=b] \reduce s
+            a[x:=b] = s
         }
         {
             a = s \lor (a = x \land b = s)
@@ -211,7 +211,7 @@ term $c$.
     $$
     \begin{proof}
         From the definition of the substitution it is evident that only the
-        first two case can result in a sort. All other case to cannot
+        first two cases can result in a sort. All other case to cannot
         syntactically result in a sort. The first two case prove exactly the
         goal.
     \end{proof}
