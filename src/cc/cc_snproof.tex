@@ -5,13 +5,70 @@ Barendregt~1993~\cite{barendregt1993}, Geuvers~1994~\cite{geuvers1994}.
 
 
 
+\subsection{Saturated Sets}
+
+MISSING
+
+
+
+\begin{definition}
+    \emph{If $A$ and $B$ are sets of lambda terms we define the lambda functions
+    space $A \tolambda B$ as the set of lambda terms $f$ such that whenever $a$
+    is in $A$ then $fa$ is in $B$}.
+    $$
+    A \tolambda B := \set{f \mid \forall a. a \in A \imp fa \in B}
+    $$
+\end{definition}
+
+MISSING
+
+\begin{theorem}
+    \label{SaturatedSetsIntersection}
+    \emph{The intersection of any collection of saturated sets is a saturated
+    set}.
+    $$
+    \rulev{
+        C \subseteq \SAT
+    }
+    {
+        \bigcap C \in \SAT
+    }
+    $$
+    \begin{proof}
+        MISSING!!!
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\begin{theorem}
+    \label{LambdaSpaceSaturated}
+    \emph{The lambda function space between saturated sets is a saturated set}.
+
+    $$
+    \rulev{
+        A \in \SAT
+        \\
+        B \in \SAT
+    }
+    {
+        A \tolambda B \in \SAT
+    }
+    $$
+\end{theorem}
+
+
+
+
 \subsection{Model Set}
 
 \begin{definition}
-    \emph{Model Set} For $T \in \Kinds$ we define the model set
-    $\nu(T)$ by
+    \emph{Model Set} For $K \in \Kinds$ we define the model set
+    $\nu(K)$ by
     $$
-        \nu(T) :=
+        \nu(K) :=
         \left \{
         \begin{array}{llll}
             \nu(s) &:=& \SAT & s \text{ is a sort}
@@ -27,10 +84,10 @@ Barendregt~1993~\cite{barendregt1993}, Geuvers~1994~\cite{geuvers1994}.
 
 
 \begin{definition}
-    \emph{Canonical Model} For $T \in \Kinds$ we define the
-    canonical model $\nu^c(T)$ by
+    \emph{Canonical Model} For $K \in \Kinds$ we define the
+    canonical model $\nu^c(K)$ by
     $$
-        \nu(T) :=
+        \nu(K) :=
         \left \{
         \begin{array}{llll}
             \nu^c(s) &:=& \SN & s \text{ is a sort}
@@ -45,6 +102,8 @@ Barendregt~1993~\cite{barendregt1993}, Geuvers~1994~\cite{geuvers1994}.
         \end{array}
         \right.
     $$
+    where $\bullet \mapsto v$ is the constant function which maps any argument
+    to the value $v$.
 \end{definition}
 
 
@@ -169,43 +228,83 @@ In order to prove the property we prove first a similar lemma for kinds.
 
 
 
+
+
+
+
 \subsection{Context Interpretation}
 
 \begin{definition}
     \emph{Context Interpretation}:
     We call $\xi = [x_1^{M_1}, x_2^{M_2}, \ldots, x_n^{M_n}]$ an interpretation
-    of a context $\Gamma$ which we write
-    $$
-        \xi \vDash \Gamma
-    $$
-    if and only if $\Gamma = [x_1^{A_1}, x_2^{A_2}, \ldots, x_n^{A_n}]$ is a
-    valid context and $M_i \in \nu(A_i)$ is valid for all $i \in \set{1, 2,
-    \ldots, n}$.
+    of a context $\Gamma$ if and only if it satisfies the relation $\xi \vDash
+    \Gamma$ defined by the rules
+    \begin{enumerate}
+    \item Empty context
+        $$
+        [] \vDash []
+        $$
+    \item Term variable
+        $$
+        \rulev{
+            \xi \vDash \Gamma
+            \\
+            \Gamma \vdash A : \Prop
+            \\
+            x \notin \Gamma
+        }
+        {
+            \xi \vDash \Gamma,x^A
+        }
+        $$
+    \item Type (function) variable
+        $$
+        \rulev{
+            \xi \vDash \Gamma
+            \\
+            \Gamma \vdash K: \Any
+            \\
+            F \notin \Gamma
+            \\
+            M \in \nu(K)
+        }
+        {
+            \xi,F^M \vDash \Gamma,F^K
+        }
+        $$
+    \end{enumerate}
 \end{definition}
+
+
+
+
 
 
 
 \subsection{Type Interpretation}
 
-The goal of this section is to find a function which maps any welltyped term $t$
-for all types $T$ it can have in a certain context $\Gamma$ into a value
-$\typeinter{t}{\xi\Gamma} \in \nu (T)$ or $\Any$ into
+The goal of this section is to find a function which maps any welltyped type
+function $F$
+for all types $K$ it can have in a certain context $\Gamma$ into a value
+$\typeinter{F}{\xi\Gamma} \in \nu (K)$ or $\Any$ into
 $\typeinter{\Any}{\xi\Gamma} \in \SAT$. The function is based on a context
-interpretation $\xi$ which assigns to each variable $x$ of type $A$ in the
-context a model which is an element of $\nu(A)$.
+interpretation $\xi$ which assigns to each type variable $x$ of type $A$ (which
+is a kind) in the context a model which is an element of $\nu(A)$.
 
 \begin{definition}
     \label{SpecificationTypeInterpretation}
-    \emph{The type interpretation function $\typeinter{t}{\xi\Gamma}$ must
+    \emph{The type interpretation function $\typeinter{F}{\xi\Gamma}$ must
     satisfy the following specification}.
     $$
     \rulev{
         \xi \vDash \Gamma
         \\
-        \Gamma \vdash t : T
+        \Gamma \vdash F : K
+        \\
+        K \in \Kinds
     }
     {
-        \typeinter{t}{\xi\Gamma} \in \nu(T)
+        \typeinter{F}{\xi\Gamma} \in \nu(K)
     }
     \land
     \ruleh{
@@ -219,27 +318,27 @@ context a model which is an element of $\nu(A)$.
     I.e. it has the preconditions
     \begin{itemize}
     \item The context $\Gamma$ has to be valid and $\xi$ is a context
-        interpretation (i.e. $\xi \vdash \Gamma$.
+        interpretation (i.e. $\xi \vdash \Gamma$).
 
-    \item $t$ is either $\Any$ or it is a welltyped constructor (i.e. there
-        exist some type $T \in \Kinds \cap \set{\Any}$ such that $\Gamma \vdash
-            t : T$ is
-    valid.
+    \item $F$ is either $\Any$ or it is a welltyped type function (i.e. there
+        exist some type $K \in \Kinds$ such that $\Gamma \vdash t : K$ is
+            valid).
     \end{itemize}
 
-    In case that $t$ is a welltyped constructor, then the typeinterpretation has
-    to be an element of $\nu(T)$ for all possible types of $t$. If $t$ is $\Any$
+    In the case that $F$ is a welltyped type function, then the
+    typeinterpretation has to be an element of $\nu(T)$ for all possible types
+    of $F$. If $F$ is $\Any$
     then the typeinterpretation must be a saturated set.
 \end{definition}
 
 
 \begin{definition}
     \label{DefinitionTypeInterpretation}
-    \emph{The type interpretation function $\typeinter{t}{\xi\Gamma}$ is defined
-    recursively on the structure of $t$}.
+    \emph{The type interpretation function $\typeinter{F}{\xi\Gamma}$ is defined
+    recursively on the structure of $F$}.
 
     Note that by theorem~\ref{ModelAllTypesSame} we can choose any type of a
-    welltyped term to prove the satisfaction of the specification.
+    welltyped type function to prove the satisfaction of the specification.
 
     \begin{enumerate}
     \item Sort:
@@ -262,25 +361,26 @@ context a model which is an element of $\nu(A)$.
         where $x^{M} \in \xi$.
 
         The precondition $\xi \vDash \Gamma$ is possible only if there is a type
-            $A$ such that $x^A \in \Gamma$ and $\Gamma \vdash A: \Any$ is valid. By the start
-            lemma~\ref{StartLemma} $\Gamma \vdash x : A$ is valid and since
-            $\xi$ is a valid context interpretation for the context $\Gamma$ we
-            get $M \in \nu(A)$.
+        $A$ such that $x^A \in \Gamma$ and $\Gamma \vdash A: \Any$ is valid.
+        By the start lemma~\ref{StartLemma} $\Gamma \vdash x : A$ is valid
+        and since $\xi$ is a valid context interpretation for the context
+        $\Gamma$ we get $M \in \nu(A)$.
 
 
     \item Product:
         $$
             \typeinter{\Pi x^A.B}{\xi\Gamma}
             :=
+            \typeinter{A}{\xi\Gamma} \tolambda I_B
+        $$
+        where
+            $$
+            I_B :=
             \left\{
             \begin{array}{ll}
-                \typeinter{A}{\xi\Gamma}
-                \tolambda
-                \typeinter{B}{(\xi,x^\SN)(\Gamma,x^A)}
+                \typeinter{B}{\xi(\Gamma,x^A)}
                 & \text{if } A \notin \Kinds
                 \\
-                \typeinter{A}{\xi\Gamma}
-                \tolambda
                 \bigcap_{M\in\nu(A)}
                 \typeinter{B}{(\xi,x^M)(\Gamma,x^A)}
                 & \text{if }  A \in \Kinds
@@ -288,26 +388,179 @@ context a model which is an element of $\nu(A)$.
             \right.
         $$
 
-        By the precondition of the type interpretation function we can assume
-            that $\Gamma$ is a valid context, $\xi$ is a context
-            interpretation i.e. $\xi \vDash \Gamma$. Since a product is not
-            $\Any$ we have to prove the desired property from the specification
-            only for welltyped terms $\Pi x^A.B$.
+        Since a product is not $\Any$ we have to prove the left part of the
+            specification
+        $$
+        \rulev{
+            \xi \vDash \Gamma
+            \\
+            \Gamma \vdash \Pi x^A.B : K
+            \\
+            K \in \Kinds
+        }
+        {
+            \typeinter{A}{\xi\Gamma} \tolambda I_B \in \nu(K)
+        }
+        $$
+        where $I_B$ is the type interpretation of $B$ (see above).
 
-            From the generation lemma~\ref{GenerationLemmata} for products we
-            postulate the existence of the sorts $s_A$ and $s_B$ such that
-            $\Gamma\vdash A: s_A$ and $\Gamma,x^A\vdash B: s_B$ are valid and
-            $s_B$ is beta equivalent to any type of $\Pi x^A.B$ in the context
-            $\Gamma$.
+        From the generation lemma~\ref{GenerationLemmata} for products we
+        postulate the existence of the sorts $s_A$ and $s_B$ such that
+        $\Gamma\vdash A: s_A$ and $\Gamma,x^A\vdash B: s_B$ are valid and
+        $s_B$ is beta equivalent to $K$.
 
+        Since products cannot be beta equivalent to sorts
+        by~\ref{BinderNotEquivalentSortVariable} $K$ must be a sort and the only
+        sort beta equivalent to $s_B$ is $s_B$. Therefore we have $K = s_B$ and
+        $\nu(K) = \SAT$.
 
-            MISSING!!!
+        In order to prove that $\typeinter{A}{\xi\Gamma} \tolambda I_B$ is a
+        saturated set by theorem~\ref{LambdaSpaceSaturated} it is sufficient to
+        prove that $\typeinter{A}{\xi\Gamma}$ and $I_B$ are saturated sets.
+        \begin{enumerate}
+        \item $\typeinter{A}{\xi\Gamma} \in \SAT$: The preconditions $\xi \vDash
+            \Gamma$, $\Gamma \vdash A : s_A$ and $s_A \in \Kinds$ of the
+                typeinterpretation function are satisfied. Therefore we can
+                conclude the goal.
+        \item $I_B \in \SAT$: We have to distinguish two cases:
+            \begin{enumerate}
+            \item $A \notin \Kinds$:
+                In that case we have $\xi \vDash \Gamma,x^A$ i.e. the
+                    preconditions for the typeinterpretation function are
+                    satisfied and we get $\typeinter{B}{\xi(\Gamma,x^A)} \in
+                    \SAT$.
+
+                \item $A \in \Kinds$: By
+                    theorem~\ref{SaturatedSetsIntersection} it is sufficient to
+                    prove $\typeinter{B}{(\xi,x^M)(\Gamma,x^A)} \in \SAT$ for
+                    all $M \in \nu(A)$.
+
+                    Assume $M \in \nu(A)$. Then $\xi,x^M \vDash \Gamma,x^A$ i.e.
+                    the preconditions of the typeinterpretation function are
+                    satisfied and we infer the goal.
+            \end{enumerate}
+        \end{enumerate}
 
     \item Abstraction:
+        $$
+        \typeinter{\lambda x^A. e}{\xi\Gamma} :=
+            \left\{
+            \begin{array}{ll}
+                \typeinter{e}{\xi(\Gamma,x^A)}
+                & \text{if } A \notin \Kinds
+                \\
+                M \mapsto \typeinter{e}{(\xi,x^M)(\Gamma,x^A)}
+                & \text{if }  A \in \Kinds, M \in \nu(A)
+            \end{array}
+            \right.
+        $$
 
-            MISSING!!!
+        Since an abstraction is not $\Any$ we have to prove the left part of the
+        specification
+        $$
+        \rulev{
+            \xi \vDash \Gamma
+            \\
+            \Gamma \vdash \lambda x^A. e : K
+            \\
+            K \in \Kinds
+        }
+        {
+            \typeinter{\lambda x^A.e}{\xi\Gamma} \in \nu(K)
+        }
+        $$
+        By the generation lemma~\ref{GenerationLemmata} for abstractions we
+        postulate the existence of $B$ and $s$ such that $\Gamma \vdash \Pi x^A
+        . B : s$, $\Gamma,x^A \vdash e : B$ and $K \betaeq \Pi x^A. B$ are
+        satisfied.
+
+        By the lemma~\ref{ModelAllTypesSame} we get $\Pi x^A.B \in \Kinds$
+        and $\nu(K) = \nu(\Pi x^A. B)$.
+
+        In order to prove the goal $\typeinter{\lambda x^A.e}{\xi\Gamma} \in
+        \nu(\Pi x^A.B)$ we distinguish two cases:
+        \begin{enumerate}
+        \item $A \notin \Kinds$:
+            In that case the goal is
+            $$
+                \typeinter{e}{\xi(\Gamma,x^A)} \in \nu(B)
+            $$
+            Since $A$ is not a kind we have $\xi \vDash \Gamma,x^A$
+            and therefore the preconditions for
+            $\typeinter{e}{\xi(\Gamma,x^A)}$ are satisfied and the
+            specification of the typeinterpretation function guarantees the
+            goal.
+
+        \item $A \in \Kinds$:
+            In that case the goal is
+            $$
+                M \mapsto \typeinter{e}{(\xi,x^M)(\Gamma,x^A)}
+                \in \nu(A) \to \nu(B)
+            $$
+                where $M \in \nu(A)$. The function argument is in the correct
+                domain. Because of $\xi,x^M \vDash \Gamma,x^A$ the preconditions
+                of $\typeinter{e}{(\xi,x^M)(\Gamma,x^A)}$ are satisfied and the
+                specification of the typeinterpretation function guarantees that
+                the function maps its argument to a value in the correct range.
+        \end{enumerate}
 
     \item Application:
+        $$
+        \typeinter{Fa}{\xi\Gamma} :=
+        \left\{
+        \begin{array}{ll}
+            \typeinter{F}{\xi\Gamma}
+            &
+            \text{if $\Gamma \vdash a : A$ for some $A \notin \Kinds$}
+            \\
+            \typeinter{F}{\xi\Gamma}(
+                \typeinter{a}{\xi\Gamma}
+            )
+            &
+            \text{if $\Gamma \vdash a : A$ for some $A \in \Kinds$}
+        \end{array}
+        \right.
+        $$
+        where $\Gamma \vdash a : A$ for some $A$.
+
+        Since an application is not $\Any$ we have to prove the left part of the
+        specification
+        $$
+        \rulev{
+            \xi \vDash \Gamma
+            \\
+            \Gamma \vdash F a: K
+            \\
+            K \in \Kinds
+        }
+        {
+            \typeinter{F a}{\xi\Gamma} \in \nu(K)
+        }
+        $$
+        By the generation lemma~\ref{GenerationLemmata} for applications we
+        postulate the existence of $A$ and $B$ such that
+        $$
+        \begin{array}{l}
+            \Gamma \vdash F : \Pi x^A. B
+            \\
+            \Gamma \vdash a : A
+            \\
+            K \betaeq B[x:=a]
+        \end{array}
+        $$
+        are valid. By the lemma~\ref{ModelAllTypesSame} we get $\nu(K) =
+        \nu(B[x:=a])$ i.e. we have to prove the goal $\typeinter{F a}{\xi\Gamma}
+        \in \nu(B[x:=a])$.
+
+        We distinguish two cases
+        \begin{enumerate}
+        \item $A \notin \Kinds$:
+
+        \item $A \in \Kinds$:
+
+        \end{enumerate}
+
+
 
             MISSING!!!
     \end{enumerate}
