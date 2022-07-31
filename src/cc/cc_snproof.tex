@@ -227,6 +227,160 @@ In order to prove the property we prove first a similar lemma for kinds.
 
 
 
+\begin{theorem}
+    \label{ModelSubstitutionSame}
+    \emph{A type correct variable substitution does not affect the model set of
+    a kind}.
+    $$
+    \rulev{
+        K \in \Kinds
+        \\
+        \Gamma,x^A \vdash K: \Any
+        \\
+        \Gamma \vdash a : A
+    }
+    {
+        \nu(K) = \nu(K[x:=a])
+    }
+    $$
+    \begin{proof}
+
+        By induction on $K \in \Kinds$.
+
+        \def\goal#1#2{
+            \forall #1.
+            \left[
+                \rulev{
+                    \Gamma,x^A,#1 \vdash #2: \Any
+                }
+                {
+                    \nu(#2) = \nu((#2)[x:=a])
+                }
+            \right]
+        }
+
+        \begin{enumerate}
+        \item $s \in \Kinds$: Trivial
+
+        \item
+            $$
+            \begin{array}{l|l}
+                B \notin \Kinds
+                \\
+                K \in \Kinds
+                &
+                \goal {\Delta'} K
+                \\
+                \hline
+                \Pi y^B. K \in \Kinds
+                &
+                \goal \Delta {\Pi y^B. K}
+            \end{array}
+            $$
+
+            We assume $\Gamma,x^A,\Delta \vdash \Pi y^B.K : \Any$ and derive the
+            goal $\nu(\Pi y^B. K) = \nu((\Pi y^B.K)[x:=a])$.
+
+            From the generation lemma~\ref{GenerationLemmata} for products we
+            postulate the existence of $s_B$ and $s_K$ such that
+            $$
+            \begin{array}{lll}
+                \Gamma,x^A,\Delta &\vdash& B: s_B
+                \\
+                \Gamma,x^A,\Delta,y^B &\vdash& K : s_K
+                \\
+                s_K \betaeq \Any
+            \end{array}
+            $$
+            This implies $s_B = \Prop$ (because $B\notin \Kinds$ and
+            theorem~\ref{TypeAnyImpliesKind}) and $s_K = \Any$.
+
+            Applying the substitution lemma~\ref{SubstitutionLemma} we get
+            $$
+            \Gamma,x^A,\Delta[x:=a] \vdash B[x:=a] : \Prop
+            $$
+            which by theorem~\ref{KindImpliesTypeAny} implies $B[x:=a] \notin
+            \Kinds$.
+
+            We use $\Delta' = \Delta,y^B$ and derive $\nu(K) = \nu(K[x:=a])$
+            from the induction hypothesis.
+
+            Therefore by the equalities
+            $$
+            \begin{array}{lll}
+                \nu(\Pi y^B.K)
+                &=& \nu(K)
+                \\
+                &=& \nu(K[x:=a])
+                \\
+                &=& \nu(\Pi y^{B[x:=a]}. K[x:=a])
+                \\
+                &=& \nu((\Pi y^B . K)[x:=a])
+            \end{array}
+            $$
+            we derive the desired goal.
+
+        \item
+            $$
+            \begin{array}{l|l}
+                B \in \Kinds
+                &
+                \goal \Delta B
+                \\
+                K \in \Kinds
+                &
+                \goal {\Delta'} K
+                \\
+                \hline
+                \Pi y^B. K \in \Kinds
+                &
+                \goal \Delta {\Pi y^B. K}
+            \end{array}
+            $$
+            We assume $\Gamma,x^A,\Delta \vdash \Pi y^B.K : \Any$ and derive the
+            goal $\nu(\Pi y^B. K) = \nu((\Pi y^B.K)[x:=a])$.
+
+            From the generation lemma~\ref{GenerationLemmata} for products we
+            postulate the existence of $s_B$ and $s_K$ such that
+            $$
+            \begin{array}{lll}
+                \Gamma,x^A,\Delta &\vdash& B: s_B
+                \\
+                \Gamma,x^A,\Delta,y^B &\vdash& K : s_K
+                \\
+                s_K \betaeq \Any
+            \end{array}
+            $$
+            This implies $s_B = \Any$ (because of $B \in \Kinds$ and
+            therorem~\ref{KindImpliesTypeAny}) and $s_K = \Any$.
+
+            By using $\Delta' = \Delta,y^B$ the preconditions of both induction
+            hypotheses are satisfied and we derive the facts
+            $$
+            \begin{array}{lll}
+                \nu(B) &=& \nu(B[x:=a])
+                \\
+                \nu(K) &=& \nu(K[x:=a])
+            \end{array}
+            $$
+
+            Therefore by the equalities
+            $$
+            \begin{array}{lll}
+                \nu(\Pi y^B.K)
+                &=& \nu(B) \to \nu(K)
+                \\
+                &=& \nu(B[x:=a]) \to \nu(K[x:=a])
+                \\
+                &=& \nu(\Pi y^{B[x:=a]}. K[x:=a])
+                \\
+                &=& \nu((\Pi y^B . K)[x:=a])
+            \end{array}
+            $$
+            we derive the desired goal.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
 
 
 
@@ -537,6 +691,8 @@ is a kind) in the context a model which is an element of $\nu(A)$.
             \typeinter{F a}{\xi\Gamma} \in \nu(K)
         }
         $$
+        Before proving the goal we derive some intermediate facts:
+
         By the generation lemma~\ref{GenerationLemmata} for applications we
         postulate the existence of $A$ and $B$ such that
         $$
@@ -548,9 +704,22 @@ is a kind) in the context a model which is an element of $\nu(A)$.
             K \betaeq B[x:=a]
         \end{array}
         $$
-        are valid. By the lemma~\ref{ModelAllTypesSame} we get $\nu(K) =
-        \nu(B[x:=a])$ i.e. we have to prove the goal $\typeinter{F a}{\xi\Gamma}
-        \in \nu(B[x:=a])$.
+        are valid. By the lemma~\ref{ModelAllTypesSame} we get $B[x:=a] \in
+        \Kinds$ and $\nu(K) = \nu(B[x:=a])$ i.e. we have to prove the goal
+        $\typeinter{F a}{\xi\Gamma} \in \nu(B[x:=a])$.
+
+        Using the type of types lemma~\ref{TypeOfTypes} we can derive the
+        existence of some sort $s$ such that $\Gamma \vdash \Pi x^A.B : s$ is
+        valid. This implies by the generation lemma~\ref{GenerationLemmata} for
+        products the existence of the sorts $s_A$ and $s_B$ such that
+        $\Gamma \vdash A : s_A$, $\Gamma,x^A \vdash B : s_B$ and $s \betaeq
+        s_B$ are valid (i.e. $s = s_B$). Furthermore by the substitution
+        theorem~\ref{SubstitutionLemma} we get $\Gamma \vdash B[x:=a] : s$.
+
+        This implies that $K$ and $B[x:=a]$ are welltyped and therefore cannot
+        be $\Any$. Since $K$ is a sort, $s = \Any$ must be valid.
+
+
 
         We distinguish two cases
         \begin{enumerate}
