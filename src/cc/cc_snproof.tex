@@ -227,6 +227,10 @@ In order to prove the property we prove first a similar lemma for kinds.
 
 
 
+As a next step we prove the fact that the model set of a kind is not affected by
+a welltyped substitution.
+
+
 \begin{theorem}
     \label{ModelSubstitutionSame}
     \emph{A type correct variable substitution does not affect the model set of
@@ -293,7 +297,7 @@ In order to prove the property we prove first a similar lemma for kinds.
             \end{array}
             $$
             This implies $s_B = \Prop$ (because $B\notin \Kinds$ and
-            theorem~\ref{TypeAnyImpliesKind}) and $s_K = \Any$.
+            corollary~\ref{NotKindImpliesProp}) and $s_K = \Any$.
 
             Applying the substitution lemma~\ref{SubstitutionLemma} we get
             $$
@@ -351,8 +355,8 @@ In order to prove the property we prove first a similar lemma for kinds.
                 s_K \betaeq \Any
             \end{array}
             $$
-            This implies $s_B = \Any$ (because of $B \in \Kinds$ and
-            therorem~\ref{KindImpliesTypeAny}) and $s_K = \Any$.
+            This implies $s_B = \Any$ and $s_K = \Any$ because of $B,K \in
+            \Kinds$ and therorem~\ref{KindImpliesTypeAny}.
 
             By using $\Delta' = \Delta,y^B$ the preconditions of both induction
             hypotheses are satisfied and we derive the facts

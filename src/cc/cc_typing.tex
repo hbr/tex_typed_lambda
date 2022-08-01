@@ -1630,6 +1630,35 @@ sorts. Type functions with arity zero are types.
     $$
     where $s$ ranges over sorts, $K$ ranges over kinds and $A$ ranges over
     terms which are not kinds.
+
+    It is also possible to use the equivalent definition: The set $\Kinds$ is an
+    inductive set defined by the rules
+    \begin{enumerate}
+    \item
+        $$ s \in \Kinds $$
+    \item
+        $$
+        \rulev{
+            A \notin \Kinds
+            \\
+            K \in \Kinds
+        }
+        {
+            \Pi x^A. K \in \Kinds
+        }
+        $$
+    \item
+        $$
+        \rulev{
+            A \in \Kinds
+            \\
+            K \in \Kinds
+        }
+        {
+            \Pi x^A. K \in \Kinds
+        }
+        $$
+    \end{enumerate}
 \end{definition}
 
 
@@ -1723,6 +1752,54 @@ sorts. Type functions with arity zero are types.
 
 
 
+\begin{corollary}
+    \label{TypePropImpliesNotKind}
+    \emph{Every type $T$ of sort $\Prop$ is not a kind}.
+    $$
+    \rulev{
+        \Gamma \vdash T : \Prop
+    }
+    {
+        T \notin \Kinds
+    }
+    $$
+    \begin{proof}
+        Assume $\Gamma \vdash T : \Prop$ and by way of contradiction $T \in
+        \Kinds$.
+
+        This implies by the previous theorem~\ref{KindImpliesTypeAny} $\Gamma
+        \vdash T : \Any$ and by theorem~\ref{TypeUniqueness1} $\Prop \betaeq
+        \Any$ which is contradictory.
+    \end{proof}
+\end{corollary}
+
+
+
+
+\begin{corollary}
+    \label{NotKindImpliesProp}
+    \emph{Every welltyped type which is not a kind has type $\Prop$}.
+    $$
+    \rulev{
+        T \notin \Kinds
+        \\
+        \Gamma \vdash T : s
+    }
+    {
+        \Gamma \vdash T : \Prop
+    }
+    $$
+    \begin{proof}
+        Assume $T \notin \Kinds$ and $\Gamma \vdash T : s$.
+
+        There are only two sorts, therefore either $s = \Prop$ or $s = \Any$
+        has to be valid. The first case proves the goal. The second case implies
+        by the theorem~\ref{TypeAnyImpliesKind} $T \in \Kinds$ which
+        contradicts the assumption $T\notin \Kinds$.
+    \end{proof}
+\end{corollary}
+
+
 
 
 \begin{theorem}
@@ -1760,7 +1837,6 @@ sorts. Type functions with arity zero are types.
         \end{enumerate}
     \end{proof}
 \end{theorem}
-
 
 
 
