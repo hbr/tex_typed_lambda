@@ -695,47 +695,102 @@ is a kind) in the context a model which is an element of $\nu(A)$.
             \typeinter{F a}{\xi\Gamma} \in \nu(K)
         }
         $$
-        Before proving the goal we derive some intermediate facts:
+        \begin{itemize}
+        \item
+            By the generation lemma~\ref{GenerationLemmata} for applications we
+            postulate the existence of $A$ and $B$ such that
+            $$
+            \begin{array}{l}
+                \Gamma \vdash F : \Pi x^A. B
+                \\
+                \Gamma \vdash a : A
+                \\
+                K \betaeq B[x:=a]
+            \end{array}
+            $$
+            are valid. By the lemma~\ref{ModelAllTypesSame} we get $B[x:=a] \in
+            \Kinds$ and $\nu(K) = \nu(B[x:=a])$ i.e. we have to prove the goal
+            $$\typeinter{F a}{\xi\Gamma} \in \nu(B[x:=a])
+            $$
 
-        By the generation lemma~\ref{GenerationLemmata} for applications we
-        postulate the existence of $A$ and $B$ such that
-        $$
-        \begin{array}{l}
-            \Gamma \vdash F : \Pi x^A. B
-            \\
-            \Gamma \vdash a : A
-            \\
-            K \betaeq B[x:=a]
-        \end{array}
-        $$
-        are valid. By the lemma~\ref{ModelAllTypesSame} we get $B[x:=a] \in
-        \Kinds$ and $\nu(K) = \nu(B[x:=a])$ i.e. we have to prove the goal
-        $\typeinter{F a}{\xi\Gamma} \in \nu(B[x:=a])$.
+        \item
+            Using the type of types lemma~\ref{TypeOfTypes} we can derive the
+            existence of some sort $s$ such that $\Gamma \vdash \Pi x^A.B :
+            s$ is valid. This implies by the generation
+            lemma~\ref{GenerationLemmata} for products the existence of the
+            sorts $s_A$ and $s_B$ such that
+            $\Gamma \vdash A : s_A$, $\Gamma,x^A \vdash B : s_B$ and $s \betaeq
+            s_B$ are valid (i.e. $s = s_B$). Furthermore by the substitution
+            theorem~\ref{SubstitutionLemma} we get $\Gamma \vdash B[x:=a] : s$.
 
-        Using the type of types lemma~\ref{TypeOfTypes} we can derive the
-        existence of some sort $s$ such that $\Gamma \vdash \Pi x^A.B : s$ is
-        valid. This implies by the generation lemma~\ref{GenerationLemmata} for
-        products the existence of the sorts $s_A$ and $s_B$ such that
-        $\Gamma \vdash A : s_A$, $\Gamma,x^A \vdash B : s_B$ and $s \betaeq
-        s_B$ are valid (i.e. $s = s_B$). Furthermore by the substitution
-        theorem~\ref{SubstitutionLemma} we get $\Gamma \vdash B[x:=a] : s$.
+            This implies that $K$ and $B[x:=a]$ are welltyped and therefore
+            cannot be $\Any$. Since $K$ is a kind, $s = \Any$ must be valid.
 
-        This implies that $K$ and $B[x:=a]$ are welltyped and therefore cannot
-        be $\Any$. Since $K$ is a sort, $s = \Any$ must be valid.
+            I.e. we get
+            $$
+            \begin{array}{lll}
+                \Gamma &\vdash& A : s_A
+                \\
+                \Gamma,x^A &\vdash& B: \Any
+                \\
+                \Gamma &\vdash& \Pi x^A. B : \Any
+            \end{array}
+            $$
 
+            Because of theorem~\ref{TypeAnyImpliesKind} we have
+            $B \in \Kinds$ and $\Pi x^A . B \in \Kinds$
+            i.e. $F$ is a type function.
 
-
-        We distinguish two cases
-        \begin{enumerate}
-        \item $A \notin \Kinds$:
-
-        \item $A \in \Kinds$:
-
-        \end{enumerate}
-
+        \item
+            Since $F$ is a type function, the preconditions for the type
+                interpretation are satisfied and we get
+            $$
+                \typeinter{F}{\xi\Gamma} \in \nu(\Pi x^A.B)
+            $$
 
 
-            MISSING!!!
+        \item
+            We distinguish two cases
+            \begin{enumerate}
+            \item $A \notin \Kinds$: In that case we have to prove the goal
+                $$
+                    \typeinter{F}{\xi\Gamma} \in \nu(B[x:=a])
+                $$
+
+                We prove the goal by using the equivalence
+                $$
+                \begin{array}{llll}
+                    \nu(B[x:=a]
+                    &=& \nu(B)
+                    &\text{\ref{ModelSubstitutionSame}}
+                    \\
+                    &=& \nu(\Pi x^A.B)
+                    &\text{definition of $\nu$}
+                \end{array}
+                $$
+
+            \item $A \in \Kinds$: In that case the  preconditions of the type
+                interpretation function for $a$ are satisfied and we get
+                $$
+                    \typeinter{a}{\xi\Gamma} \in \nu(A)
+                $$
+                Furthermore we have $\typeinter{F}{\xi\Gamma} \in \nu(A) \to
+                    \nu(B)$ and therefore
+                    $\typeinter{F}{\xi\Gamma}(\typeinter{a}{\xi\Gamma}$ is a
+                    valid function application with
+                $$
+                    \typeinter{F}{\xi\Gamma}(\typeinter{a}{\xi\Gamma})
+                    \in \nu(B)
+                $$
+                Since typesafe substitution does not change the model we get by
+                    using~\ref{ModelSubstitutionSame} $\nu(B) = \nu(B[x:=a])$
+                    which proves the goal
+                $$
+                    \typeinter{F}{\xi\Gamma)}(\typeinter{a}{\xi\Gamma})
+                    \in \nu(B[x:=a])
+                $$
+            \end{enumerate}
+        \end{itemize}
     \end{enumerate}
 \end{definition}
 
