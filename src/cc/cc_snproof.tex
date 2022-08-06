@@ -796,9 +796,74 @@ is a kind) in the context a model which is an element of $\nu(A)$.
 
 
 
+\begin{theorem}
+    \label{TypeInterpretationSubstitution}
+    \emph{??}
+    $$
+    \rulev{
+        \xi \vDash \Gamma
+        \\
+        \Gamma \vdash a: A
+        \\
+        \Gamma,x^A \vdash B : s
+    }
+    {
+        \typeinter{B[x:=a]}{\xi\Gamma}
+        =
+        \left\{
+        \begin{array}{ll}
+            \typeinter{B}{\xi(\Gamma,x^A)}
+            &
+            A \notin \Kinds
+            \\
+            \typeinter{B}{(\xi,x^M)(\Gamma,x^A)}
+            &
+            A \in \Kinds, M = \typeinter{a}{\xi\Gamma}
+        \end{array}
+        \right.
+    }
+    $$
+    \begin{proof}
+        MISSING
+    \end{proof}
+\end{theorem}
+
+
+
+\begin{theorem}
+    \label{TypeInterpretationEquivalence}
+    \emph{Equivalent type functions have the same type interpretation}
+    $$
+    \rulev{
+        \xi \vDash \Gamma
+        \\
+        \Gamma \vdash F : K
+        \\
+        \Gamma \vdash G : s
+        \\
+        K \in \Kinds
+        \\
+        F \betaeq G
+    }
+    {
+        \typeinter{F}{\xi\Gamma} = \typeinter{G}{\xi\Gamma}
+    }
+    $$
+    \begin{proof}
+        MISSING
+    \end{proof}
+\end{theorem}
+
+
+
+
 \subsection{Term Interpretation}
 
 $\terminter{t}{\rho}$
+
+
+
+
 
 
 
@@ -966,6 +1031,22 @@ $\terminter{t}{\rho}$
 
             MISSING
         \item Type equivalence:
+            $$
+            \begin{array}{l|l}
+                \Gamma \vdash t : T
+                &
+                \goal \rho \xi \Gamma t T
+                \\
+                \Gamma \vdash U : s
+                \\
+                T \betaeq U
+                \\
+                \hline
+                \Gamma \vdash t : U
+                &
+                \goal \rho \xi \Gamma t U
+            \end{array}
+            $$
 
             MISSING
         \end{enumerate}
