@@ -5,6 +5,270 @@ Barendregt~1993~\cite{barendregt1993}, Geuvers~1994~\cite{geuvers1994}.
 
 
 
+
+\subsection{Strong Normalization}
+
+\begin{definition}
+    The set $\SN$ of \emph{strongly normalizing} terms is defined inductively
+    the rule
+    $$
+        \ruleh{
+            \ruleall{b}{a \reduce b}{b \in \SN}
+        }
+        {
+            a \in \SN
+        }
+    $$
+\end{definition}
+
+In words: A term $a$ is strongly normalizing if all its reducts $b$ are strongly
+normalizing.
+
+We can view the strongly normalizing terms more intuitively in the following
+manner.
+
+\begin{itemize}
+
+    \item A term which is already in normalform i.e. it has no reducts is
+        strongly normalizing. In hat case all its reducts (there are none) are
+        vacuously strongly normalizing. I.e. terms in normal form form the
+        $0$th generation of strongly normalizing terms.
+
+    \item The 2nd generation of strongly normalizing terms are terms which
+        reduce only to terms in normal form.
+
+    \item The $(n+1)$th generation of strongly normalizing terms are terms which
+        reduce only to terms of the $n$th generation of strongly normalizng
+        terms.
+
+    \item $\ldots$
+
+\end{itemize}
+
+This intuitive definition defines the terms which are guaranteed to reduce in
+$n$ steps to terms in normal form. The strongly normalizing terms are terms
+which are guaranteed to reduce in $n$ steps to terms in normal form for some
+natural number $n$.
+
+With this intuitive definition we could prove properties of strongly normalizing
+terms by doing induction on the maximal number of steps $n$ needed to reduce to
+normal form.
+
+
+However the formal definition is better suited for doing induction proofs. In
+order to prove that some term $a$ which is strongly normalizing has some
+property $p(a)$ one can assume that all its reducts have this property. I.e. we
+can use an induction scheme similar to rule based induction.
+
+$$
+    \begin{array}{l|l}
+        \ruleall{b}{a \reduce b}{b \in \SN}
+        &
+        \ruleall{b}{a \reduce b}{p(b)}
+        \\
+        \hline
+        a \in \SN
+        &
+        p(a)
+    \end{array}
+$$
+
+In order to prove the goal $p(a)$ in the lower right corner we can assume all
+the other statements especially the induction hypothesis in the upper right
+corner.
+
+
+\begin{theorem}
+    \label{StronglyNormalizingRedex}
+    \emph{A redex is strongly normalizing if its reduct and all its
+    subexpressions are strongly normalizing}.
+    $$
+    \rulev{
+        e \in \SN
+        \\
+        e[x:=a] \in \SN
+        \\
+        a \in \SN
+        \\
+        A \in \SN
+    }
+    {
+        (\lambda x^A.e) a \in SN
+    }
+    $$
+
+    \begin{proof}
+        We do induction on $e \in \SN$, $a \in \SN$ and $A \in \SN$ to get good
+        induction hypotheses and then prove the final goal.
+
+        \begin{itemize}
+        \item Induction on $e \in \SN$:
+            $$
+            \begin{array}{l|l}
+                \ruleall
+                {f}
+                {e \reduce f}
+                {e \in \SN}
+                &
+                \ruleall{faA}{
+                    e \reduce f
+                    \\
+                    f[x:=a] \in \SN
+                    \\
+                    a \in \SN
+                    \\
+                    A \in \SN
+                }
+                {(\lambda x^A. f)a \in SN}
+                \\
+                \hline
+                e \in \SN
+                &
+                \ruleall{aA}{
+                    e[x:=a] \in \SN
+                    \\
+                    a \in \SN
+                    \\
+                    A \in \SN
+                }
+                {(\lambda x^A.e) a \in \SN}
+            \end{array}
+            $$
+
+        \item Assume $e[x:=a] \in \SN$ and do induction on $a \in \SN$:
+            $$
+            \begin{array}{l|l}
+                \ruleall
+                {b}
+                {a \reduce b}
+                {a \in \SN}
+                &
+                \ruleall{bA}{
+                    a \reduce b
+                    \\
+                    A \in \SN
+                }
+                {(\lambda x^A. e)b \in SN}
+                \\
+                \hline
+                a \in \SN
+                &
+                \ruleall{A}{
+                    A \in \SN
+                }
+                {(\lambda x^A.e) a \in \SN}
+            \end{array}
+            $$
+
+        \item Induction on $A \in \SN$:
+            $$
+            \begin{array}{l|l}
+                \ruleall
+                {B}
+                {A \reduce B}
+                {A \in \SN}
+                &
+                \ruleall{B}{
+                    A \reduce B
+                }
+                {(\lambda x^B. e)a \in SN}
+                \\
+                \hline
+                A \in \SN
+                &
+                (\lambda x^A.e) a \in \SN
+            \end{array}
+            $$
+
+        \item I.e. we have to prove the goal $(\lambda x^A.e)a \in SN$ under the
+            following assumptions $e \in \SN$, $e[x:=a] \in \SN$, $a \in \SN$,
+            $A \in \SN$ and the following induction hypotheses:
+            \begin{enumerate}
+            %\item $e \in \SN$
+            %\item $e[x:=a] \in \SN$
+            %\item $a \in \SN$
+            %\item $A \in \SN$
+            %\item $\ruleall{f}{e \reduce f}{f \in SN}$
+            %\item $\ruleall{b}{a \reduce b}{b \in SN}$
+            %\item $\ruleall{B}{A \reduce B}{B \in SN}$
+
+            \item $\ruleall{faA}
+                {
+                    e \reduce f
+                    \\
+                    f[x:=a] \in \SN
+                    \\
+                    a \in \SN
+                    \\
+                    A \in \SN
+                }
+                {(\lambda x^A.f)a \in \SN}$
+
+            \item $\ruleall{bA}
+                {
+                    a \reduce b
+                    \\
+                    A \in \SN
+                }
+                {(\lambda x^A.e)b \in \SN}$
+
+            \item $\ruleall{B}
+                {
+                    A \reduce B
+                }
+                {(\lambda x^B.e)a \in \SN}$
+            \end{enumerate}
+        \end{itemize}
+
+        In order to prove the goal $(\lambda x^A.e)a \in SN$ we have to prove
+        $$
+        \ruleall{c}{(\lambda x^A.e)a \reduce c}{c \in \SN}
+        $$
+
+        We assume $(\lambda x^A.e)a \reduce c$. An application can reduce by
+        definition of reduction only if the application is a redex (which is the
+        case) or if the function term reduces or if the argument reduces. Since
+        the function term $\lambda x^A.e$ is an abstraction it reduces either if
+        the type of the argument $A$ reduces or the body $e$ reduces. I.e. we 4
+        cases to consider:
+        \begin{enumerate}
+        \item $(\lambda x^A.e)a \reduce e[x:=a]$. Trivial. The goal $e[x:=a]$ is
+            valid by assumption 2.
+
+        \item $(\lambda x^A.e)a \reduce (\lambda x^A.f)a$, where $e \reduce f$:
+            In that case we have to prove the goal
+            $$
+                (\lambda x^A.f)a \in \SN
+            $$
+            by using $e \reduce f$ and the above assumptions. We can use the
+                induction hypothesis 1 to prove the goal. The
+                only thing missing is a prove of $f[x:=a] \in \SN$. From the
+                theorem~\ref{SubstituteReduction} we infer $e[x:=a] \reduce
+                f[x:=a]$. Since $e[x:=a] \in \SN$, all its
+                reducts must be strongly normalizing by definition of strong
+                normalization. This completes the proof for that case.
+
+        \item $(\lambda x^A.e)a \reduce (\lambda x^B.e)a$, where $A \reduce B$:
+            In that case we have to prove the goal
+            $$
+                (\lambda x^B.e)a \in \SN
+            $$
+            By using $A \reduce B$ and the induction hypothesis 3 we prove the
+            goal.
+
+        \item $(\lambda x^A.e)a \reduce (\lambda x^A.e)b$, where $a \reduce
+            b$: In that case we have to prove the goal
+            $$
+                (\lambda x^A.e)b \in \SN
+            $$
+            By using $a \reduce b$ and the induction hypothesis 2 we prove the
+            goal.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
 \subsection{Saturated Sets}
 
 MISSING
