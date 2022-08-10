@@ -1182,7 +1182,7 @@ $\terminter{t}{\rho}$
     }
 
     \begin{proof}
-        By induction on $\Gamma \vdash t : T$.
+        By induction on the structure of $t$.
 
         \begin{enumerate}
         \item Sort:
@@ -1288,31 +1288,94 @@ $\terminter{t}{\rho}$
 
             MISSING
 
-        \item Application:
-
-            MISSING
-        \item Weaken:
-
-            MISSING
-        \item Type equivalence:
+        \item Application: We have to prove the goal
             $$
-            \begin{array}{l|l}
-                \Gamma \vdash t : T
-                &
-                \goal \rho \xi \Gamma t T
+            \terminter{f a}{\rho} \in \typeinter{T}{\xi\Gamma}
+            $$
+            under the assumptions
+            $$
+            \begin{array}{lll}
+                \Gamma &\vdash& f a : T
                 \\
-                \Gamma \vdash U : s
+                \rho\xi &\vDash& \Gamma
+            \end{array}
+            $$
+            From the generation lemma~\ref{GenerationLemmata} for applications
+            we postulate the existence of the types $A$ and $B$ such that
+            $$
+            \begin{array}{lll}
+                \Gamma &\vdash& f : \Pi x^A.B
                 \\
-                T \betaeq U
+                \Gamma &\vdash& a : A
                 \\
-                \hline
-                \Gamma \vdash t : U
-                &
-                \goal \rho \xi \Gamma t U
+                T &\betaeq& B[x:=a]
             \end{array}
             $$
 
-            MISSING
+            Furthermore we have the following induction hypotheses available:
+            $$
+            \begin{array}{lll}
+                \terminter{f}{\rho}
+                &\in& \typeinter{A}{\xi\Gamma} \tolambda I_B
+                \\
+                \terminter{a}{\rho} &\in& \typeinter{A}{\xi\Gamma}
+            \end{array}
+            $$
+            where
+            $$
+            I_B =
+            \left\{
+            \begin{array}{ll}
+                \typeinter{B}{\xi(\Gamma,x^A)}
+                & A \notin \Kinds
+                \\
+                \bigcap_{M \in \nu(A)}
+                \typeinter{B}{(\xi,x^M)(\Gamma,x^A)}
+            \end{array}
+            \right.
+            $$
+
+            By using the theorem~\ref{TypeInterpretationSubstitution}, the
+            theorem~\ref{TypeInterpretationEquivalence} and $T
+            \betaeq B[x:=a]$ we have to prove the goal
+            $$
+            \terminter{f}{\rho}
+            \terminter{a}{\rho}
+            \in
+            \left\{
+                \begin{array}{ll}
+                    \typeinter{B}{\xi(\Gamma,x^A)}
+                    &
+                    A \notin \Kinds
+                    \\
+                    \typeinter{B}{(\xi,x^M)(\Gamma,x^A)}
+                    &
+                    A \in \Kinds, M = \typeinter{a}{\xi\Gamma}
+                \end{array}
+            \right.
+            $$
+            We distinguish two cases:
+            \begin{enumerate}
+            \item $A \notin \Kinds$: The goal follows immediately from the
+                induction hypotheses and the definition of $\tolambda$.
+
+            \item $A \in \Kinds$: From the induction hypotheses and the
+                definition of $\tolambda$ we get
+                $$
+                    \ruleall{M}{M \in \nu(A)}
+                    {
+                        \terminter{f}{\rho}
+                        \terminter{a}{\rho}
+                        \in
+                        \typeinter{B}{(\xi,x^M)(\Gamma,x^A)}
+                    }
+                $$
+                and from the specification of the type interpretation we get
+                $$
+                    \typeinter{a}{\xi\Gamma} \in \nu(A)
+                $$
+                which finally proves the goal.
+            \end{enumerate}
         \end{enumerate}
     \end{proof}
 \end{theorem}
