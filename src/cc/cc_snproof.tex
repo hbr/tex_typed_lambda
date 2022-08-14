@@ -1069,25 +1069,178 @@ is a kind) in the context a model which is an element of $\nu(A)$.
         \\
         \Gamma \vdash a: A
         \\
-        \Gamma,x^A \vdash B : s
+        \Gamma,x^A \vdash F : K
+        \\
+        K \in \Kinds
     }
     {
-        \typeinter{B[x:=a]}{\xi\Gamma}
+        \typeinter{F[x:=a]}{\xi\Gamma}
         =
         \left\{
         \begin{array}{ll}
-            \typeinter{B}{\xi(\Gamma,x^A)}
+            \typeinter{F}{\xi(\Gamma,x^A)}
             &
             A \notin \Kinds
             \\
-            \typeinter{B}{(\xi,x^M)(\Gamma,x^A)}
+            \typeinter{F}{(\xi,x^{\typeinter{a}{\xi\Gamma}})(\Gamma,x^A)}
             &
-            A \in \Kinds, M = \typeinter{a}{\xi\Gamma}
+            A \in \Kinds
         \end{array}
         \right.
     }
     $$
     \begin{proof}
+        \def\tintera{{\typeinter{a}{\xi\Gamma}}}
+
+        We distinguish two cases:
+        \begin{itemize}
+        \def\subgoal#1#2#3#4{
+            \typeinter{(#1)'}{(\xi,#4)(\Gamma,#3')}
+            =
+            \typeinter{#1}{(\xi,x^\tintera,#4)(\Gamma,x^A,#3)}
+        }
+        \def\goal#1#2#3#4{
+            \ruleall{#2#3#4}
+            {
+                \Gamma,x^A,#3 \vdash #1 : #2
+                \\
+                \xi,x^\tintera,\eta \vDash \Gamma,x^A,#3
+                \\
+                #2 \in \Kinds
+            }
+            {
+                \subgoal {#1} {#2} {#3} {#4}
+            }
+        }
+        \item $A \in \Kinds$: Assume $\xi \vDash \Gamma$ and $\Gamma \vdash a:
+            A$ and prove the more general lemma:
+            $$
+                \goal F K \Delta \eta
+            $$
+            where $Y'$ is an abbreviation for $Y[x:=a]$. We prove this lemma by
+                induction on the structure of $F$.
+            \begin{enumerate}
+            \item Sort:
+                MISSING
+
+            \item Variable:
+                MISSING
+
+            \item Product $\Pi y^C.D$:
+                We have to prove the goal
+                $$
+                    \goal {\Pi y^C.D} K \Delta \eta
+                $$
+                We can use the two induction hypotheses:
+                \begin{enumerate}
+
+                \item $\goal C {s_C} \Delta \eta$
+
+                \item $\goal D {s_D} {\Delta_D} {\eta_D}$
+
+                \end{enumerate}
+
+                We prove the goal below the line by assuming all statements
+                    above the line and use the equivalence
+                $$
+                \begin{array}{llll}
+                \typeinter{(\Pi y^C.D)'}{(\xi,\eta)(\Gamma,\Delta')}
+                &=&
+                I_{C'} \tolambda I_{D'}
+                \\
+                &=&
+                I_C \tolambda I_D  &\text{see below}
+                \\
+                &=&
+                \typeinter{\Pi y^C.D}{(\xi,x^\tintera,\eta)(\Gamma,x^A,\Delta)}
+                \end{array}
+                $$
+                where
+                $$
+                \begin{array}{llll}
+                    I_{C'}
+                    &=&
+                    \typeinter{C'}{(\xi,\eta)(\Gamma,\Delta')}
+                    \\
+                    I_C
+                    &=&
+                    \typeinter{C}{(\xi,x^\tintera,\eta)(\Gamma,x^A,\Delta)}
+                    \\
+                    I_{D'}
+                    &=&
+                    \bigcap_{N \in \nu(C)}
+                        \typeinter
+                        {D'}
+                        {(\xi,\eta,y^N)(\Gamma,x^A,\Delta,y^{C'})}
+                    & C \in \Kinds
+                    \\
+                    I_D
+                    &=&
+                    \bigcap_{N \in \nu(C)}
+                        \typeinter
+                        {D}
+                        {(\xi,x^\tintera,\eta,y^N)(\Gamma,x^A,\Delta,y^C)}
+                    & C \in \Kinds
+                    \\
+                    I_{D'}
+                    &=&
+                    \typeinter{D'}{(\xi,\eta)(\Gamma,\Delta',y^{C'})}
+                    & C \notin \Kinds
+                    \\
+                    I_D
+                    &=&
+                    \typeinter{D}{(\xi,x^\tintera,\eta)(\Gamma,x^A,\Delta,y^C)}
+                    & C \notin \Kinds
+                \end{array}
+                $$
+                We still have to prove $I_{C'} = I_C$ and $I_{D'} = I_D$.
+
+                $I_{C'} = I_C$ follows immediately from the first induction
+                hypothesis. In order to prove $I_{D'} = I_D$ we have to
+                distinguish two cases:
+                \begin{enumerate}
+                \item $C \notin \Kinds$: Consequence of the second induction
+                    hypothesis by using $\eta_D = \eta$ and $\Delta_D =
+                        \Delta,y^C$.
+
+                \item $C \in \Kinds$: Consequence of the second induction
+                    hypothesis by using $\eta_D = \eta,y^N$ and $\Delta_D =
+                        \Delta,y^C$.
+                \end{enumerate}
+
+            \item Abstraction $\lambda y^C. e$:
+                MISSING
+
+            \item Application:
+                MISSING
+
+            \end{enumerate}
+
+            MISSING
+
+        \item $A \notin \Kinds$:
+
+            MISSING
+        \end{itemize}
+
+        We prove the more general theorem (for $A \in \Kinds$):
+        $$
+        \rulev{
+            A,K \in \Kinds
+            \\
+            \Gamma \vdash a: A
+            \\
+            \Gamma,x^A,\Delta \vdash F : K
+            \\
+            \xi,x^{\tintera},\eta \vDash \Gamma,x^A,\Delta
+        }
+        {
+            \typeinter{F[x:=a]}{(\xi,\eta)(\Gamma,\Delta[x:=a])}
+            =
+            \typeinter{F}{(\xi,x^\tintera,\eta)(\Gamma,x^A,\Delta)}
+        }
+        $$
+
         MISSING
     \end{proof}
 \end{theorem}
