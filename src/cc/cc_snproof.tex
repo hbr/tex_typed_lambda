@@ -1117,8 +1117,15 @@ is a kind) in the context a model which is an element of $\nu(A)$.
             $$
                 \goal F K \Delta \eta
             $$
-            where $Y'$ is an abbreviation for $Y[x:=a]$. We prove this lemma by
-                induction on the structure of $F$.
+            where $Y'$ is an abbreviation for $Y[x:=a]$.
+
+            Note: Since the model set function $\nu$ respects substitution
+                (lemma~\ref{ModelSubstitutionSame}) the fact
+                $\xi,x^\tintera,\eta \vDash \Gamma,x^A,\Delta$ implies the fact
+                $\xi,\eta \vDash \Gamma, \Delta'$.
+
+            We prove this lemma by
+            induction on the structure of $F$.
             \begin{enumerate}
             \item Sort:
                 MISSING
@@ -1208,8 +1215,78 @@ is a kind) in the context a model which is an element of $\nu(A)$.
                         \Delta,y^C$.
                 \end{enumerate}
 
-            \item Abstraction $\lambda y^C. e$:
-                MISSING
+            \item Abstraction $\lambda y^C. e$: We have to prove the goal
+                $$
+                \goal {\lambda y^C.e} K \Delta \eta
+                $$
+                We can use the two induction hypotheses
+                \begin{enumerate}
+                \item
+                    $\goal C {s_C} \Delta \eta$
+
+                \item
+                    $\goal e {K_e} {\Delta_e} {\eta_e}$
+                \end{enumerate}
+
+                We prove the goal below the line by assuming all statements
+                    above the line and distinguish two cases:
+                \begin{enumerate}
+                \item $C \notin \Kinds$:
+                    $$
+                    \begin{array}{lll}
+                        \typeinter
+                        {(\lambda y^C.e)'}
+                        {(\xi,\eta)(\Gamma,\Delta')}
+                        &=&
+                        \typeinter{e'}{(\xi,\eta)(\Gamma,\Delta')}
+                        \\
+                        &=&
+                        \typeinter{e}
+                        {(\xi,x^\tintera,\eta)(\Gamma,y^C,\Delta)}
+                        \\
+                        &=&
+                        \typeinter
+                        {\lambda y^C.e}
+                        {(\xi,x^\tintera,\eta)(\Gamma,\Delta)}
+                    \end{array}
+                    $$
+                    In this equivalence we used the definition of
+                        type interpretation for abstractions and the second
+                        induction hypothesis with $\eta_e = \eta$ and $\Delta_e
+                        = \Delta$.
+
+                \item $C \in \Kinds$:
+                    $$
+                    \begin{array}{lll}
+                        \typeinter
+                        {(\lambda y^C.e)'}
+                        {(\xi,\eta)(\Gamma,\Delta')}
+                        &=&
+                        \underbrace N_{\in \nu(C')}
+                        \mapsto
+                        \typeinter{e'}{(\xi,\eta)(\Gamma,\Delta')}
+                        \\
+                        &=&
+                        \underbrace N_{\in \nu(C)}
+                        \mapsto
+                        \typeinter{e}
+                        {(\xi,x^\tintera,\eta,y^N)(\Gamma,y^C,\Delta,y^C)}
+                        \\
+                        &=&
+                        \typeinter
+                        {\lambda y^C.e}
+                        {(\xi,x^\tintera,\eta)(\Gamma,\Delta)}
+                    \end{array}
+                    $$
+                    In this equivalence we used the definition of
+                        type interpretation for abstractions,
+                        $\nu(C') = \nu(C)$ by~\ref{ModelSubstitutionSame}
+                        and the second
+                        induction hypothesis with
+                        $\eta_e = \eta,y^N$ and
+                        $\Delta_e = \Delta,y^C$.
+                \end{enumerate}
+
 
             \item Application:
                 MISSING
