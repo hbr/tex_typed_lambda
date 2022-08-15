@@ -1062,7 +1062,7 @@ is a kind) in the context a model which is an element of $\nu(A)$.
 
 \begin{theorem}
     \label{TypeInterpretationSubstitution}
-    \emph{??}
+    \emph{Type interpretation treats substitution consistently}
     $$
     \rulev{
         \xi \vDash \Gamma
@@ -1089,6 +1089,12 @@ is a kind) in the context a model which is an element of $\nu(A)$.
         \right.
     }
     $$
+    Note: Due to the substitution lemma~\ref{SubstitutionLemma} we get $\Gamma
+    \vdash F[x:=a] : K[x:=a]$. A substituted kind remains a kind (easy induction
+    on the structure of the kind). Therefore the preconditions for the type
+    interpretation function are satisfied for the substituted term as
+    well.
+
     \begin{proof}
         \def\tintera{{\typeinter{a}{\xi\Gamma}}}
 
@@ -1127,11 +1133,42 @@ is a kind) in the context a model which is an element of $\nu(A)$.
             We prove this lemma by
             induction on the structure of $F$.
             \begin{enumerate}
-            \item Sort:
-                MISSING
+            \item Sort: Trivial, becaus a substituted sort remains the same sort
+                and the type interpretation of a sort is always $\SN$.
 
-            \item Variable:
-                MISSING
+            \item Variable $y$: We distinguish two cases
+                \begin{enumerate}
+                \item $y = x$: In that case we prove the goal by the equivalence
+                    $$
+                    \begin{array}{lll}
+                        \typeinter{x'}{(\xi,\eta)(\Gamma,\Delta')}
+                        &=&
+                        \typeinter{a}{(\xi,\eta)(\Gamma,\Delta')}
+                        \\
+                        &=&
+                        \typeinter{a}{\xi\Gamma}
+                        \\
+                        &=&
+                        \typeinter{x}{(\xi,x^\tintera,\eta)(\Gamma,x^A,\Delta)}
+                    \end{array}
+                    $$
+
+                \item $y \ne x$: In that case we prove the goal by the
+                    equivalence
+                    $$
+                    \begin{array}{lll}
+                        \typeinter{y'}{(\xi,\eta)(\Gamma,\Delta')}
+                        &=&
+                        \typeinter{y}{(\xi,\eta)(\Gamma,\Delta')}
+                        \\
+                        &=&
+                        \typeinter{y}{(\xi,x^\tintera,\eta)(\Gamma,x^A,\Delta)}
+                    \end{array}
+                    $$
+                    Since $y \ne x$ and its type is a kind, the type
+                        interpretation by definition depends only on $\xi$ and
+                        $\eta$.
+                \end{enumerate}
 
             \item Product $\Pi y^C.D$:
                 We have to prove the goal
@@ -1288,37 +1325,107 @@ is a kind) in the context a model which is an element of $\nu(A)$.
                 \end{enumerate}
 
 
-            \item Application:
-                MISSING
+            \item Application: We have to prove the goal
+                $$
+                \goal {G b} K \Delta \eta
+                $$
+                We assume all statements above the line and prove the final goal
+                under the line.
+
+
+                From the generation lemma~\ref{GenerationLemmata} for
+                applications we postulate the existence of $B$ and $C$ such that
+                $$
+                \begin{array}{lll}
+                    \Gamma,x^A,\Delta &\vdash& G : \Pi y^B.C
+                    \\
+                    \Gamma,x^A,\Delta &\vDash& b : B
+                    \\
+                    C[y:=b] &\betaeq& K
+                \end{array}
+                $$
+                are valid. Since $C[x:=a]$ is a kind, $C$ and $\Pi y^B.C$ are
+                kinds as well. Therefore we get the induction hypothesis for $G$
+                $$
+                \goal G {K_G} \Delta \eta
+                $$
+
+                We distinguish two cases:
+                \begin{enumerate}
+                \item $B \notin \Kinds$:
+                    $$
+                    \begin{array}{lll}
+                    \typeinter{(G b)'}{(\xi,\eta)(\Gamma,\Delta')}
+                    &=&
+                    \typeinter{G'}{(\xi,\eta)(\Gamma,\Delta')}
+                    \\
+                    &=&
+                    \typeinter{G}{(\xi,x^\tintera,\eta)(\Gamma,x^A,\Delta)}
+                    \\
+                    &=&
+                    \typeinter{G b}{(\xi,x^\tintera,\eta)(\Gamma,x^A,\Delta)}
+                    \end{array}
+                    $$
+                    where we used the definition of type interpretation for
+                        applications and the induction hypothesis for $G$.
+
+                \item $B \in \Kinds$: In that case we get an additional
+                    induction hypothesis for $b$:
+                    $$
+                    \goal b {B} \Delta \eta
+                    $$
+                    and prove the goal by the equivalence
+                    $$
+                    \begin{array}{lll}
+                    \typeinter{(G b)'}{(\xi,\eta)(\Gamma,\Delta')}
+                    &=&
+                    \typeinter{G'}{(\xi,\eta)(\Gamma,\Delta')}
+                        (\typeinter{b'}{(\xi,\eta)(\Gamma,\Delta')})
+                    \\
+                    &=&
+                    \typeinter{G}{(\xi,x^\tintera,\eta)(\Gamma,x^A,\Delta)}
+                        (\typeinter
+                        {b}
+                        {(\xi,x^\tintera,\eta)(\Gamma,x^A,\Delta)}
+                        )
+                    \\
+                    &=&
+                    \typeinter{G b}{(\xi,x^\tintera,\eta)(\Gamma,x^A,\Delta)}
+                    \end{array}
+                    $$
+                    where we used the definition of type interpretation for
+                        applications and both induction hypotheses.
+                \end{enumerate}
+
 
             \end{enumerate}
 
-            MISSING
-
         \item $A \notin \Kinds$:
+            Assume $\xi \vDash \Gamma$ and $\Gamma \vdash a : A$ and prove the
+            more general lemma
+            $$
+            \ruleall
+            {K \Delta \eta}
+            {
+                \Gamma,x^A,\Delta \vdash F : K
+                \\
+                \xi,\eta \vDash \Gamma,x^A,\Delta
+                \\
+                K \in \Kinds
+            }
+            {
+                \typeinter{F'}{(\xi,\eta)(\Gamma,\Delta')}
+                =
+                \typeinter{F}{(\xi,\eta)(\Gamma,\Delta)}
+            }
+            $$
 
-            MISSING
+            The proof is practically the same as the proof for the case
+            $A \in \Kinds$ except that $x^\tintera$ is never needed, because $A$
+            is not a kind and therefore $a$ is not a type function. The variable
+            case is even simpler, because the variable cannot be $x$ (the type
+            of $x$ is not a kind).
         \end{itemize}
-
-        We prove the more general theorem (for $A \in \Kinds$):
-        $$
-        \rulev{
-            A,K \in \Kinds
-            \\
-            \Gamma \vdash a: A
-            \\
-            \Gamma,x^A,\Delta \vdash F : K
-            \\
-            \xi,x^{\tintera},\eta \vDash \Gamma,x^A,\Delta
-        }
-        {
-            \typeinter{F[x:=a]}{(\xi,\eta)(\Gamma,\Delta[x:=a])}
-            =
-            \typeinter{F}{(\xi,x^\tintera,\eta)(\Gamma,x^A,\Delta)}
-        }
-        $$
-
-        MISSING
     \end{proof}
 \end{theorem}
 
