@@ -1432,10 +1432,102 @@ is a kind) in the context a model which is an element of $\nu(A)$.
 
 
 \begin{theorem}
+    \label{TypeInterpretationRespectsReduction}
+    \emph{Type interpretation respects reduction}
+    $$
+    \rulev{
+        F \reduce G
+        \\
+        \xi \vDash \Gamma
+        \\
+        \Gamma \vdash F : K
+        \\
+        K \in \Kinds
+    }
+    {
+        \typeinter{F}{\xi\Gamma} = \typeinter{G}{\xi\Gamma}
+    }
+    $$
+    \begin{proof} By induction on $F \reduce G$. The only interesting case is
+        the case of a redex. In all the other case the reduction does not change
+        the toplevel structure of the term and the goal can be derived from the
+        induction hypotheses and the definition of type interpretation.
+
+        Therefore here we prove only the redex case i.e. we prove
+        $$
+        \rulev{
+            (\lambda x^A.e)a \reduce e[x:=a]
+            \\
+            \xi \vDash \Gamma
+            \\
+            \Gamma \vdash \lambda x^A.e : K
+            \\
+            K \in \Kinds
+        }
+        {
+            \typeinter{(\lambda x^A.e) a}{\xi\Gamma}
+            =
+            \typeinter{e[x:=a]}{\xi\Gamma}
+        }
+        $$
+        We distinguish two cases:
+        \begin{enumerate}
+        \item $A \notin \Kinds$: We prove the goal by the equivalence
+            $$
+            \begin{array}{lll}
+                \typeinter{(\lambda x^A.e)a}{\xi\Gamma}
+                &=&
+                \typeinter{e}{\xi(\Gamma,x^A)}
+                \\
+                &=&
+                \typeinter{e[x:=a]}{\xi\Gamma}
+            \end{array}
+            $$
+            We used the definition of type interpretation for applications and
+                abstractions and
+                theorem~\ref{TypeInterpretationSubstitution}.
+
+        \item $A \in \Kinds$: We prove the goal by the equivalence
+            $$
+            \begin{array}{lll}
+                \typeinter{(\lambda x^A.e)a}{\xi\Gamma}
+                &=&
+                (
+                    \underbrace M_{M \in \nu(A)}
+                    \mapsto
+                    \typeinter{e}{(\xi,x^M)(\Gamma,x^A)}
+                )
+                (
+                    \typeinter{a}{\xi\Gamma}
+                )
+                \\
+                &=&
+                \typeinter
+                {e}
+                {(\xi,x^{\typeinter{a}{\xi\Gamma}})(\Gamma,x^A)}
+                \\
+                &=&
+                \typeinter{e[x:=a]}{\xi\Gamma}
+            \end{array}
+            $$
+            We used the definition of type interpretation for applications and
+                abstractions and
+                theorem~\ref{TypeInterpretationSubstitution}.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\begin{theorem}
     \label{TypeInterpretationEquivalence}
     \emph{Equivalent type functions have the same type interpretation}
     $$
     \rulev{
+        F \betaeq G
+        \\
         \xi \vDash \Gamma
         \\
         \Gamma \vdash F : K
@@ -1443,15 +1535,15 @@ is a kind) in the context a model which is an element of $\nu(A)$.
         \Gamma \vdash G : s
         \\
         K \in \Kinds
-        \\
-        F \betaeq G
     }
     {
         \typeinter{F}{\xi\Gamma} = \typeinter{G}{\xi\Gamma}
     }
     $$
-    \begin{proof}
-        MISSING
+    \begin{proof} By induction on $F \betaeq G$. The reflexive case is trivial.
+        The forward and the backward cases can be proved by the corresponding
+        induction hypothesis and
+        theorem~\ref{TypeInterpretationRespectsReduction}.
     \end{proof}
 \end{theorem}
 
