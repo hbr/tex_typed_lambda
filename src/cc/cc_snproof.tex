@@ -184,14 +184,6 @@ corner.
             following assumptions $e \in \SN$, $e[x:=a] \in \SN$, $a \in \SN$,
             $A \in \SN$ and the following induction hypotheses:
             \begin{enumerate}
-            %\item $e \in \SN$
-            %\item $e[x:=a] \in \SN$
-            %\item $a \in \SN$
-            %\item $A \in \SN$
-            %\item $\ruleall{f}{e \reduce f}{f \in SN}$
-            %\item $\ruleall{b}{a \reduce b}{b \in SN}$
-            %\item $\ruleall{B}{A \reduce B}{B \in SN}$
-
             \item $\ruleall{faA}
                 {
                     e \reduce f
@@ -1588,16 +1580,28 @@ $\terminter{t}{\rho}$
 \subsection{Soundness Theorem}
 
 \begin{theorem}
-    $$
-    \rulev{
-        \Gamma \vdash t : T
-        \\
-        \rho\xi \vDash \Gamma
+    \def\goala#1#2#3#4#5{
+        \rulev{
+            #1 \vdash #2 : #3
+            \\
+            #4 #5 \vDash #1
+        }
+        {
+            \terminter{#2}{#4} \in \typeinter{#3}{#5#1}
+        }
     }
-    {
-        \terminter{t}{\rho} \in \typeinter{T}{\xi\Gamma}
+    \def\goalb#1#2#3#4#5{
+        \ruleall
+        {#1 #3 #4 #5}
+        {
+            #1 \vdash #2 : #3
+            \\
+            #4 #5 \vDash #1
+        }
+        {
+            \terminter{#2}{#4} \in \typeinter{#3}{#5#1}
+        }
     }
-    $$
     \def\goal#1#2#3#4#5{
         \forall #1 #2.
         \left[
@@ -1610,54 +1614,131 @@ $\terminter{t}{\rho}$
         \right]
     }
 
+    $$
+    \goala \Gamma t T \rho \xi
+    $$
     \begin{proof}
         By induction on the structure of $t$.
 
         \begin{enumerate}
-        \item Sort:
-
-            MISSING
-        \item Variable:
-
-            MISSING
-        \item Product:
+        \item Sort: We have to prove the goal
             $$
-            \begin{array}{l|l}
-                \Gamma \vdash A : s_A
-                &\goal \rho \xi \Gamma A {s_A}
+                \goala \Gamma s T \rho \xi
+            $$
+
+            From the generation lemma~\ref{GenerationLemmata} for sorts we
+            get
+            $$
+            \begin{array}{l}
+                s = \Prop
                 \\
-                \Gamma, x^A \vdash B: s_B
-                & \goal {\rho'} {\xi'} {\Gamma,x^A} B {s_B}
+                T \betaeq \Any
+            \end{array}
+            $$
+            and prove the goal by
+            $$
+                \terminter{\Prop}{\rho} = \Prop
+                \;\in\;
+                \SN =
+                \typeinter{\Any}{\xi\Gamma}
+                =
+                \typeinter{T}{\xi\Gamma}
+            $$
+            and using the fact that type interpretation respects beta
+                equivalence~\ref{TypeInterpretationEquivalence}
+
+        \item Variable: We have to prove the goal
+            $$
+                \goala \Gamma x T \rho \xi
+            $$
+
+            From the generation lemma~\ref{GenerationLemmata} for variables
+            we postulate the existence of $A$ and $s$ with
+            $$
+            \begin{array}{l}
+                \Gamma \vdash A : s
                 \\
-                \hline
-                \Gamma \vdash \Pi x^A. B : s_B
-                &
-                \goal \rho \xi \Gamma {\Pi x^A.B} {s_B}
+                x^A \in \Gamma
+                \\
+                T \betaeq A
+            \end{array}
+            $$
+            and prove the goal by
+            $$
+                \terminter{x}{\rho} = t
+                \;\in\;
+                \typeinter{A}{\xi\Gamma}
+                =
+                \typeinter{T}{\xi\Gamma}
+            $$
+            where $x^t \in \rho$ and we used the definition of $\rho\xi \vDash
+                \Gamma$ and the fact that type interpretation respects beta
+                equality~\ref{TypeInterpretationEquivalence}
+
+
+        \item Product: We have to prove the goal
+            $$
+                \goala \Gamma {\Pi x^A.B} T \rho \xi
+            $$
+            From the generation lemma~\ref{GenerationLemmata} for products
+            we postulate the existence of the sorts $s_b$ and $s_c$ with
+            $$
+            \begin{array}{l}
+                \Gamma \vdash A: s_a
+                \\
+                \Gamma,x^A \vdash B: s_b
+                \\
+                T \betaeq s_b
             \end{array}
             $$
 
-            Assume $\rho\xi \vDash \Gamma$. We have to prove the goal
-                $\terminter{\Pi x^A.B}{\rho} \in \SN$ which by definition of the
-                terminterpretation is equivalent to the two goals
-                $\terminter{A}\rho \in \SN$
-                and $\terminter{B}{\rho,x^x} \in SN$.
-
-            From the first induction hypothesis we can prove
-            the first subgoal $\terminter{A}{\rho} \in \SN$.
-
-            In order to prove the second subgoal we distinguish two cases:
+            We can use the induction hypotheses
             \begin{enumerate}
-            \item $A \notin \Kinds$:
-                We choose $\rho' = \rho,x^x$ and $\xi' = \xi$.
-                Since $A$ is not a kind, $\xi' \vDash \Gamma,x^A$ is
-                certainly valid. Therefore the second induction hypothesis
-                    proves the second subgoal.
+            \item
+                $\goalb \Gamma  A {T_a} \rho \xi$
 
-            \item $A \in \Kinds$:
-                We choose $\rho' = \rho, x^x$ and $\xi' = \xi,x^{\nu^c(A)}$
-                    which makes $\rho'\xi' \vDash \Gamma,x^A$ valid. We use the
-                    second induction hypothesis to prove the second subgoal.
+            \item
+                $\goalb {\Gamma_b}  B {T_b} {\rho_b} {\xi_b}$
             \end{enumerate}
+
+            The final goal is
+            $\terminter{\Pi x^A.B}{\rho}
+            \;\in\;
+            \typeinter{T}{\xi\Gamma}
+            = \typeinter{s_b}{\xi\Gamma}
+            =\SN$
+            which requires the subgoals
+            $$
+            \begin{array}{lll}
+                \terminter{A}{\rho} &\in& \SN
+                \\
+                \terminter{B}{\rho,x^x} &\in& \SN
+            \end{array}
+            $$
+
+            The first subgoal is proved by the first induction hypothesis by
+            using $T_a = s_a$.
+
+            The second subgoal is proved by the second induction hypothesis by
+            using
+            $$
+            \begin{array}{lll}
+                \Gamma_b &=& \Gamma,x^A
+                \\
+                T_b      &=& s_b
+                \\
+                \rho_b   &=& \rho,x^x
+                \\
+                \xi_b    &=&
+                    \left\{
+                    \begin{array}{ll}
+                        \xi & A \notin \Kinds
+                        \\
+                        \xi,x^{\nu^c(A)}  & A \in \Kinds
+                    \end{array}
+                    \right.
+            \end{array}
+            $$
 
         \item Abstraction:
             $$
