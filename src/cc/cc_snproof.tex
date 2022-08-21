@@ -1540,6 +1540,26 @@ is a kind) in the context a model which is an element of $\nu(A)$.
 \end{theorem}
 
 
+\begin{theorem}
+    \label{TypeInterpretationTypeSaturated}
+    \emph{The type interpretation of a type is a saturated set}.
+    $$
+    \rulev{
+        \xi \vDash \Gamma
+        \\
+        \Gamma: T : s
+    }
+    {
+        \typeinter{T}{\xi\Gamma} \in \SAT
+    }
+    $$
+    \begin{proof}
+        The type interpretation function satisfies the specification
+        $$
+        \typeinter{T}{\xi\Gamma} \in \nu(s) = \SAT
+        $$
+    \end{proof}
+\end{theorem}
 
 
 \subsection{Term Interpretation}
@@ -1740,48 +1760,80 @@ $\terminter{t}{\rho}$
             \end{array}
             $$
 
-        \item Abstraction:
+        \item Abstraction: We have to prove the goal
             $$
-            \begin{array}{l|l}
-                \Gamma \vdash \Pi x^A.B : s
+                \goala \Gamma {\lambda x^A.e} T \rho \xi
+            $$
+            From the generation lemma~\ref{GenerationLemmata} for abstractions
+            we postulate the existence of the type $B$ and the sort $s$ with
+            $$
+            \begin{array}{l}
+                \Gamma \vdash \Pi x^A. B : s
                 \\
-                \Gamma, x^A \vdash e : B
-                &
-                \goal {\rho'} {\xi'} {(\Gamma,x^A)} e B
+                \Gamma,x^A \vdash e : B
                 \\
-                \hline
-                \Gamma \vdash \lambda x^A.e : \Pi x^A. B
-                &
-                \goal \rho \xi \Gamma {\lambda x^A.e} {\Pi x^A.B}
+                T \betaeq \Pi x^A. B
             \end{array}
             $$
 
-            Assume $\rho\xi \vDash \Gamma$. We have to prove the goal
-            $\terminter{\lambda x^A.e}{\rho} \in [I_A \tolambda I_B]$ where
+            We can use the induction hypotheses
+            \begin{enumerate}
+            \item
+                $\goalb \Gamma  A {T_a} \rho \xi$
+
+            \item
+                $\goalb {\Gamma_e}  e {T_e} {\rho_e} {\xi_e}$
+            \end{enumerate}
+
+            We have to prove the final goal
             $$
-            \begin{array}{lll}
-                I_A &=& \typeinter{A}{\xi\Gamma}
+            \terminter{\lambda x^A. e}{\rho}
+            \;\in\;
+            \typeinter{T}{\xi\Gamma}
+            = \typeinter{\Pi x^A.B}{\xi\Gamma}
+            = \typeinter{A}{\xi\Gamma} \tolambda I_B
+            $$
+            where
+            $
+            I_B =
+            \begin{cases}
+                \typeinter{B}{\xi(\Gamma,x^A)} & A \notin \Kinds
                 \\
-                I_B &=&
-                \begin{cases}
-                    \typeinter{B}{\xi\Gamma}
-                    &
-                    A \notin \Kinds
-                    \\
-                    \bigcap_{M \in \nu(A)}
-                    \typeinter{B}{(\xi,x^M)(\Gamma,x^A)}
-                    &
-                    A \in \Kinds
-                \end{cases}
-            \end{array}
+                \bigcap_{M \in \nu(A)}
+                \typeinter{B}{(\xi,x^M)(\Gamma,x^A)} & A \in \Kinds
+            \end{cases}
+            $
+
+            By definition of $\tolambda$ we have to prove
             $$
-            Remember that $I_A \tolambda I_B$ is defined as the set of terms
-            $\set{f | \forall a. a \in I_A \imp f a \in I_B}$.
+            \terminter{\lambda x^A.e}{\rho} a \in I_B
+            $$
+            for all $a \in \typeinter{A}{\xi\Gamma}$.
 
-            In order to prove the goal we assume $a \in I_A$ and have to prove
-            $\terminter{\lambda x^A. e}{\rho} a \in I_B$.
+            From the second induction hypothesis we infer
+            $$
+            \terminter{e}{\rho,x^a} \in \typeinter{B}{\xi_e(\Gamma,x^A)}
+            $$
+            with
+            $\xi_e =
+            \begin{cases}
+                \xi & A \notin \Kinds
+                \\
+                \xi,x^M & A \in \Kinds \; M \in \nu(A)
+            \end{cases}
+            $ because $(\rho,x^A)\xi_e \vDash \Gamma, x^A$, since $a \in
+            \typeinter{A}{\xi\Gamma}$.
 
-            From the definition of the term interpretation we get the following
+            This is true for all $M \in \nu(A)$, if $A \in \Kinds$. Therefore we
+            infer from the second induction hypothesis
+            $$
+            \terminter{e}{\rho,x^a} \in I_B
+            $$
+            for all $a \in \typeinter{A}{\xi\Gamma}$.
+
+            Since $I_B$ is a saturated set it includes all strongly normalizing
+            terms $t$ with $t \keyreduce \terminter{e}{\rho,x^a}$. By definition
+            of $\keyreduce$ and term interpretation we have
             $$
             \begin{array}{lll}
                 \terminter{\lambda x^A. e}{\rho} a
@@ -1795,8 +1847,42 @@ $\terminter{t}{\rho}$
                 \terminter{e}{\rho,x^a}
             \end{array}
             $$
+            Therefore it remains to prove that $(\lambda
+            x^{\terminter{A}{\rho}}. \terminter{e}{\rho,x^x}) a$ is strongly
+            normalizing. This can be proved by
+            theorem~\ref{StronglyNormalizingRedex} provided that
+            \begin{enumerate}
+            \item $\terminter{A}{\rho} \in \SN$: This can be infered from the
+                first induction hypothesis, because $\terminter{A}{\rho} \in
+                \typeinter{T_a}{\xi\Gamma}$ and the type of $A$ must be a
+                sort whose type interpretation is the set of strongly
+                normalizing terms.
 
-            MISSING
+            \item $a \in \SN$: Since $a \in \typeinter{A}{\xi\Gamma}$ and $A$ is
+                a type we infer from
+                theorem~\ref{TypeInterpretationTypeSaturated} that $a$ is in
+                a saturated set which by definition has only strongly
+                normalizing terms.
+
+            \item
+                $\terminter{e}{\rho,x^x}[x:=a]
+                = \terminter{e}{\rho,x^a}
+                \in \SN$:
+                We have already inferred from the second induction
+                hypothesis $\terminter{e}{\rho,x^a} \in I_B$. Since $I_B$
+                is either a type interpretation of a type or an intersection
+                of type interpretations of a type and saturated sets are
+                closed with respect to intersection, $I_B$ is a saturated
+                set which by definition contains only strongly normalizing
+                terms.
+
+            \item $\terminter{e}{\rho,x^x} \in \SN$: Because
+                $\typeinter{A}{\xi\Gamma}$ and type interpretations of types are
+                    saturated and saturated sets contain all base terms, we have
+                    $x \in \typeinter{A}{\xi\Gamma}$. Therefore $(\rho,x^x)\xi_e
+                    \vDash \Gamma,x^A$ which implies the goal.
+            \end{enumerate}
+
 
         \item Application: We have to prove the goal
             $$
@@ -1841,6 +1927,7 @@ $\terminter{t}{\rho}$
                 \\
                 \bigcap_{M \in \nu(A)}
                 \typeinter{B}{(\xi,x^M)(\Gamma,x^A)}
+                & A \in \Kinds
             \end{array}
             \right.
             $$
@@ -1852,15 +1939,21 @@ $\terminter{t}{\rho}$
             \terminter{f}{\rho}
             \terminter{a}{\rho}
             \in
+            \typeinter{T}{\xi\Gamma}
+            =
+            \typeinter{(B[x:=a])}{\xi\Gamma}
+            =
             \left\{
                 \begin{array}{ll}
                     \typeinter{B}{\xi(\Gamma,x^A)}
                     &
                     A \notin \Kinds
                     \\
-                    \typeinter{B}{(\xi,x^M)(\Gamma,x^A)}
+                    \typeinter
+                    {B}
+                    {(\xi,x^{\typeinter{a}{\xi\Gamma}})(\Gamma,x^A)}
                     &
-                    A \in \Kinds, M = \typeinter{a}{\xi\Gamma}
+                    A \in \Kinds
                 \end{array}
             \right.
             $$
