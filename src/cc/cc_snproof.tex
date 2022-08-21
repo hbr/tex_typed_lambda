@@ -263,7 +263,142 @@ corner.
 
 \subsection{Saturated Sets}
 
-MISSING
+
+
+\begin{definition}
+    The set of \emph{base terms} $\BT$ is the set of all variables applied to
+    zero or more strongly normalizing arguments i.e. terms of the form $x a_1
+    \ldots a_n$ where $a_i \in \SN$ for all $i$. We formally define the set
+    $\BT$ by the rules
+    \begin{enumerate}
+    \item $x \in \BT$ where $x$ ranges over variables.
+
+    \item
+        $\ruleh{
+            a \in \BT
+            \\
+            b \in \SN
+        }
+        {
+            ab \in \BT
+        }$
+    \end{enumerate}
+\end{definition}
+
+
+\begin{theorem}
+    \label{BaseTermsStronglyNormalizing}
+    \emph{All base terms are strongly normalizing}.
+    $$
+    \rulev{
+        a \in \BT
+    }
+    {
+        a \in \SN
+    }
+    $$
+    \begin{proof}
+        Because a base terms begins with a variable followed by zero or more
+        strongly normalizing arguments, it has no redex whose reduction can
+        change the structure. I.e. only the arguments can reduce and they are by
+        definition strongly normalizing.
+    \end{proof}
+\end{theorem}
+
+
+
+\begin{definition}
+    The \emph{key reduction} $a \keyreduce b$ is a relation defined by the rules
+    \begin{enumerate}
+    \item
+        $$(\lambda x^A.e) a \keyreduce e[x:=a]$$
+
+    \item
+        $$
+        \rulev{
+            a \keyreduce b
+        }
+        {
+            ac \keyreduce bc
+        }
+        $$
+    \end{enumerate}
+    I.e. a key reduction reduces only a redex in the key position.
+\end{definition}
+
+
+
+\begin{definition}
+    A \emph{saturated set} $S$ is a set of strongly normalizing terms (i.e. $S
+    \subseteq \SN$) which is closed under the rules
+    \begin{enumerate}
+    \item All base terms are in a saturated set:
+        $$ \rulev{b \in \BT}{b \in S}$$
+
+    \item All strongly normalizing terms which keyreduce to a term is the
+        saturated set are in the saturated set as well:
+            $$
+            \rulev{
+                a \in \SN
+                \\
+                b \in S
+                \\
+                a \keyreduce b
+            }
+            {
+                a \in S
+            }
+            $$
+    \end{enumerate}
+    The set of all saturated sets is abbreviated by $\SAT$.
+\end{definition}
+
+
+
+\begin{theorem}
+    \label{SaturatedSetsClosedIntersection}
+    \emph{An arbitrary intersection of saturated sets is a saturated set}.
+    $$
+    \rulev{
+        C \subseteq \SAT
+    }
+    {
+        \bigcap C \in \SAT
+    }
+    $$
+    \begin{proof}
+        We have to prove three things:
+        \begin{enumerate}
+        \item All terms in $\bigcap C$ are strongly normalizing:
+
+            Since all sets in $C$ contain only strongly normalizing
+            terms, the intersection contains only strongly normalizing terms
+            as well.
+
+            Note the cornercase $\bigcap \emptyset = \SN$ since $\SN$ is the
+                base set.
+
+        \item $\bigcap C$ contains all base terms:
+
+            Since all sets in $C$ contain all base terms, the intersection of
+            all sets in $C$ contain all base terms as well.
+
+        \item $\bigcap C$ contains all strongly normalizing key redexes which
+            reduce to a term in it:
+
+            Assume that the term $b$ is in $\bigcap C$. Then by definition of
+                intersection $b \in S$ for all $S \in C$. Since all $S \in C$
+                are saturated any strongly normalizing term $a$ with $a
+                \keyreduce b$ is in all sets $S$ as well. Therefore $a$ has to
+                be in the intersection $\bigcap C$.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
 
 
 
