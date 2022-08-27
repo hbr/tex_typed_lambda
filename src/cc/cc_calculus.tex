@@ -521,6 +521,42 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
 
 
 
+\begin{theorem}
+    \label{ReducedSubstitutionTerm}
+    $$
+    \ruleh{
+        a \reduce b
+    }
+    {
+        t[x:=a] \reducestar t[x:=b]
+    }
+    $$
+    \begin{proof}
+        By induction on the structure of $t$.
+
+        \begin{enumerate}
+        \item Sort: Trival.
+
+        \item Variable: We have to distinguish the cases that the variable is
+            the same as $x$ or is different from $x$. In both case the goal is
+                trivial.
+
+        \item Abstraction:
+            We have to prove the goal
+            $$
+                (\lambda y^B.e)[x:=a] \reducestar (\lambda y^B.e)[x:=a]
+            $$
+            The goal is a consequence of the induction hypotheses $B[x:=a]
+                \reducestar B[x:=b]$ and $e[x:=a] \reducestar e[y:=b]$.
+
+        \item Product: Same as abstraction.
+
+        \item Application: Same as abstraction.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
 
 \begin{lemma}
     \label{ReductionProductAbstraction}

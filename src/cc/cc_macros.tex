@@ -47,6 +47,8 @@
 
 \def\reduce{\torel{\beta}}
 \def\reducestar{\torel{\beta^*}}
+\def\reducedown{\downarrow_\beta}
+\def\reducedownstar{\downarrow_{\beta^*}}
 \def\preduce{\torel{\beta_p}}
 \def\preducestar{\torel{\beta_p^*}}
 \def\keyreduce{\stackrel{\beta_{\text{k}}}{\to}}
@@ -60,6 +62,16 @@
 \def\rulev#1#2{\begin{array}{l} #1 \\ \hline #2\end{array}}
 \def\ruleall#1#2#3{
     \forall #1. \left[ \rulev{#2}{#3} \right]
+}
+\def\snproof#1#2#3#4{
+    \begin{array}{l|l}
+        \ruleall{#1}{#1 \reduce #2}{#1 \in \SN}
+        & #3
+        \\
+        \hline
+        #1 \in \SN
+        & #4
+    \end{array}
 }
 
 

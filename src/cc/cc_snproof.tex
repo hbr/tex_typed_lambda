@@ -78,6 +78,22 @@ the other statements especially the induction hypothesis in the upper right
 corner.
 
 
+
+
+\begin{theorem}
+    \label{StronglyNormalizingSubterm}
+    \emph{All subterms of a strongly normalizing term are strongly normalizing}.
+    %     --------------------------------------------------------------------
+    \begin{proof}
+        MISSING!
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
 \begin{theorem}
     \label{StronglyNormalizingRedex}
     \emph{A redex is strongly normalizing if its reduct and all its
@@ -221,11 +237,11 @@ corner.
         definition of reduction only if the application is a redex (which is the
         case) or if the function term reduces or if the argument reduces. Since
         the function term $\lambda x^A.e$ is an abstraction it reduces either if
-        the type of the argument $A$ reduces or the body $e$ reduces. I.e. we 4
-        cases to consider:
+        the type of the argument $A$ reduces or the body $e$ reduces. I.e. we
+        have 4 cases to consider:
         \begin{enumerate}
         \item $(\lambda x^A.e)a \reduce e[x:=a]$. Trivial. The goal $e[x:=a]$ is
-            valid by assumption 2.
+            valid by assumption.
 
         \item $(\lambda x^A.e)a \reduce (\lambda x^A.f)a$, where $e \reduce f$:
             In that case we have to prove the goal
@@ -258,6 +274,267 @@ corner.
         \end{enumerate}
     \end{proof}
 \end{theorem}
+
+
+
+
+\subsection{Key Reduction}
+
+
+\begin{definition}
+    The \emph{key reduction} $a \keyreduce b$ is a relation defined by the rules
+    \begin{enumerate}
+    \item
+        $$(\lambda x^A.e) a \keyreduce e[x:=a]$$
+
+    \item
+        $$
+        \rulev{
+            a \keyreduce b
+        }
+        {
+            ac \keyreduce bc
+        }
+        $$
+    \end{enumerate}
+    I.e. a key reduction reduces only a leftmost redex in an application.
+\end{definition}
+
+
+
+
+
+\begin{theorem}
+    \label{KeyReductionDiamond}
+    \emph{Let $a \keyreduce b$ and $a \reduce a_1$ where $a_1 \ne b$. Then there
+    exists a term $b_1$ with $a_1 \keyreduce b_1$ and $b \reducestar b_1$}.
+    $$
+    \begin{array}{ccc}
+        a
+        & \keyreduce
+        & b
+        \\
+        \reducedown
+        &
+        & \reducedownstar
+        \\
+        \underbrace{a_1}_{\ne b}
+        & \keyreduce
+        & \exists b_1
+    \end{array}
+    $$
+    \begin{proof}
+        By induction on $a \keyreduce b$:
+        \begin{enumerate}
+            \item $(\lambda y^A.e) a \keyreduce e[x:=a]$:
+
+                Assume $\lambda x^A.e
+                \reduce a_1$ and $a_1 \ne e[x:=a]$. The goal is to find $b_1$
+                such that $a_1 \keyreduce b_1$ and $e[x:=a] \reducestar b_1$.
+
+                There are 4 cases to consider:
+                \begin{enumerate}
+                    \item $(\lambda x^A.e)a \reduce e[x:=a]$:
+
+                        This case is
+                        contradictory because $e[x:=a] \ne e[x:=a]$ is not
+                        satisfiable.
+
+                    \item $(\lambda x^A.e)a \reduce (\lambda x^{A_1}.e) a$ where
+                        $A \reduce A_1$: In that case have $(\lambda x^{A_1}.e)
+                        a \keyreduce e[x:=a]$ and we choose $b_1 = e[x:=a]$.
+
+                    \item $(\lambda x^A.e)a \reduce (\lambda x^A.f) a$ where $e
+                        \reduce f$:
+
+                        In that case we have $(\lambda x^A.f)a
+                        \keyreduce f[x:=a]$ and we choose $b_1 = f[x:=a]$. This
+                        is possible because $e[x:=a] \reducestar f[x:=a]$ by
+                        theorem~\ref{SubstituteReduction}.
+
+                    \item $(\lambda x^A.e)a \reduce (\lambda x^A.e)b$ where $a
+                        \reduce b$:
+
+                        In that case we have $(\lambda x^A.e)b \keyreduce
+                        e[x:=b]$ and we choose $b_1 = e[x:=b]$. This is possible
+                        because $e[x:=a] \reducestar e[x:=b]$ by
+                        theorem~\ref{ReducedSubstitutionTerm}.
+                \end{enumerate}
+
+            \item
+                $$
+                \begin{array}{l|l}
+                    a \keyreduce b
+                    &
+                    \ruleall {a_1}{a \reduce a_1}{
+                        \exists b_1. a_1 \keyreduce b_1 \land b \reducestar b_1
+                    }
+                    \\
+                    \hline
+                    ac \keyreduce bc
+                    &
+                    \ruleall {d}{ac \reduce d}
+                    {
+                        \exists d_1. d \keyreduce d_1 \land bc \reducestar d_1
+                    }
+                \end{array}
+                $$
+
+                We prove the goal in the lower right corner by assuming $ac
+                \reduce d$ and find some $d_1$ with the required properties.
+
+                Since $a \keyreduce b$ we know that $a$ is not an abstraction.
+                Therefore we have two cases to consider:
+                \begin{enumerate}
+                    \item $ac \reduce a_1 c$ where $a \reduce a_1$:
+
+                        From the induction hypothesis we postulate the existence
+                        of $b_1$ such that $a_1 \keyreduce b_1$ and $b
+                        \reducestar b_1$. We choose $d_1 = b_1 c$ which
+                        satisfies $a_1 c \keyreduce b_1 c$ and $bc \reducestar
+                        b_1 c$.
+
+                    \item $ac \reduce a c_1$ where $c \reduce c_1$:
+
+                        We choose $d_1 = b c_1$ which satisfies $a c_1
+                        \reducestar b c_1$ and $b c \reducestar b c_1$.
+                \end{enumerate}
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\begin{theorem}
+    \label{StronglyNormalizingKeyExpansion}
+    \emph{Let's have $a \keyreduce b$ and $a$ and $bc$ are strongly normalizing.
+    Then $ac$ is strongly normalizing as well}.
+    $$
+    \rulev{
+        a \keyreduce b
+        \\
+        a, bc \in \SN
+    }
+    {
+        ac \in \SN
+    }
+    $$
+    \begin{proof}
+        Since $bc \in \SN$ implies $c \in \SN$ we can prove the equivalent
+        theorem
+        $$
+        \rulev{
+            a \in \SN
+            \\
+            a \keyreduce b
+            \\
+            c \in \SN
+            \\
+            bc \in \SN
+        }
+        {
+            ac \in \SN
+        }
+        $$
+        This modified theorem has the advantage that we can do induction on $c
+        \in \SN$ in the course of the proof.
+
+        \begin{enumerate}
+        \item Induction on $a \in \SN$:
+            $$
+            \snproof a {a_1}
+                {
+                    \ruleall{a_1 b_1 c}{
+                        a \reduce a_1
+                        \\
+                        a_1 \keyreduce b_1
+                        \\
+                        c \in \SN
+                        \\
+                        b_1 c \in \SN
+                    }{a_1 c \in \SN}
+                }
+                {
+                    \ruleall{b c}{
+                        a \keyreduce b
+                        \\
+                        c \in \SN
+                        \\
+                        bc \in \SN
+                    }{ac \in \SN}
+                }
+            $$
+
+        \item Assume $a \keyreduce b$.
+
+        \item Induction on $c \in \SN$:
+            $$
+            \snproof c {c_1}
+                {
+                    \ruleall{c_1}{
+                        c \reduce c_1
+                        \\
+                        bc_1 \in \SN
+                    }{a c_1 \in \SN}
+                }
+                {
+                    \rulev
+                    {
+                        bc \in \SN
+                    }
+                    {ac \in \SN}
+                }
+            $$
+
+            We prove the goal in the lower right corner by assuming $bc \in \SN$
+                and prove the final goal $ac \in \SN$.
+
+        \item In order to prove $ac \in \SN$ we assume $ac \reduce d$ and prove
+            $d \in \SN$ for all $d$.
+
+            Since $a \keyreduce b$ we know that $a$ is not an abstraction.
+            Therefore there are only three cases to consider.
+            \begin{enumerate}
+            \item $ac \reduce bc$ where $a \reduce b$: In that case we have to
+                prove the goal
+                $$
+                    d = bc \in \SN
+                $$
+                This is trivial since $bc \in \SN$ is an assumption.
+
+            \item $ac \reduce a_1c$ where $a \reduce a_1$ and $a_1 \ne b$: We
+                have to prove the goal
+                $$
+                    d = a_1 c \in \SN
+                $$
+
+                Since we have $a \keyreduce b$ by
+                theorem~\ref{KeyReductionDiamond} there exists a $b_1$ such
+                that $a_1 \keyreduce b_1$ and $b \reducestar b_1$. Because of
+                $bc \in \SN$ we have $b_1c \in \SN$ as well. Therefore all
+                premises of the induction hypothesis of step 1 are satisfied and
+                we get $a_1 c \in \SN$ from it.
+
+            \item $ac \reduce ac_1$ where $c \reduce c_1$: We have to prove the
+                goal
+                $$
+                    d = a c_1 \in \SN
+                $$
+                Because of $bc \in \SN$ we have $bc_1 \in \SN$ as well.
+                    Therefore the preconditions of the induction hypothesis of
+                    step 3 are satisfied and the goal is an immediate
+                    consequence of the induction hypothesis.
+            \end{enumerate}
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
 
 
 
@@ -307,25 +584,6 @@ corner.
 
 
 
-\begin{definition}
-    The \emph{key reduction} $a \keyreduce b$ is a relation defined by the rules
-    \begin{enumerate}
-    \item
-        $$(\lambda x^A.e) a \keyreduce e[x:=a]$$
-
-    \item
-        $$
-        \rulev{
-            a \keyreduce b
-        }
-        {
-            ac \keyreduce bc
-        }
-        $$
-    \end{enumerate}
-    I.e. a key reduction reduces only a redex in the key position.
-\end{definition}
-
 
 
 \begin{definition}
@@ -356,7 +614,7 @@ corner.
 
 
 \begin{theorem}
-    \label{SaturatedSetsClosedIntersection}
+    \label{SaturatedSetsIntersection}
     \emph{An arbitrary intersection of saturated sets is a saturated set}.
     $$
     \rulev{
@@ -395,7 +653,24 @@ corner.
     \end{proof}
 \end{theorem}
 
+Remark:
+\begin{quote}
 
+    For those interested in lattice theory. The set of all subsets of the set of
+    strongly normalizing terms (i.e. the powerset of $\SN$) is a complete
+    lattice with intersection and union as the meet and join operations. The
+    subset relation induces a partial order.
+
+    The function which maps any set of
+    strongly normalizing terms into a saturated set (i.e. which adds all base
+    terms and all strongly normalizing key redexes) is monotonic, increasing and
+    idempotent. I.e. it is a closure map. The saturated sets are fixpoints of
+    that function.
+
+    The fixpoints of such a map form in general a complete
+    lattice which is closed with respect to intersection and union.
+
+\end{quote}
 
 
 
@@ -411,24 +686,7 @@ corner.
     $$
 \end{definition}
 
-MISSING
 
-\begin{theorem}
-    \label{SaturatedSetsIntersection}
-    \emph{The intersection of any collection of saturated sets is a saturated
-    set}.
-    $$
-    \rulev{
-        C \subseteq \SAT
-    }
-    {
-        \bigcap C \in \SAT
-    }
-    $$
-    \begin{proof}
-        MISSING!!!
-    \end{proof}
-\end{theorem}
 
 
 
@@ -448,6 +706,57 @@ MISSING
         A \tolambda B \in \SAT
     }
     $$
+
+    \begin{proof}
+        We have to prove three things:
+        \begin{enumerate}
+        \item All terms in $A \tolambda B$ are strongly normalizing: Assume $f
+            \in A \tolambda B$. Then by definition $fa \in B \subseteq \SN$ for
+                all $a \in A$. Therefore $fa$ is strongly normalizing. Since all
+                subterms of a strongly normalizing term are strongly normalizing
+                as well~\ref{StronglyNormalizingSubterm} $f$ is strongly
+                normalizing.
+
+        \item $A \tolambda B$ contains all base terms:
+
+            We have to prove two things according to the definition of base
+            terms:
+
+            \begin{enumerate}
+            \item All variables are in $A \tolambda B$:
+
+                Since $B$ is saturated, it contains all terms of the form $xa$
+                where $a \in A$, because $xa$ is a base term. Therefore $x
+                \in A \tolambda B$ for all variables $x$.
+
+            \item If $c \in A \tolambda B$ where $c$ is a baseterm, then $cd
+                \in A \tolambda B$ for all strongly normalizing terms $d$:
+
+                Since $B$ is saturated it contains all terms of the form $cda$
+                for $a \in A \subseteq \SN$, because $cda$ is a base term.
+                Therefore by definition of the lambda function space $cd \in
+                A \tolambda B$.
+            \end{enumerate}
+
+        \item $A \tolambda B$ contains all strongly normalizing key redexes
+            which reduce to a term in it:
+
+            Assume $d \in A \tolambda B$, $c \keyreduce d$ and $c \in \SN$. We
+            have to prove that $c \in A \tolambda B$.
+
+            By definition of keyreduction we have $ca \keyreduce da$ for all $a
+            \in A$ and by definition of the lambda function space $da \in
+            B \subseteq \SN$.
+
+            Since $B$ is saturated, it contains $ca$ provided that $ca$ is
+            strongly normalizing. $ca$ is strongly normalizing by
+            theorem~\ref{StronglyNormalizingKeyExpansion} since $ca \keyreduce
+            da$ and $da \in \SN$.
+
+            Therefore by definition of
+            the lambda function space $c \in A \tolambda B$.
+        \end{enumerate}
+    \end{proof}
 \end{theorem}
 
 
