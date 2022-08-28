@@ -21,6 +21,8 @@
 
 \def\Kinds{\mathbb{K}}
 
+\def\NF{\text{NF}}   % set of terms in normal form
+
 
 
 \def\Prop{{\cal P}}
@@ -62,6 +64,9 @@
 \def\rulev#1#2{\begin{array}{l} #1 \\ \hline #2\end{array}}
 \def\ruleall#1#2#3{
     \forall #1. \left[ \rulev{#2}{#3} \right]
+}
+\def\ruleallh#1#2#3{
+    \forall #1. \left[ \ruleh{#2}{#3} \right]
 }
 \def\snproof#1#2#3#4{
     \begin{array}{l|l}

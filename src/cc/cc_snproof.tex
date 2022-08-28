@@ -7,6 +7,23 @@ Barendregt~1993~\cite{barendregt1993}, Geuvers~1994~\cite{geuvers1994}.
 
 
 \subsection{Strong Normalization}
+%------------------------------------------
+
+\begin{definition}
+    The set $\NF$ of terms in \emph{normal form} is the set of all terms which
+    do not reduce (i.e. which do not have any redex).
+    $$
+    \ruleh{
+        \ruleallh{b}{a \reduce b}{\perp}
+    }
+    {
+        a \in \NF
+    }
+    $$
+\end{definition}
+
+
+
 
 \begin{definition}
     The set $\SN$ of \emph{strongly normalizing} terms is defined inductively
@@ -77,6 +94,47 @@ In order to prove the goal $p(a)$ in the lower right corner we can assume all
 the other statements especially the induction hypothesis in the upper right
 corner.
 
+
+
+
+\begin{definition}
+    The set of \emph{base terms} $\BT$ is the set of all variables applied to
+    zero or more strongly normalizing arguments i.e. terms of the form $x a_1
+    \ldots a_n$ where $a_i \in \SN$ for all $i$. We formally define the set
+    $\BT$ by the rules
+    \begin{enumerate}
+    \item $x \in \BT$ where $x$ ranges over variables.
+
+    \item
+        $\ruleh{
+            a \in \BT
+            \\
+            b \in \SN
+        }
+        {
+            ab \in \BT
+        }$
+    \end{enumerate}
+\end{definition}
+
+\begin{theorem}
+    \label{BaseTermsStronglyNormalizing}
+    \emph{All base terms are strongly normalizing}.
+    $$
+    \rulev{
+        a \in \BT
+    }
+    {
+        a \in \SN
+    }
+    $$
+    \begin{proof}
+        Because a base terms begins with a variable followed by zero or more
+        strongly normalizing arguments, it has no redex whose reduction can
+        change the structure. I.e. only the arguments can reduce and they are by
+        definition strongly normalizing.
+    \end{proof}
+\end{theorem}
 
 
 
@@ -276,8 +334,21 @@ corner.
 
 
 
-\subsection{Key Reduction}
 
+
+
+
+\subsection{Logical Consistency}
+%------------------------------------------
+
+
+
+
+
+
+
+\subsection{Key Reduction}
+%------------------------------------------
 
 \begin{definition}
     The \emph{key reduction} $a \keyreduce b$ is a relation defined by the rules
@@ -537,48 +608,8 @@ corner.
 
 
 \subsection{Saturated Sets}
+%------------------------------------------
 
-
-
-\begin{definition}
-    The set of \emph{base terms} $\BT$ is the set of all variables applied to
-    zero or more strongly normalizing arguments i.e. terms of the form $x a_1
-    \ldots a_n$ where $a_i \in \SN$ for all $i$. We formally define the set
-    $\BT$ by the rules
-    \begin{enumerate}
-    \item $x \in \BT$ where $x$ ranges over variables.
-
-    \item
-        $\ruleh{
-            a \in \BT
-            \\
-            b \in \SN
-        }
-        {
-            ab \in \BT
-        }$
-    \end{enumerate}
-\end{definition}
-
-
-\begin{theorem}
-    \label{BaseTermsStronglyNormalizing}
-    \emph{All base terms are strongly normalizing}.
-    $$
-    \rulev{
-        a \in \BT
-    }
-    {
-        a \in \SN
-    }
-    $$
-    \begin{proof}
-        Because a base terms begins with a variable followed by zero or more
-        strongly normalizing arguments, it has no redex whose reduction can
-        change the structure. I.e. only the arguments can reduce and they are by
-        definition strongly normalizing.
-    \end{proof}
-\end{theorem}
 
 
 
@@ -761,6 +792,7 @@ Remark:
 
 
 \subsection{Model Set}
+%------------------------------------------
 
 \begin{definition}
     \emph{Model Set} For $K \in \Kinds$ we define the model set
@@ -1089,6 +1121,7 @@ a welltyped substitution.
 
 
 \subsection{Context Interpretation}
+%------------------------------------------
 
 \begin{definition}
     \emph{Context Interpretation}:
@@ -1132,12 +1165,37 @@ a welltyped substitution.
 \end{definition}
 
 
+\begin{theorem}
+    \label{CanonicalContextInterpretation}
+    \emph{For every valid context $\Gamma$ there exists a unique canonical
+    context interpretation $\xi^c(\Gamma)$ with $\xi^c(\Gamma) \vDash \Gamma$}.
+    \begin{proof}
+        We construct the canonical context interpretation recursively.
+        $$
+        \xi^c(\Gamma)
+        :=
+        \left\{
+            \begin{array}{llll}
+                \xi^c([]) &:=& []
+                \\
+                \xi^c(\Gamma,x^A) &:=& \xi^c(\Gamma)
+                & A \notin \Kinds
+                \\
+                \xi^c(\Gamma,x^A) &:=& \xi^c(\Gamma),x^{\nu^c(A)}
+                & A \in \Kinds
+            \end{array}
+        \right.
+        $$
+    \end{proof}
+\end{theorem}
+
 
 
 
 
 
 \subsection{Type Interpretation}
+%------------------------------------------
 
 The goal of this section is to find a function which maps any welltyped type
 function $F$
@@ -1989,7 +2047,7 @@ is a kind) in the context a model which is an element of $\nu(A)$.
     \rulev{
         \xi \vDash \Gamma
         \\
-        \Gamma: T : s
+        \Gamma \vdash T : s
     }
     {
         \typeinter{T}{\xi\Gamma} \in \SAT
@@ -2004,7 +2062,13 @@ is a kind) in the context a model which is an element of $\nu(A)$.
 \end{theorem}
 
 
+
+
+
+
+
 \subsection{Term Interpretation}
+%------------------------------------------
 
 $\terminter{t}{\rho}$
 
@@ -2015,6 +2079,7 @@ $\terminter{t}{\rho}$
 
 
 \subsection{Context Model}
+%------------------------------------------
 
 \begin{definition}
     \label{DefinitionContextModel}
@@ -2422,5 +2487,52 @@ $\terminter{t}{\rho}$
                 which finally proves the goal.
             \end{enumerate}
         \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\subsection{Strong Normalization Proof}
+%------------------------------------------
+
+
+\begin{theorem}
+    \label{StrongNormalizationProof}
+    \emph{All welltyped terms are strongly normalizing}.
+    $$
+    \ruleh{
+        \Gamma \vdash t : T
+    }
+    {
+        t \in \SN
+    }
+    $$
+
+
+    \begin{proof}
+        Assume $\Gamma \vdash t : T$, i.e. $\Gamma = [x_1 : A_1, \ldots, x_n :
+        A_n]$ is a valid context.
+
+        By theorem~\ref{CanonicalContextInterpretation} $\xi = \xi^c(\Gamma)$ is
+        a valid interpretation for the context $\Gamma$ with $\xi \vDash
+        \Gamma$.
+
+        We can form a context model
+        $$
+        \rho\xi \vDash \Gamma
+        $$
+        with
+        $$
+        \rho = [x_1^{x_1}, \ldots, x_n^{x_n}]
+        $$
+
+        Then we have
+        $$
+        t = \terminter{t}{\rho} \in \typeinter{T}{\xi\Gamma} \in \SAT
+        $$
+        which proves the goal because saturated sets contain only strongly
+        normaling terms~\ref{TypeInterpretationTypeSaturated}.
     \end{proof}
 \end{theorem}
