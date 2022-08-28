@@ -341,6 +341,101 @@ corner.
 \subsection{Logical Consistency}
 %------------------------------------------
 
+\begin{theorem}
+    \label{NormalWelltypedTerms}
+    \emph{All welltyped terms in normal form are either sorts, products,
+    abstractions or base terms}.
+    \begin{proof}
+        We prove the goal by induction on the structure of $t$.
+
+        \begin{enumerate}
+            \item For sorts, variables, products and abstractions there is
+                nothing to do, because they fall trivially in one of the
+                alternatives.
+
+            \item It remains to prove that a welltyped application in normal
+                form is a base term. Assume $\Gamma \vdash fa : T$ and $fa \in
+                \NF$.
+
+                By the generation lemma~\ref{GenerationLemmata} for applications
+                we postulate the existence of the types $A$ and $B$ such that
+                $\Gamma \vdash f: \Pi x^A. B$.
+
+                The first induction hypothesis states that $f$ falls into one of
+                the categories.
+
+                However it cannot be a sort nor a product,
+                because neither of them can have a type equivalent to $\Pi
+                x^A.B$.
+
+                $f$ cannot be an abstraction, otherwise $fa$ would not
+                be in normal form. Therefore $f$ can only be a base term.
+
+                If $f$ is a base term, then $fa$ is a base term as well, because
+                $a\in\NF \subseteq \SN$.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+\begin{theorem}
+    \emph{There are no closed welltyped terms in normal form which have the
+    type $\Pi X^\Prop : X$}.
+    $$
+    \rulev{
+        [] \vdash t: \Pi X^\Prop. X
+        \\
+        t \in \NF
+    }
+    {\perp}
+    $$
+
+    \begin{proof}
+        We assume $t \in \NF$ and $[] \vdash t : \Pi X^\Prop. X$ and derive a
+        contradiction.
+
+        \begin{enumerate}
+            \item By the previous theorem~\ref{NormalWelltypedTerms} $t$ has to
+                be either a sort, a product and abstraction or a base term. $t$
+                cannot be a sort nor a product, because they cannot have a type
+                equivalent to a product (the only valid type of both are sorts).
+                It cannot be a base term, because a base term has a free
+                variable in the head position and we are in the empty context
+                (only closed terms).
+
+                Therefore $t$ must be an abstraction, say $\lambda y^B.e$.
+
+            \item By the generation lemma~\ref{GenerationLemmata} for
+                abstractions we postulate the existence of a type $C$ such
+                that $[X^\Prop] \vdash e : C$ and $\Pi X^\Prop. X \betaeq \Pi
+                X^\Prop.C$ which imply $X \betaeq C$. Therefore we have
+                $$
+                [X^\Prop] \vdash e : X
+                $$ and $e$ must be in normal form.
+
+            \item $e$ cannot be a sort nor a product nor an abstraction, because
+                the type of the first two must be a sort and the type of the
+                last must be a product. Neither a sort nor a product can be beta
+                equivalent to a variable.
+
+                Therefore $e$ must be a base term. There are two possibilities:
+
+            \item $e$ is a variable, say $y$:
+
+                In that case we have $y = X$, because $X$ is the only free
+                variable available. By the generation
+                lemma~\ref{GenerationLemmata} for variables we get $\Prop
+                \betaeq X$ which is not possible.
+
+            \item $e$ has the form $y a_1, \ldots, a_n$ with $n > 0$: We get $y
+                = X$ as well for the same reason. Since $y$ is in a function
+                position its type must be betaequivalent to some product $\Pi
+                y^B.C$. However its type is $\Prop$ which cannot betaequivalent
+                to a product.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
 
 
 
