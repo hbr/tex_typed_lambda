@@ -84,8 +84,31 @@ corner.
     \label{StronglyNormalizingSubterm}
     \emph{All subterms of a strongly normalizing term are strongly normalizing}.
     %     --------------------------------------------------------------------
-    \begin{proof}
-        MISSING!
+    \begin{proof} Sorts and variables don't have subterms. A product $\Pi
+        x^A.B$ has the subterms $A$ and $B$, an abstraction $\lambda x^A.e$ has
+        the subterms $A$ and $e$ and an application $ab$ has the subterms $a$
+        and $b$. All proofs that subterms of strongly normalizing terms are
+        strongly normalizing follow the same pattern. Here we prove $\ruleh{ab
+        \in SN}{a \in \SN}$ which we transform into the equivalent statement
+        $$
+        \ruleh{
+            t \in \SN
+        }
+        {
+            \ruleall{ab}{t = ab}{a \in \SN}
+        }
+        $$
+        and prove by induction on $t \in \SN$.
+        $$
+        \snproof t u
+        {\ruleall{u a_1 b}{t \reduce u \\ u = a_1 b}{a_1 \in \SN}}
+        {\ruleall{ab}{t = ab}{a \in \SN}}
+        $$
+        In order to prove the goal in the lower right corner we assume $t = ab$
+        and $a \reduce a_1$ and prove $a_1 \in \SN$.
+
+        From $a \reduce a_1$ we infer $ab \reduce a_1 b$ and get the final goal
+        from the induction hypothesis by using $u = a_1 b$.
     \end{proof}
 \end{theorem}
 
@@ -114,18 +137,14 @@ corner.
     $$
 
     \begin{proof}
-        We do induction on $e \in \SN$, $a \in \SN$ and $A \in \SN$ to get good
-        induction hypotheses and then prove the final goal.
+        We do induction on $e \in \SN$, $a \in \SN$ and $A \in \SN$ to get
+        good induction hypotheses and then prove the final goal.
 
         \begin{itemize}
         \item Induction on $e \in \SN$:
             $$
-            \begin{array}{l|l}
-                \ruleall
-                {f}
-                {e \reduce f}
-                {e \in \SN}
-                &
+            \snproof e f
+            {
                 \ruleall{faA}{
                     e \reduce f
                     \\
@@ -136,10 +155,8 @@ corner.
                     A \in \SN
                 }
                 {(\lambda x^A. f)a \in SN}
-                \\
-                \hline
-                e \in \SN
-                &
+            }
+            {
                 \ruleall{aA}{
                     e[x:=a] \in \SN
                     \\
@@ -148,52 +165,33 @@ corner.
                     A \in \SN
                 }
                 {(\lambda x^A.e) a \in \SN}
-            \end{array}
+            }
             $$
 
         \item Assume $e[x:=a] \in \SN$ and do induction on $a \in \SN$:
             $$
-            \begin{array}{l|l}
-                \ruleall
-                {b}
-                {a \reduce b}
-                {a \in \SN}
-                &
+            \snproof a b
+            {
                 \ruleall{bA}{
                     a \reduce b
                     \\
                     A \in \SN
                 }
                 {(\lambda x^A. e)b \in SN}
-                \\
-                \hline
-                a \in \SN
-                &
+            }
+            {
                 \ruleall{A}{
                     A \in \SN
                 }
                 {(\lambda x^A.e) a \in \SN}
-            \end{array}
+            }
             $$
 
         \item Induction on $A \in \SN$:
             $$
-            \begin{array}{l|l}
-                \ruleall
-                {B}
-                {A \reduce B}
-                {A \in \SN}
-                &
-                \ruleall{B}{
-                    A \reduce B
-                }
-                {(\lambda x^B. e)a \in SN}
-                \\
-                \hline
-                A \in \SN
-                &
-                (\lambda x^A.e) a \in \SN
-            \end{array}
+            \snproof A B
+            {\ruleall{B}{ A \reduce B}{(\lambda x^B. e)a \in SN}}
+            {(\lambda x^A.e) a \in \SN}
             $$
 
         \item I.e. we have to prove the goal $(\lambda x^A.e)a \in SN$ under the
