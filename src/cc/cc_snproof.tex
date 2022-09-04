@@ -24,10 +24,9 @@ Barendregt~1993~\cite{barendregt1993}, Geuvers~1994~\cite{geuvers1994}.
 
 
 
-
 \begin{definition}
     The set $\SN$ of \emph{strongly normalizing} terms is defined inductively
-    the rule
+    by the rule
     $$
         \ruleh{
             \ruleall{b}{a \reduce b}{b \in \SN}
@@ -350,7 +349,7 @@ corner.
 
         \begin{enumerate}
             \item For sorts, variables, products and abstractions there is
-                nothing to do, because they fall trivially in one of the
+                nothing to do, because they fall trivially into one of the
                 alternatives.
 
             \item It remains to prove that a welltyped application in normal
@@ -2202,6 +2201,12 @@ $\terminter{t}{\rho}$
 \subsection{Soundness Theorem}
 
 \begin{theorem}
+    \label{SoundnessTheorem}
+    \emph{Let $\rho\xi$ be a model of the context $\Gamma$ and $\Gamma \vdash t
+    : T$ a valid typing judgement. Then the term interpretation
+    $\terminter{t}{\rho}$ is an element of the type interpretation
+    $\typeinter{T}{\xi\Gamma}$}.
+
     \def\goala#1#2#3#4#5{
         \rulev{
             #1 \vdash #2 : #3
@@ -2618,16 +2623,17 @@ $\terminter{t}{\rho}$
         $$
         \rho\xi \vDash \Gamma
         $$
-        with
+        where
         $$
         \rho = [x_1^{x_1}, \ldots, x_n^{x_n}]
         $$
 
-        Then we have
+        Then we have by the soundness theorem~\ref{SoundnessTheorem}
         $$
         t = \terminter{t}{\rho} \in \typeinter{T}{\xi\Gamma} \in \SAT
         $$
-        which proves the goal because saturated sets contain only strongly
-        normaling terms~\ref{TypeInterpretationTypeSaturated}.
+        which proves the goal because type interpretations of types are
+        saturated sets~\ref{TypeInterpretationTypeSaturated} and saturated sets
+        contain only strongly normaling terms by definition.
     \end{proof}
 \end{theorem}

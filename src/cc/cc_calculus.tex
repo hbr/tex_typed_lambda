@@ -97,27 +97,28 @@ introduction of sorts which are the types of types.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{definition}
-    The set of \emph{free variables} $\FV t$ of a term $t$ is defined by the function
+    The set of \emph{free variables} $\FV(t)$ of a term $t$ is defined by the
+    function
     $$
-    \FV t :=
+    \FV(t) :=
         \begin{cases}
-            \FV s &:= \emptyset
+            \FV(s) &:= \emptyset
 
             \\
 
-            \FV x &:= \{ x \}
+            \FV(x) &:= \{ x \}
 
             \\
 
-            \FV (a b) &:= \FV a \cup \FV b
+            \FV(a b) &:= \FV(a) \cup \FV(b)
 
             \\
 
-            \FV (\lambda x^A. e) &:= \FV A \cup (\FV e - \{x\})
+            \FV(\lambda x^A. e) &:= \FV(A) \cup (\FV(e) - \{x\})
 
             \\
 
-            \FV (\Pi x^A. B) &:= \FV A \cup (\FV B - \{x\})
+            \FV(\Pi x^A. B) &:= \FV(A) \cup (\FV(B) - \{x\})
         \end{cases}
     $$
     where $s$ ranges over sorts, $x$ ranges over variables and $a$, $b$,
@@ -130,6 +131,8 @@ call $\lambda x^A. e$ a binder, because it makes the variable $x$ bound. The
 same applies to the term $\Pi x^A. B$  where the variable $x$ is bound, but can
 appear free in $B$.
 
+Note that the binders $\lambda x^A. e$ and $\Pi x^A. B$ make the variable $x$
+bound only in the subterms $e$ and $B$, but not in the subterm $A$.
 
 It is possible to rename bound variables within a term. The renaming of a bound
 variable does not change the term. We consider two terms which only differ in
@@ -153,45 +156,49 @@ $$
 \begin{definition}
     \emph{Substitution:}
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    The term $t[y:=c]$ is the term $t$ where the term $c$ is substituted for all
+    The term $t[y:=u]$ is the term $t$ where the term $u$ is substituted for all
     free occurrences of the variable $y$. It is defined as a recursive function
     which iterates over all subterms until variables or sorts are encountered.
     $$
-    t[y:=c] :=
+    t[y:=u] :=
         \begin{cases}
-            s[y:=c] &:= s
+            s[y:=u] &:= s
 
             \\
 
-            y[y:=c] &:= c
+            x[y:=u] &:=
+                \begin{cases}
+                    u & y = x
+                    \\
+                    x & y \ne x
+                \end{cases}
 
             \\
 
-            x[y:=c] &:= x \quad \text{if } x \ne y
+            (a b)[y:=u] &:= a[y:=u] b[y:=u]
 
             \\
 
-            (a b)[y:=c] &:= a[y:=c] b[y:=c]
-
-            \\
-
-            (\lambda x^A . e)[y:=c]
+            (\lambda x^A . e)[y:=u]
             &:=
-            \lambda x^{A[y:=c]}. e[y:=c]
-                \quad \text{if } x \notin \FV c
+            \lambda x^{A[y:=u]}.e[y:=u]
+                \quad y \ne x, x \notin \FV(u)
 
             \\
 
-            (\Pi x^A . B)[y:=c]
+            (\Pi x^A . B)[y:=u]
             &:=
-            \Pi x^{A[y:=c]}. B[y:=c]
-                \quad \text{if } x \notin \FV c
+            \Pi x^{A[y:=u]}. B[y:=u]
+                \quad y \ne x, x \notin \FV(u)
         \end{cases}
     $$
 \end{definition}
-The condition $x \notin \FV c$ is not a restriction, because the bound variable
-$x$ can always be renamed to annother variable which does not occur free in the
-term $c$.
+
+Remark:
+        The conditions $y \ne x$ and $x \notin \FV(u)$ are not a restriction,
+        because the bound variable $x$ can always be renamed to annother
+        variable which is different from $y$ and does not occur free in the term
+        $u$.
 
 
 
@@ -220,14 +227,14 @@ term $c$.
 
 \begin{lemma}
     \label{DoubleSubstitution}
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \emph{Double substitution lemma} If we change the order of two subsequent
     substitutions, then it is necessary to introduce a correction term.
     $$
     \ruleh{
         x \ne y
         \\
-        y \notin \FV a
+        y \notin \FV(a)
     }
     {
         t[y:=b][x:=a]
@@ -274,7 +281,7 @@ term $c$.
                             x[x:=a][y:=b[x:=a]]
                             &=& a[y:=b[x:=a]]
                             \\
-                            &=& a & y \notin \FV a
+                            &=& a & y \notin \FV(a)
                         \end{array}
                         $$
 
@@ -428,7 +435,7 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
         t \reduce s
     }
     {
-        t = (\lambda x^A. e) a \land (e = s \lor e = x \land a = s)
+        t = (\lambda x^A. s) a \lor t = (\lambda x^A. x)s
     }
     $$
 
@@ -544,7 +551,7 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
         \item Abstraction:
             We have to prove the goal
             $$
-                (\lambda y^B.e)[x:=a] \reducestar (\lambda y^B.e)[x:=a]
+                (\lambda y^B.e)[x:=a] \reducestar (\lambda y^B.e)[x:=b]
             $$
             The goal is a consequence of the induction hypotheses $B[x:=a]
                 \reducestar B[x:=b]$ and $e[x:=a] \reducestar e[y:=b]$.
