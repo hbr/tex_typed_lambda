@@ -1,7 +1,26 @@
 \section{The Calculus}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+In this section we introduce the terms of the calculus of constructions and the
+way to do computations with them.
 
+Lambda terms in untyped lambda calculus are either variables $x,y,z,\ldots$,
+abstractions $\lambda x.e$ or applications $ab$.
+
+The calculus of constructions is a typed lambda calculus where terms and types
+are expressed within the same syntax. Since all welltyped terms must have a type
+we need types of types. The types of types in the calculus of constructions are
+the two sorts $\Prop$ and $\Any$.
+
+Since the calculus is typed, all variables must have a type. Therefore in
+binders like abstractions the variables have types $\lambda x^A. e$.
+
+Furthermore it is necessary to express functions $A \to B$ from one type $A$ to
+another type $B$. The calculus of constructions includes dependent types, i.e.
+the result type $B$ of a function might depend on the argument. In order to
+express that a product type of the form $\Pi x^A. B$ is used which describes the
+type of a function from an argument of type $A$ to the result of type $B$ which
+might depend on the argument.
 
 
 
@@ -65,33 +84,6 @@ introduction of sorts which are the types of types.
 
 
 
-\subsection{Contexts}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\begin{definition}
-    A \emph{context} is a sequence of variables and their corresponding types.
-    Contexts are usually abbreviated by upper greek letters and types are terms
-    which are usually abbreviated by uppercase letters.
-
-    Contexts are defined by the grammar
-    $$
-    \begin{array}{llll}
-        \Gamma
-        &:=& [] & \text{empty context}
-
-        \\
-
-        &\mid& \Gamma, x^A & \text{one more variable $x$ with its type $A$}
-    \end{array}
-    $$
-\end{definition}
-
-
-
-
-
-
 
 \subsection{Free Variables}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -146,6 +138,41 @@ $$
     \Pi x^z. x   &=& \Pi y^z. y
 \end{array}
 $$
+
+
+
+
+
+
+\subsection{Contexts}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+All bound variables get their types by their corresponding binders. For free
+variables we need types as well. In order to assign types to free variables we
+define contexts.
+
+\begin{definition}
+    A \emph{context} is a sequence of variables and their corresponding types.
+    Contexts are usually abbreviated by upper greek letters and types are terms
+    which are usually abbreviated by uppercase letters.
+
+    Contexts are defined by the grammar
+    $$
+    \begin{array}{llll}
+        \Gamma
+        &:=& [] & \text{empty context}
+
+        \\
+
+        &\mid& \Gamma, x^A & \text{one more variable $x$ with its type $A$}
+    \end{array}
+    $$
+\end{definition}
+
+
+
+
 
 
 
@@ -530,6 +557,10 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
 
 \begin{theorem}
     \label{ReducedSubstitutionTerm}
+    \emph{Reduction in substitution term}. A reduction in the substitution term
+    %     ------------------------------
+    makes the corresponding substituted terms reducing in zero or more steps as
+    well.
     $$
     \ruleh{
         a \reduce b
@@ -539,7 +570,11 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
     }
     $$
     \begin{proof}
-        By induction on the structure of $t$.
+        Intuitively it might be clear that the substituted term reduces in zero
+        or more steps, because the variable $x$ might be contained in the term
+        $t$ zero or more times.
+
+        We prove the statement by induction on the structure of $t$.
 
         \begin{enumerate}
         \item Sort: Trival.
