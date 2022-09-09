@@ -1,9 +1,98 @@
 \section{Confluence}
 
-One of the most important features of beta reduction is \emph{confluence} which
-states that the result of subsequent beta reductions is independent of the
-sequence of redexes reduced. In order to state that property precisely we need
-some definitions.
+\begin{comment}
+
+    Why: Make lambda calculus really a model of computation. Result (i.e. a
+    term in normal form) is independent of the reduction sequence.
+
+    Goal: Uniqueness of normal forms and beta equivalent terms have a common
+    reduct. Corollaries: Equivalent binders have equivalent subterms and binders
+    cannot reduce to be beta equivalent with sorts or variables.
+
+    Basic Property: Beta reduction is confluent.
+
+
+    Prove of confluence:
+
+    - Definition via diamonds
+
+    - Diamond between a relation and its reflexive transitive closure proves the
+    confluence of the relation.
+
+    - Parallel beta reduction is a diamond between beta reduction and its
+    reflexive transitive closure.
+
+
+\end{comment}
+
+
+
+
+\subsection{Overview}
+
+We want to be able to use the calculus of constructions to compute.
+The basic computation step is beta reduction. A computation in the calculus ends
+if no more reduction is possible i.e. if the term has been reduced to a normal
+form.
+
+However beta reduction is ambiguous. There might be more than one possibility to
+make a beta reduction. E.g.
+
+$$
+\begin{array}{cccccc}
+    & & (\lambda x. f x x) ((\lambda y.y) z)
+    \\
+    & \swarrow_{\beta}
+    & & \searrow_\beta
+    \\
+    f ((\lambda y.y) z) ((\lambda y.y) z)
+    \\
+    \downarrow_\beta
+    & & & & (\lambda x . f x x) z
+    \\
+    f z ((\lambda y.y) z)
+    \\
+    & \searrow_\beta
+    & &  \swarrow_\beta
+    \\
+    & & f z z
+\end{array}
+$$
+
+In the left path we reduce first the outer redex. This reduction duplicates the
+redex in the argument. Therefore we need three reduction steps to reach the
+final term $f z z$.
+
+In the right path we reduce first the redex in the argument of the application
+and then the outer redex. Therefore we need only two reduction steps to reach
+the final term $f z z$.
+
+In that specific example we have shown that both paths end up in the same
+result. However we have to prove that this is always the case. Otherwise the
+calculus of construction would be useless as a calculus.
+
+It turns out that \emph{confluence} is a key property in the proof of uniqueness
+of results. We define a relation as \emph{confluent} if going an arbitrary
+number of steps in two directions there are always paths to join the paths.
+Therefore we want to prove confluence of beta reduction.
+
+Before proving confluence of beta reduction we define the confluence of a
+relation by defining first a diamond property of a relation. The diamond
+property of a relation is something like a \emph{one step confluence}. The we
+show that the confluence of a relation can be proved by finding a diamond
+between it and its reflexive transitive closure.
+
+In a next step we define a parallel beta reduction, prove that it is a diamond
+between beta reduction and the reflexive transitive closure of beta reduction.
+This proves the confluence of beta reduction.
+
+Having the confluence of beta reduction it is easy to prove that beta equivalent
+terms always have a common reduct, normal forms are unique and some other
+interesting properties of binders.
+
+
+\subsection{Diamonds and Confluence}
+
 
 \begin{definition}
     \emph{Diamond Property} A relation $r$ has the diamond property if $a
@@ -42,66 +131,101 @@ which looks like a diamond if tilted by $45^\circ$ clockwise.
 
 
 \begin{theorem}
-    \label{ChurchRosser}
-    \emph{Beta reduction is confluent}.
+    \label{RelationBetween}
+    \emph{Let $r$ and $s$ be two relations. If $s$ is between $r$ and its
+    reflexive transitive closure i.e. $r \subseteq s \subseteq r^*$ then both
+    closures are the same i.e. $r^* = s^*$.}
 
     \begin{proof}
-    To prove this claim we use the following reasoning.
+        Note that $r \subseteq s$ is defined by $\ruleall{ab}{a \torel{r} b}{a
+        \torel{s} b}$.
 
-    \begin{enumerate}
+        Assume $r \subseteq s \subseteq r^*$.
+        %
+        In order to prove $r^* = s^*$ we have to prove $r^* \subseteq s^*$ and
+        $s^* \subseteq r^*$.
 
-        \item We prove the \emph{strip lemma}~\ref{StripLemma2} stating that
-        the reflexive transitive closure of a diamond is a diamond i.e. that a
-        diamond is confluent.
-
-        \item We define a parallel beta reduction relation $\preduce$ which is a
-        superset of the beta reduction relation $\reduce$ i.e.  $(\reduce)
-        \subseteq
-        (\preduce)$ (lemma~\ref{ReductionLeParallelReduction}) and a subset of
-        the reflexive transitive closure of the beta reduction i.e. $(\preduce)
-        \subseteq (\reducestar)$ (lemma~\ref{ParallelReductionLeReductionStar}).
-
-        \item We prove that the parallel beta reduction is a diamond
-        (theorem~\ref{ParallelReductionDiamond}).
-
-        \item We use the general facts that reflexive transitive closure is
         \begin{enumerate}
-            \item monotonic $r \le s \imp r^* \le s^*$
+            \item $r^* \subseteq s^*$: We have to prove the goal
+                $$
+                \ruleh{a \torel{r^*} b}{a \torel{s^*} b}
+                $$
+                We use induction on $a \torel{r^*} b$.
+                \begin{enumerate}
+                    \item $a = b$: Trivial since $a \torel{s*} a$ is valid by
+                        definition.
 
-            \item idempotent $(r^*)^* = r$
+                    \item
+                        $$
+                        \begin{array}{l|l}
+                            a \torel{r^*} b
+                            &
+                            a \torel{s^*} b
+                            \\
+                            b \torel{r} c
+                            \\
+                            \hline
+                            a \torel{r^*} c
+                            &
+                            a \torel{s^*} c
+                        \end{array}
+                        $$
+                        In order to prove the final goal in the lower right
+                        corner we start from the induction hypothesis $a
+                        \torel{s^*} b$.
+
+                        Since $r \subseteq s$ we have $b \torel{s} c$ by
+                        definition of $\subseteq$ and the second premise.
+
+                        Then by definition of the reflexive transitive closure
+                        we conclude the final goal.
+                \end{enumerate}
+
+            \item $s^* \subseteq r^*$: We have to prove the goal
+                $$
+                \ruleh{a \torel{s^*} b}{a \torel{r^*} b}
+                $$
+                We use induction on $a \torel{s^*} b$.
+                \begin{enumerate}
+                    \item $a = b$: Trivial since $a \torel{r*} a$ is valid by
+                        definition.
+
+                    \item
+                        $$
+                        \begin{array}{l|l}
+                            a \torel{s^*} b
+                            &
+                            a \torel{r^*} b
+                            \\
+                            b \torel{s} c
+                            \\
+                            \hline
+                            a \torel{s^*} c
+                            &
+                            a \torel{r^*} c
+                        \end{array}
+                        $$
+                \end{enumerate}
+
+                Start with the induction hypothesis $a \torel{r^*} b$.
+
+                Since $s \subseteq r^*$ is given we can infer $b \torel{r^*}$
+                from the second premise.
+
+                $r^*$ is transitive and therefore $a \torel{r^*} c$ must be
+                valid.
         \end{enumerate}
-        to see that $(\reducestar) \subseteq (\preducestar)$ and $(\preducestar)
-        \subseteq
-        (\reducestar)$ are satisfied which imply by antisymmetry of the order
-        relation that $(\reducestar) = (\preducestar)$.
-
-        Since $\preducestar$ is a diamond, $\reducestar$ is a diamond as well.
-        Therefore we can conclude the fact that beta reduction is confluent.
-    \end{enumerate}
     \end{proof}
 \end{theorem}
 
 
 
 
-
-\subsection{Strip Lemma}
-
-In this section we prove the fact that the reflexive transitive closure of
-diamond is a diamond. We need the following helper lemma:
-
 \begin{lemma}
     \label{StripLemma1}
     If $r$ is a diamond then
     $$
-    \ruleh{
-        a \torel{r^*} b
-        \\
-        a \torel r c
-    }
-    {
-        \exists d. b \torel r d \land c \torel{r^*} d
-    }
+    \diamond a b c d {r^*} r
     $$
     is valid.
 
@@ -113,45 +237,38 @@ diamond is a diamond. We need the following helper lemma:
         satisfies the required properties.
 
         \item
-        $$
-        \begin{array}{l|l}
-            a \torel{r^*} b
-            &
-            \forall d.
-            \left[
-            \ruleh{
-                a \torel r d
-            }
-            {
-                \exists e. b \torel r e \land d \torel{r^*} e
-            }
-            \right]
-            \\
-            b \torel r c
-            \\
-            \hline
-            a \torel{r^*} c
-            &
-            \forall d.
-            \left[
-            \ruleh{
-                a \torel r d
-            }
-            {
-                \exists f. c \torel r f \land d \torel{r^*} f
-            }
-            \right]
-        \end{array}
-        $$
-        To prove the goal in the lower right corner we assume $a \torel r d$ and
-        try to find some $f$ with the required properties.
+            $$
+            \begin{array}{l|l}
+                a \torel{r^*} b
+                &
+                \allbracket d {\diamond a b d e {r^*} r}
+                \\
+                b \torel r c
+                \\
+                \hline
+                a \torel{r^*} c
+                &
+                \allbracket d {\diamond a c d f {r^*} r}
+            \end{array}
+            $$
+            To prove the goal in the lower right corner we assume $a \torel r d$
+            and try to find some $f$ with the required properties.
 
-        From the induction hypothesis we find some $e$ which satisfies $b \torel
-        r e$ and $d \torel{r^*} e$.
+            From the induction hypothesis we find some $e$ which satisfies $b
+            \torel r e$ and $d \torel{r^*} e$.
 
-        Since $r$ is a diamond there exists some $f$ which satisfies $c \torel r
-        f$ and $e \torel r f$. Since $d \torel{r^*} e$ we conclude $d
-        \torel{r^*} f$ and have the desired properties for $f$.
+            Since $r$ is a diamond there exists some $f$ with $\diamond b c e f
+            r r$. By glueing the boxes together we see that $f$ satisfies
+            the required properties.
+            $$
+            \begin{array}{ccccc}
+                a            &\torel{r^*}& b           &\torel r& c
+                \\
+                \downarrow_r &           & \downarrow_r&        & \downarrow_r
+                \\
+                d            &\torel{r^*}& e           &\torel r& f
+            \end{array}
+            $$
         \end{enumerate}
     \end{proof}
 
@@ -161,68 +278,90 @@ diamond is a diamond. We need the following helper lemma:
 
 \begin{lemma}
     \label{StripLemma2}
-    \emph{Strip Lemma} If $r$ is a diamond, then $r^*$ is a diamond as well.
+    \emph{ If $r$ is a diamond, then $r^*$ is a diamond as well.}
     $$
-    \ruleh {
-        a \torel{r^*} b
+    \diamond a b c d {r^*} {r^*}
+    $$
+
+    \begin{proof}
+        We assume that $r$ is a diamond and $a \torel{r^*} b$ and do induction
+        on $a \torel{r^*} c$
+
+        \begin{enumerate}
+            \item In the reflexive case we have $a = c$. We use $d = b$ which
+                satisfies the required properties.
+
+            \item
+                $$
+                \begin{array}{l|l}
+                    a \torel{r^*} c
+                    &
+                    \diamond a b c e {r^*} {r^*}
+                    \\
+                    c \torel r d
+                    \\
+                    \hline
+                    a \torel{r^*} d
+                    &
+                    \diamond a b d f {r^*} {r^*}
+                \end{array}
+                $$
+                We have to prove the goal in the lower right corner i.e. find
+                some $f$ with the required properties.
+
+                From the induction hypothesis we find some $e$. Using the
+                previous lemma~\ref{StripLemma1} we find some $f$ such that we
+                can glue the boxes together in order to see that $f$ satisfies
+                the required properties.
+                $$
+                \begin{array}{ccc}
+                    a & \torel{r^*} & b
+                    \\
+                    \downarrow_{r^*} & & \downarrow{r^*}
+                    \\
+                    c & \torel{r^*} & e
+                    \\
+                    \downarrow_r & & \downarrow_r
+                    \\
+                    d & \torel{r^*} & f
+                \end{array}
+                $$
+        \end{enumerate}
+    \end{proof}
+\end{lemma}
+
+
+Now we can prove the basic theorem of this subsection:
+
+\begin{theorem}
+    \label{DiamondBetween}
+    \emph{In order to prove the confluence of a relation it is sufficient to
+    find a diamond between it and its reflexive transitive closure.}.
+
+    $$
+    \rulev{
+        r \subseteq s \subseteq r^*
         \\
-        a \torel{r^*} c
+        s \text{ is a diamond}
     }
     {
-        \exists d. b \torel{r^*} d \land c \torel{r^*} d
+        r \text{ is confluent}
     }
     $$
 
     \begin{proof}
-        We assume $a \torel{r^*} b$ and do induction on $a \torel{r^*} c$
+        Assume $r \subseteq s \subseteq r^*$ and $s$ is a diamond.
 
-        \begin{enumerate}
-        \item In the reflexive case we have $a = c$. We use $d = b$ which
-        satisfies the required properties.
+        By~\ref{RelationBetween} we know that both reflexive transitive closures
+        are the same i.e. $r^* = s^*$.
 
-        \item
-        $$
-        \begin{array}{l|l}
-            a \torel{r^*} c
-            &
-            \exists e. b \torel{r^*} e \land c \torel{r^*} e
-            \\
-            c \torel r d
-            \\
-            \hline
-            a \torel{r^*} d
-            &
-            \exists f. b \torel{r^*} f \land d \torel{r^*} f
-        \end{array}
-        $$
-        We have to prove the goal in the lower right corner i.e. find some $f$
-        with the required properties.
-
-        From the induction hypothesis we find some $e$ such that
-        $$
-        \begin{array}{lll}
-            a &\torel{r^*}& b
-            \\
-            \downarrow_{r^*} & & \downarrow_{r^*}
-            \\
-            c &\torel{r^*}& e
-        \end{array}
-        $$
-        is valid. From the previous lemma~\ref{StripLemma1} we find some $f$
-        such that
-        $$
-        \begin{array}{lll}
-            c &\torel{r^*}& e
-            \\
-            \downarrow_{r} & & \downarrow_{r}
-            \\
-            d &\torel{r^*}& f
-        \end{array}
-        $$
-        is valid. Therefore $f$ satisfies the required properties.
-        \end{enumerate}
+        From~\ref{StripLemma2} we conclude that $s^*$ is a diamond. This implies
+        that $r^*$ is a diamond as well and proves the fact that $r$ is
+        confluent by definition of confluence.
     \end{proof}
-\end{lemma}
+\end{theorem}
+
+
 
 
 
@@ -234,7 +373,7 @@ diamond is a diamond. We need the following helper lemma:
 \subsection{Parallel Reduction Relation}
 
 
-\subsubsection{Definition of the Parallel Reduction Relation}
+
 
 \begin{definition}
     The \emph{parallel reduction relation} $a \preduce b$ is defined inductively
@@ -343,7 +482,7 @@ diamond is a diamond. We need the following helper lemma:
     By induction on the structure of $a$.
     \begin{enumerate}
     \item $a$ is a sort: Trivial, because substitution does not change a sort
-    and reflexivity of the parallel beta reduction.
+    and parallel beta reduction is reflexive.
 
     \item $a$ is a variable, let's say $y$: In the case $x=y$ the goal is
     implied by the premise. In the case $x \ne y$ the goal is implied by
@@ -463,9 +602,6 @@ diamond is a diamond. We need the following helper lemma:
 
 
 
-
-
-\subsubsection{Parallel Reduction is a Diamond}
 
 
 \begin{theorem}
@@ -761,6 +897,27 @@ diamond is a diamond. We need the following helper lemma:
     \end{proof}
 \end{theorem}
 
+
+
+\begin{theorem}
+    \label{ChurchRosser}
+    \emph{Church Rosser theorem: Beta reduction is confluent.}
+
+    \begin{proof}
+        With the parallel beta reduction we have found a relation which is
+        \begin{enumerate}
+            \item a diamond (\ref{ParallelReductionDiamond})
+
+            \item between beta reduction and its reflexive transitive closure
+                (\ref{ReductionLeParallelReduction},
+                \ref{ParallelReductionLeReductionStar})
+        \end{enumerate}
+
+        I.e. with parallel beta reduction we have found a diamond between beta
+        reduction and its reflexive transitive closure which implies
+        by~\ref{DiamondBetween} that beta reduction is confluent.
+    \end{proof}
+\end{theorem}
 
 
 

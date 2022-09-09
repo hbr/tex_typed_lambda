@@ -62,12 +62,26 @@
 
 \def\ruleh#1#2{\begin{array}{c} #1 \\ \hline #2\end{array}}
 \def\rulev#1#2{\begin{array}{l} #1 \\ \hline #2\end{array}}
+\def\allbracket#1#2{
+    \forall #1. \left[ #2 \right]
+}
 \def\ruleall#1#2#3{
-    \forall #1. \left[ \rulev{#2}{#3} \right]
+    \allbracket {#1} {\rulev{#2}{#3}}
 }
 \def\ruleallh#1#2#3{
-    \forall #1. \left[ \ruleh{#2}{#3} \right]
+    \allbracket {#1} {\ruleh{#2}{#3}}
 }
+
+\def\diamond#1#2#3#4#5#6{
+    \begin{array}{ccc}
+        #1 & \torel{#5} & #2
+        \\
+        \downarrow_{#6} & & \downarrow_{#6}
+        \\
+        #3 & \torel{#5} & \exists #4
+    \end{array}
+}
+
 \def\snproof#1#2#3#4{
     \begin{array}{l|l}
         \ruleall{#2}{#1 \reduce #2}{#2 \in \SN}
