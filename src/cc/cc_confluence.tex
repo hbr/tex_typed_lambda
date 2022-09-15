@@ -30,34 +30,37 @@
 
 \subsection{Overview}
 
-We want to be able to use the calculus of constructions to compute.
+We want to be able to use the calculus of constructions for computation.
 The basic computation step is beta reduction. A computation in the calculus ends
 if no more reduction is possible i.e. if the term has been reduced to a normal
 form.
 
 However beta reduction is ambiguous. There might be more than one possibility to
-make a beta reduction. E.g.
+make a beta reduction.
 
-$$
-\begin{array}{cccccc}
-    & & (\lambda x. f x x) ((\lambda y.y) z)
-    \\
-    & \swarrow_{\beta}
-    & & \searrow_\beta
-    \\
-    f ((\lambda y.y) z) ((\lambda y.y) z)
-    \\
-    \downarrow_\beta
-    & & & & (\lambda x . f x x) z
-    \\
-    f z ((\lambda y.y) z)
-    \\
-    & \searrow_\beta
-    & &  \swarrow_\beta
-    \\
-    & & f z z
-\end{array}
-$$
+\begin{example}
+    \label{ex:Confluence}
+    $$
+    \begin{array}{cccccc}
+        & & (\lambda x. f x x) ((\lambda y.y) z)
+        \\
+        & \swarrow_{\beta}
+        & & \searrow_\beta
+        \\
+        f ((\lambda y.y) z) ((\lambda y.y) z)
+        \\
+        \downarrow_\beta
+        & & & & (\lambda x . f x x) z
+        \\
+        f z ((\lambda y.y) z)
+        \\
+        & \searrow_\beta
+        & &  \swarrow_\beta
+        \\
+        & & f z z
+    \end{array}
+    $$
+\end{example}
 
 In the left path we reduce first the outer redex. This reduction duplicates the
 redex in the argument. Therefore we need three reduction steps to reach the
@@ -73,12 +76,12 @@ calculus of construction would be useless as a calculus.
 
 It turns out that \emph{confluence} is a key property in the proof of uniqueness
 of results. We define a relation as \emph{confluent} if going an arbitrary
-number of steps in two directions there are always paths to join the paths.
-Therefore we want to prove confluence of beta reduction.
+number of steps in two directions there are always continuations of the paths to
+join them.  We want to prove confluence of beta reduction.
 
 Before proving confluence of beta reduction we define the confluence of a
 relation by defining first a diamond property of a relation. The diamond
-property of a relation is something like a \emph{one step confluence}. The we
+property of a relation is something like a \emph{one step confluence}. Then we
 show that the confluence of a relation can be proved by finding a diamond
 between it and its reflexive transitive closure.
 
@@ -91,13 +94,16 @@ terms always have a common reduct, normal forms are unique and some other
 interesting properties of binders.
 
 
+
+
+
 \subsection{Diamonds and Confluence}
 
 
 \begin{definition}
-    \emph{Diamond Property} A relation $r$ has the diamond property if $a
-    \torel{r} b$ and $a \torel{r} c$ implies the existence of some $d$ such that
-    $b \torel{r} d$ and $c \torel{r} d$ are valid.
+    \emph{Diamond Property} A relation $r$ has the diamond property (or is a
+    diamond) if $a \torel{r} b$ and $a \torel{r} c$ implies the existence of
+    some $d$ such that $b \torel{r} d$ and $c \torel{r} d$ are valid.
 
     $$
     \ruleh{
@@ -372,7 +378,50 @@ Now we can prove the basic theorem of this subsection:
 
 \subsection{Parallel Reduction Relation}
 
+Looking at the example~\ref{ex:Confluence} it can be seen that beta reduction is
+not a diamond. Let's analyze the example a little bit to see why beta reduction
+is not a diamond. Assume there is a redex like
+$$
+    (\lambda x^A. e) a
+$$
+where the subterm $a$ contains redexes as well i.e. there is some $b$ with $a
+\reduce b$. Then the following two reduction paths are possible.
+$$
+\begin{array}{lllll}
+    (\lambda x^A. e) a
+    &\reduce& (\lambda x^A. e) b
+    &\reduce& e[x:=b]
+    \\
+    (\lambda x^A. e) a
+    &\reduce& e[x:=a]
+    &\reducestar& e[x:=b]
+\end{array}
+$$
 
+In the first path we reach the term $e[x:=b]$ in two reduction steps. In the
+second path we can reach the term $e[x:=b]$ as well. But the needed number of
+steps depends on how often the variable $x$ is present in the term $e$. If $x$
+is contained in the term $e$ $n$ times we need $n+1$ reduction steps in total
+because we have to reduce the term $a$ in $e[x:=a]$ to the term $b$ $n$ times.
+If beta reduction were a diamond, it would be required that $n$ is always $1$
+which is not the case in general.
+
+In order to prove the confluence of beta reduction we have to find a diamond
+between beta reduction and its reflexive transitive closure. Let's call this
+relation $\beta_p$. This relation is like beta reduction $\beta$ but must allow
+more reductions steps to remedy the situation that in a redex $(\lambda x^A.e)a$
+the variable $x$ might be contained zero or more times in the subterm $e$.
+
+\begin{itemize}
+    \item In order to remedy the situation that the variable $x$ is not
+        contained in the subterm $e$ we make the relation $\beta_p$ reflexive.
+
+    \item In order to remedy the situation that the variable $x$ is contained
+        two or more times in the subterm $e$ we allow that $\beta_p$ reductions
+        can happen in any subterm of a term. Therefore we call $\beta_p$
+        \emph{parallel} beta reduction because the reduction can happen in the
+        subterms in parallel.
+\end{itemize}
 
 
 \begin{definition}
