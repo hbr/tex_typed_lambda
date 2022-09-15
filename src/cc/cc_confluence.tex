@@ -609,12 +609,13 @@ the variable $x$ might be contained zero or more times in the subterm $e$.
         \begin{array}{lllll}
             ((\lambda y^A. e) a)[x:=t]
             &=& (\lambda y^{A[x:=t]}. e[x:=t]) a[x:=t]
-            &\text{definition of substition}
+            &\text{definition of substitution}
             \\
-            &\preduce& f[x:=u][y:=b[x:=t]]
+            &\preduce& f[x:=u][y:=b[x:=u]]
             &\text{induction hypotheses}
             \\
-            &=& f[y:=b][x:=u] &\text{lemma~\ref{DoubleSubstitution}}
+            &=& f[y:=b][x:=u]
+            &\text{double substitution~\ref{DoubleSubstitution}}
         \end{array}
         $$
 
