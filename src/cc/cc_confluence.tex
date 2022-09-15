@@ -657,64 +657,42 @@ the variable $x$ might be contained zero or more times in the subterm $e$.
 \begin{theorem}
     \label{ParallelReductionDiamond}
     \emph{Parallel reduction is a diamond}
+    \def\diap#1#2#3#4{\diamond {#1} {#2} {#3} {#4} {\beta_p} {\beta_b}}
     $$
-    \ruleh{
-        a \preduce b
-    }
-    {
-        \forall c.
-        \left[
-        \ruleh{a \preduce c}{\exists d. b \preduce d \land c \preduce d}
-        \right]
-    }
+    \diap a b c d
     $$
 
-    \begin{proof} By induction on $a \preduce b$.
+    \begin{proof} By induction on $a \preduce b$. Note that we keep the variable
+        $c$ in the following universally quantified.
 
         \begin{enumerate}
         \item Reflexive
-        $$
-        \begin{array}{l|l}
-            a \preduce a
-            &
-            \forall c.
-            \left[
-                \ruleh{a \preduce c}{\exists d. c \preduce d \land a \preduce d}
-            \right]
-        \end{array}
-        $$
-        To prove the goal on the right side we assume $a \preduce c$. Then we use
-        $c$ for $d$ which satisfies the required property of $d$ trivially.
+            $$
+            \begin{array}{l|l}
+                a \preduce a
+                &
+                \allbracket c {\diap a a c d}
+            \end{array}
+            $$
+            To prove the goal on the right side we assume $a \preduce c$. Then
+            we use $c$ for $d$ which satisfies the required property of $d$
+            trivially.
 
         \item Redex
         $$
         \begin{array}{l|l}
             e \preduce f
             &
-            \forall g.
-            \left[
-                \ruleh{e \preduce g}{\exists h. f \preduce h \land g \preduce h}
-            \right]
+            \allbracket g {\diap e f g h}
             \\
             a \preduce b
             &
-            \forall c.
-            \left[
-                \ruleh{b \preduce c}{\exists d. b \preduce d \land c \preduce d}
-            \right]
+            \allbracket c {\diap a b c d}
             \\
             \hline
             (\lambda x^A. e) a \preduce f[x:=b]
             &
-            \forall k.
-            \left[
-                \ruleh{
-                    (\lambda x^A.e) a \preduce k
-                }
-                {
-                    \exists n. k \preduce n \land f[x:=b] \preduce n
-                }
-            \right]
+            \allbracket k {\diap {(\lambda x^A.e)a} {f[x:=b]} k n}
         \end{array}
         $$
         To prove the goal in the lower right corner we assume $(\lambda x^A.e)a
@@ -797,35 +775,18 @@ the variable $x$ might be contained zero or more times in the subterm $e$.
         \begin{array}{l|l}
             A \preduce C
             &
-            \forall E.
-            \left[
-            \ruleh{A \preduce E}{\exists H. C \preduce H \land E \preduce H}
-            \right]
-            %
+            \allbracket E {\diap A C E H}
             \\
             B \preduce D
             &
-            \forall F.
-            \left[
-            \ruleh{B \preduce F}{\exists J. D \preduce J \land F \preduce J}
-            \right]
-            %
+            \allbracket F {\diap B D F J}
             \\
             \hline
             \Pi x^A. B \preduce \Pi x^C. D
             &
-            \forall E F.
-            \left[
-            \ruleh {
-                \Pi x^A.B \preduce \Pi x^E. F
-            }
-            {
-                \exists n.
-                \Pi x^C. D \preduce n
-                \land
-                \Pi x^E. F \preduce n
-            }
-            \right]
+            \allbracket
+            {EF}
+            {\diap {\Pi x^A.B} {\Pi x^C.D} {\Pi x^E.F} n}
         \end{array}
         $$
         In order to prove the goal in the lower right corner we assume $\Pi x^A.
@@ -834,7 +795,7 @@ the variable $x$ might be contained zero or more times in the subterm $e$.
         Because of lemma~\ref{ParallelReductionProductAbstraction} which says
         that parallel reduction preserves products we have chosen the more
         specific $\Pi x^E.F$ which satisfies $A \preduce E$ and $B \preduce F$
-        instead of the more general $k$.
+        instead of a more general term.
 
         From the induction hypotheses we conclude the existence of the terms $H$
         and $J$ such that
@@ -850,42 +811,16 @@ the variable $x$ might be contained zero or more times in the subterm $e$.
         \begin{array}{l|l}
             a \preduce c
             &
-            \forall e.
-            \left[
-            \ruleh{
-                a \preduce e
-            }
-            {
-                \exists g. c \preduce g \land e \preduce g
-            }
-            \right]
-            %
+            \allbracket e {\diap a c e g}
             \\
             b \preduce d
             &
-            \forall f.
-            \left[
-            \ruleh{
-                b \preduce f
-            }
-            {
-                \exists h. d \preduce h \land f \preduce h
-            }
-            \right]
-            %
+            \allbracket f {\diap b d f h}
             \\
             \hline
             a b \preduce c d
             &
-            \forall k.
-            \left[
-            \ruleh{
-                a b \preduce k
-            }
-            {
-                \exists n. c d \preduce n \land k \preduce n
-            }
-            \right]
+            \allbracket k {\diap {ab} {cd} k n}
         \end{array}
         $$
         To prove the goal in the lower right corner we assume $a b \preduce k$
