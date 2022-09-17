@@ -1,7 +1,7 @@
-%\def\Any{{\cal U}}
-%\def\Prop{{\cal P}}
-\def\Any{\Box}
-\def\Prop{*}
+\def\Any{{\cal U}}
+\def\Prop{{\cal P}}
+%\def\Any{\Box}
+%\def\Prop{*}
 
 \def\banana#1{(\!|#1|\!)}
 
@@ -96,14 +96,15 @@
     \end{array}
 }
 
-
-\def\recfun#1#2{
-    #1 :=
+\def\recbrace#1{
     \left\{
     \begin{array}{llll}
-        #2
+        #1
     \end{array}
     \right.
+}
+\def\recfun#1#2{
+    #1 := \recbrace {#2}
 }
 
 

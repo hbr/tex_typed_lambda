@@ -12,8 +12,10 @@ are expressed within the same syntax. Since all welltyped terms must have a type
 we need types of types. The types of types in the calculus of constructions are
 the two sorts $\Prop$ and $\Any$.
 
-Since the calculus is typed, all variables must have a type. Therefore in
-binders like abstractions the variables have types $\lambda x^A. e$.
+Since the calculus is typed, all variables must have a type. Therefore all
+variables in binders like abstractions have types $\lambda x^A. e$. In order to
+assign types to free variables contexts are introduced.
+
 
 Furthermore it is necessary to express functions $A \to B$ from one type $A$ to
 another type $B$. The calculus of constructions includes dependent types, i.e.
@@ -21,6 +23,14 @@ the result type $B$ of a function might depend on the argument. In order to
 express that a product type of the form $\Pi x^A. B$ is used which describes the
 type of a function from an argument of type $A$ to the result of type $B$ which
 might depend on the argument.
+
+After introducing the terms of the calculus on constructions we define
+\emph{free variables}, \emph{substitution}, \emph{beta reduction}, \emph{beta
+equivalence} and prove certain theorems which state some interesting properties
+about these definitions.
+
+In this section we do not yet define what it means for a term to be
+\emph{welltyped}. This is done in the chapter typing~\ref{sec:Typing}.
 
 
 
@@ -31,7 +41,7 @@ might depend on the argument.
 
 In the calculus of constructions terms and types are in the same
 syntactic category. All welldefined terms have types and therefore types must
-have types as well. In order to have types for types we start with the
+have types as well. In order to have types of types we start with the
 introduction of sorts which are the types of types.
 
 \begin{definition}
@@ -42,7 +52,29 @@ introduction of sorts which are the types of types.
     the variable $s$.
 \end{definition}
 
+In many texts about typed lambda calculus like e.g. \cite{barendregt1993} and
+\cite{geuvers1994} the symbol $*$ is used instead of $\Prop$ and the symbol
+$\Box$ is used instead of $\Any$. This has found its way into the Haskell
+programming language where $*, * \to *, (* \to *) \to *, \ldots$ are
+\emph{kinds}.
 
+We use the symbol $\Prop$ in order to emphasize the Curry-Howard correspondence
+of \emph{propositions as types}. Many interesting types $T$ in the calculus of
+constructions have type $\Prop$ i.e. $T : \Prop$. Within the Curry-Howard
+correspondence these types are propositions.
+
+The symbol $\Any$ is just a higher \emph{universe} than $\Prop$. A more general
+lambda calculus the \emph{extended calculus of constructions} has an infinite
+hierarchy of universes $\Prop, \Any_0, \Any_1, \ldots$ where $\Prop$ is the
+impredicative universe and $\Any_i$ are the predicative universes.
+
+In the calculus of constructions the term $\Prop$ has type $\Any$ and the term
+$\Any$ is not welltyped. In the extended calculus of constructions the term
+$\Any_i$ has type $\Any_{i+1}$ i.e. all terms of the form $\Any_i$ for any $i$
+are welltyped.
+
+The decision to use the symbols $\Prop$ and $\Any$ instead of $*$ and $\Box$ is
+just a matter of taste.
 
 
 
@@ -92,26 +124,19 @@ introduction of sorts which are the types of types.
     The set of \emph{free variables} $\FV(t)$ of a term $t$ is defined by the
     function
     $$
-    \FV(t) :=
-        \begin{cases}
-            \FV(s) &:= \emptyset
-
-            \\
-
-            \FV(x) &:= \{ x \}
-
-            \\
-
-            \FV(a b) &:= \FV(a) \cup \FV(b)
-
-            \\
-
-            \FV(\lambda x^A. e) &:= \FV(A) \cup (\FV(e) - \{x\})
-
-            \\
-
-            \FV(\Pi x^A. B) &:= \FV(A) \cup (\FV(B) - \{x\})
-        \end{cases}
+    \recfun
+    {\FV(t)}
+    {
+        \FV(s) &:=& \emptyset
+        \\
+        \FV(x) &:=& \set{x}
+        \\
+        \FV(a b) &:=& \FV(a) \cup \FV(b)
+        \\
+        \FV(\lambda x^A. e) &:=& \FV(A) \cup (\FV(e) - \set{x})
+        \\
+        \FV(\Pi x^A. B) &:=& \FV(A) \cup (\FV(B) - \set{x})
+    }
     $$
     where $s$ ranges over sorts, $x$ ranges over variables and $a$, $b$,
     $e$, $A$ and $B$ range over arbitrary terms.
@@ -187,42 +212,42 @@ define contexts.
     free occurrences of the variable $y$. It is defined as a recursive function
     which iterates over all subterms until variables or sorts are encountered.
     $$
-    t[y:=u] :=
-        \begin{cases}
-            s[y:=u] &:= s
-
+    \begin{array}{l}
+        t[y:=u] :=
+        \\
+        \quad\recbrace{
+            s[y:=u] &:=& s
             \\
-
-            x[y:=u] &:=
+            %
+            x[y:=u] &:=&
                 \begin{cases}
                     u & y = x
                     \\
                     x & y \ne x
                 \end{cases}
-
             \\
-
-            (a b)[y:=u] &:= a[y:=u] b[y:=u]
-
+            %
+            (a b)[y:=u] &:=& a[y:=u] b[y:=u]
             \\
-
+            %
             (\lambda x^A . e)[y:=u]
-            &:=
+            &:=&
             \lambda x^{A[y:=u]}.e[y:=u]
-                \quad y \ne x, x \notin \FV(u)
-
+            & y \ne x, x \notin \FV(u)
+            %
             \\
-
+            %
             (\Pi x^A . B)[y:=u]
-            &:=
+            &:=&
             \Pi x^{A[y:=u]}. B[y:=u]
-                \quad y \ne x, x \notin \FV(u)
-        \end{cases}
+            & y \ne x, x \notin \FV(u)
+        }
+    \end{array}
     $$
 \end{definition}
 
 Remark:
-        The conditions $y \ne x$ and $x \notin \FV(u)$ are not a restriction,
+        The conditions $y \ne x$ and $x \notin \FV(u)$ are not a restriction
         because the bound variable $x$ can always be renamed to annother
         variable which is different from $y$ and does not occur free in the term
         $u$.
