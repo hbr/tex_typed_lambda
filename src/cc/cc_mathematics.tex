@@ -141,6 +141,11 @@ is in the set.
 A number $m \in E$ can be arbitrarily big, but it can be in the set only because
 of finitely many applications of the rules which define the set.
 
+
+
+
+\subsection{Induction Proofs}
+
 With inductively defined sets we can do induction proofs. Let's say that we want
 to prove that all numbers $n$ in $E$ satisfy a certain property $p(n)$ i.e. we
 want to prove
@@ -255,6 +260,36 @@ quantification is arbitrary. It is good practice to choose names which do not
 interfere. In the case for the recursive rule we have chosen the different names
 $i$ and $m$ in the existential quantification. This makes the prove more
 readable for humans.
+
+
+
+\subsection{Recursive Functions}
+
+It is possible to define recursive functions whose domain is an inductively
+defined set. The following function $h(n)$ computes for each even number $n \in
+E$ its half value.
+
+$$
+\recfun
+{h(n)}
+{
+    h(0) &:=& 0
+    \\
+    h(n+2) &:=& h(n) + 1
+}
+$$
+
+
+Induction and recursion are just two sides of the same coin. The construction
+of each even number requires finitely many applications of the rules. A
+recursive function just deconstructs one rule at a time and therefore is
+guaranteed to terminate.
+
+Note that the input domain and the output domain of the function $h$ are
+different. $h$ maps even numbers (i.e. elements of $E$) to natural numbers i.e.
+it has the type $E \to \Nat$.
+
+
 
 
 
