@@ -52,11 +52,11 @@ introduction of sorts which are the types of types.
     the variable $s$.
 \end{definition}
 
-In many texts about typed lambda calculus like e.g. \cite{barendregt1993} and
-\cite{geuvers1994} the symbol $*$ is used instead of $\Prop$ and the symbol
-$\Box$ is used instead of $\Any$. This has found its way into the Haskell
-programming language where $*, * \to *, (* \to *) \to *, \ldots$ are
-\emph{kinds}.
+In many texts about typed lambda calculus like e.g.
+Barendregt1993~\cite{barendregt1993} and Geuvers1994~\cite{geuvers1994} the
+symbol $*$ is used instead of $\Prop$ and the symbol $\Box$ is used instead of
+$\Any$. This has found its way into the Haskell programming language where $*, *
+\to *, (* \to *) \to *, \ldots$ are \emph{kinds}.
 
 We use the symbol $\Prop$ in order to emphasize the Curry-Howard correspondence
 of \emph{propositions as types}. Many interesting types $T$ in the calculus of
@@ -405,6 +405,17 @@ Like in untyped lambda calculus, computation is done via \emph{beta reduction}.
 A beta redex has the form $(\lambda x^A. e) a$ which reduces to the reduct
 $e[x:=a]$. Beta reduction can be done in any subterm of a term.
 
+The intuitive meaning of beta reduction is quite clear. The term $\lambda x^A.e$
+is a function with a formal argument $x$ of type $A$. The \emph{body} $e$ is the
+\emph{implementation} of this function which can use the variable $x$. As with
+any programming language which support functions the name of the formal
+argument is irrelevant. An arbitrary name can be choses and the variable is only
+used \emph{internally} and is not visible to the \emph{outside world}. We can
+apply the function to an argument $a$ i.e. form the term $(\lambda x^A.e) a$. In
+order to compute the result we use the \emph{implementation} $e$ and substitute
+the actual argument $a$ for the formal argument $x$ i.e. we form $e[x:=a]$.
+
+
 \begin{definition}
     \emph{Beta reduction}
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -668,6 +679,23 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
 \subsection{Beta Equivalence}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+In arithmetics of numbers the terms $3 + 4$, $7$ and $2 + 5$ are equivalent.
+Syntactically the terms are different, however we regard the terms equivalent
+because they represent the same value. In arithmetics the equivalence is so
+strong that we even consider the terms being equal and write $3 + 4 = 2 + 5 = 7$.
+
+In lambda calculus we only mark two terms as equal if they are syntactically the
+same terms except for irrelevant renamings of bound variables. In the literature
+of lambda calculus this equality is usually called $\alpha$-equivalence. We say
+that $\alpha$-equivalent terms represent the \emph{same} term.
+
+In lambda calculus we call terms which represent the same value
+$\beta$-equivalent terms. E.g. the terms $(\lambda x^A.e) a$ and $e[x:=a]$ are
+called ($beta$-) equivalent because they represent the same value. The former
+before the compuation step and the latter after the computation step.
+
+Beta equivalence is just the reflexive, symmetric and transitive closure of the
+beta reduction.
 
 \begin{definition}
     We define \emph{beta equivalence} as a binary relation $a \equiv b$ between
@@ -758,6 +786,67 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
         \end{enumerate}
     \end{proof}
 \end{theorem}
+
+
+\begin{theorem}
+    \label{BetaEquivalenceSymmetric}
+    \emph{Beta equivalence is symmetric}.
+    $$
+    \ruleh{a \betaeq b}{b \betaeq a}
+    $$
+
+    \begin{proof}
+        By induction on $a \betaeq b$.
+        \begin{enumerate}
+            \item Reflexive: Trivial
+
+            \item Forward:
+                $$
+                \begin{array}{l|l}
+                    a \betaeq b_0
+                    &
+                    b_0 \betaeq a
+                    \\
+                    b_0 \reduce b
+                    \\
+                    \hline
+                    a \betaeq b
+                    &
+                    b \betaeq a
+                \end{array}
+                $$
+
+                First we use the reflexive rule to derive $b \betaeq b$  and
+                then the second premise $b_0 \reduce b$ and the backward rule
+                to derive $b \betaeq b_0$.
+
+                Then we use the induction hypothesis $b_0 \betaeq a$ and the
+                transitivity of beta equivalence~\ref{BetaEquivalenceTransitive}
+                to derive the goal $b \betaeq a$.
+
+            \item Backward:
+                $$
+                \begin{array}{l|l}
+                    a \betaeq b_0
+                    &
+                    b_0 \betaeq a
+                    \\
+                    b \reduce b_0
+                    \\
+                    \hline
+                    a \betaeq b
+                    &
+                    b \betaeq a
+                \end{array}
+                $$
+
+                Similar reasoning as with the forward rule. The second premise
+                implies $b \betaeq b_0$ and the induction hypothesis and
+                transitivity imply the goal.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
 
 \begin{theorem}
     \label{SubstituteEquivalence}
