@@ -2,6 +2,103 @@
 \label{sec:Typing}
 
 
+This section describes welltyped terms and basic properties of welltyped terms.
+
+What is needed to state that a term $t$ is welltyped? First we have to notice
+that the term $t$ might contain free variables. As opposed to bound variables,
+free variables don't have a type expressed within a term. Therefore we need a
+context $\Gamma$ which assigns a type to the free variables in the term $t$.
+Furthermore we need a type $T$. We write the statement \emph{The term $t$ has
+type $T$ in the context $\Gamma$ as}
+$$
+    \Gamma \vdash t : T
+$$
+
+We need a typing relation which is a subset of
+$$
+    \text{Contexts} \times \text{Terms} \times \text{Terms}
+$$
+
+In the following we define the typing relation inductively.
+
+Since terms are either sorts, variables, products, abstractions or applications,
+the typing relation has one introduction rule for each possible form of a term
+which states how to introduce a welltyped term of that form.
+
+Furthermore there are two structural rules which state
+\begin{itemize}
+    \item If we add a welltyped variable to a context, then every welltyped term
+        in the context is welltyped in the augmented context in which it has the
+        same type.
+
+    \item If a term $t$ has type $T$ and the type $U$ is beta equivalent to $T$
+        and a welltyped type, then the term $t$ has type $U$ in the same
+        context.
+\end{itemize}
+
+The last rule states that beta equivalent types are really equivalent in their
+role as types. This allows to do computations (i.e. beta reductions) in types
+without changing the meaning of a type.
+
+
+Besides the definition of the typing relation the main part of this section is
+to prove important properties of welltyped terms. The most important nontrivial
+theorems/lemmas are:
+\begin{enumerate}
+    \item Generation Lemmata: If a term $t$ is welltyped (i.e. it has a type $T$
+        in a certain context $\Gamma$), then there is an equivalent type of a
+        certain form for each possible form the term (sort, variable, product,
+        abstraction, application). E.g. each welltyped abstraction $\lambda x^A.
+        e$ has a type of the form $\Pi x^A. B$ which is beta equivalent to $T$.
+
+        The generation lemmata describe important properties which are used in
+        the proofs on many other theorems.
+
+    \item Type of types: If $T$ is the type of a welltyped term in a certain
+        context, then $T$ is either the sort $\Any$ or $T$ is welltyped in the
+        same context and its type is a sort (i.e. either $\Prop$ or $\Any$).
+
+        This theorem justifies the introduction of sorts as \emph{types of
+        types}.
+
+    \item Subject reduction: Reduction (i.e. computation) does not change
+        the type of a term. Or in other words: If a term has a certain type and
+        we compute the term, then we really get an object of that type. I.e.
+        computation does what it promises to do.
+
+        Subject reduction is valid in all typed programming languages. If you
+        define a function with a certain result type, then the actual execution
+        of that function returns an object of that type (provided that the
+        computation terminates).
+
+    \item Uniqueness of types: If a term is welltyped in a certain context, then
+        all its possible types are beta equivalent. I.e. each welltyped term has
+        a unique type modulo beta equivalence. I.e. we can regard the
+        equivalence class as the unique type of a term.
+
+        Together with subject reduction this theorem guarantees that beta
+        equivalent welltyped terms have the same unique type modulo beta
+        equivalence.
+\end{enumerate}
+
+In the last subsection of this section we introduce \emph{kinds}. Since we have
+the two sorts $\Prop$ and $\Any$ and sorts are the types of types, there are two
+types of types. Types of type $\Prop$ and types of type $\Any$. The types of
+type $\Any$ are called \emph{kinds}. \emph{Kinds} have the special property that
+they are recognizable by pure syntactic analysis of the term which represents
+the type.
+
+Semantically \emph{kinds} are the types of $n$-ary type functions where $n = 0$
+is allowed as a corner case. Therefore if we know that the type of a term is a
+kind, then we know that the term will return a type, if applied to sufficient
+arguments (of the correct type of course).
+
+The kinds play an important role in the proof of strong normalization i.e. in
+the proof of consistency of the calculus of constructions.
+
+
+
+
 
 
 \subsection{Typing Relation}
@@ -102,6 +199,29 @@ the rules
         \end{enumerate}
     \end{enumerate}
 \end{definition}
+
+
+Remarks:
+\begin{itemize}
+    \item There is no introduction rule for $\Any$. Therefore there can never be
+        a valid type of $\Any$ i.e. the term $\Any$ is not welltyped. Its only
+        purpose is to be the type of some types like $\Prop$ and it can only
+        appear in the type position of a typing judgement $\Gamma \vdash t : T$.
+
+    \item The variable introduction rule requires a welltyped type $A$ for the
+        introduced variable (i.e. $A: s$ for some sort $s$). Since $\Any$ is not
+        welltyped, it is impossible for a variable to have type $\Any$.
+
+        This has the important consequence that it is impossible to construct a
+        welltyped abstraction of the form $\lambda x^\Any. e$. Therefore it is
+        impossible to construct a function term $f$ such that $f \Prop$ is
+        welltyped.
+
+        It is possible to compute with types but it is impossible to compute
+        with sorts (or kinds in general) as arguments. This is an important
+        difference to the \emph{extended calculus of constructions} which allow
+        variables of type $\Any_i$ because $\Any_i$ has type $\Any_{i+1}$.
+\end{itemize}
 
 
 
