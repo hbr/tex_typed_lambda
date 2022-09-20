@@ -2071,8 +2071,25 @@ is a kind) in the context a model which is an element of $\nu(A)$.
 \subsection{Term Interpretation}
 %------------------------------------------
 
-$\terminter{t}{\rho}$
+\begin{definition}
+    \emph{A variable interpretation $\rho$ is a list of variables which
+    associates to each variable a term. No duplicate variables are allowed.}
+    $$
+        \rho = \set{x_1^{t_1}, x_2^{t_2}, \ldots, x_n^{t_n}}
+    $$
+\end{definition}
 
+
+\begin{definition}
+    \emph{A term interpretation $\terminter u \rho$ replaces each free
+    variable $x$ in the term $u$ with the term $t$ when $x^t \in \rho$,
+    otherwise leaves the variable unchanged.}
+\end{definition}
+
+A term interpretation is just a parallel substitution of the free variables in a
+term. In the following we use only variable interpretations which contain all
+variables of a context and apply it only to terms which are welltyped in a
+context.
 
 
 
@@ -2084,7 +2101,7 @@ $\terminter{t}{\rho}$
 
 \begin{definition}
     \label{DefinitionContextModel}
-    \emph{Context Model}: We call a term interpretation $\rho$ and a context
+    \emph{Context Model}: We call a variable interpretation $\rho$ and a context
     interpretation $\xi$ (i.e. $\xi \vDash \Gamma$) a model of a context which
     we write
     $$
