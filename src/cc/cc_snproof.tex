@@ -1,7 +1,5 @@
 \section{Proof of Strong Normalization}
 
-Barendregt~1993~\cite{barendregt1993}, Geuvers~1994~\cite{geuvers1994}.
-
 
 
 
@@ -92,48 +90,6 @@ $$
 In order to prove the goal $p(a)$ in the lower right corner we can assume all
 the other statements especially the induction hypothesis in the upper right
 corner.
-
-
-
-
-\begin{definition}
-    The set of \emph{base terms} $\BT$ is the set of all variables applied to
-    zero or more strongly normalizing arguments i.e. terms of the form $x a_1
-    \ldots a_n$ where $a_i \in \SN$ for all $i$. We formally define the set
-    $\BT$ by the rules
-    \begin{enumerate}
-    \item $x \in \BT$ where $x$ ranges over variables.
-
-    \item
-        $\ruleh{
-            a \in \BT
-            \\
-            b \in \SN
-        }
-        {
-            ab \in \BT
-        }$
-    \end{enumerate}
-\end{definition}
-
-\begin{theorem}
-    \label{BaseTermsStronglyNormalizing}
-    \emph{All base terms are strongly normalizing}.
-    $$
-    \rulev{
-        a \in \BT
-    }
-    {
-        a \in \SN
-    }
-    $$
-    \begin{proof}
-        Because a base terms begins with a variable followed by zero or more
-        strongly normalizing arguments, it has no redex whose reduction can
-        change the structure. I.e. only the arguments can reduce and they are by
-        definition strongly normalizing.
-    \end{proof}
-\end{theorem}
 
 
 
@@ -337,102 +293,48 @@ corner.
 
 
 
-\subsection{Logical Consistency}
+
+\subsection{Base Terms}
 %------------------------------------------
 
-\begin{theorem}
-    \label{NormalWelltypedTerms}
-    \emph{All welltyped terms in normal form are either sorts, products,
-    abstractions or base terms}.
-    \begin{proof}
-        We prove the goal by induction on the structure of $t$.
-
-        \begin{enumerate}
-            \item For sorts, variables, products and abstractions there is
-                nothing to do, because they fall trivially into one of the
-                alternatives.
-
-            \item It remains to prove that a welltyped application in normal
-                form is a base term. Assume $\Gamma \vdash fa : T$ and $fa \in
-                \NF$.
-
-                By the generation lemma~\ref{GenerationLemmata} for applications
-                we postulate the existence of the types $A$ and $B$ such that
-                $\Gamma \vdash f: \Pi x^A. B$.
-
-                The first induction hypothesis states that $f$ falls into one of
-                the categories.
-
-                However it cannot be a sort nor a product,
-                because neither of them can have a type equivalent to $\Pi
-                x^A.B$.
-
-                $f$ cannot be an abstraction, otherwise $fa$ would not
-                be in normal form. Therefore $f$ can only be a base term.
-
-                If $f$ is a base term, then $fa$ is a base term as well, because
-                $a\in\NF \subseteq \SN$.
-        \end{enumerate}
-    \end{proof}
-\end{theorem}
 
 
+\begin{definition}
+    The set of \emph{base terms} $\BT$ is the set of all variables applied to
+    zero or more strongly normalizing arguments i.e. terms of the form $x a_1
+    \ldots a_n$ where $a_i \in \SN$ for all $i$. We formally define the set
+    $\BT$ by the rules
+    \begin{enumerate}
+    \item $x \in \BT$ where $x$ ranges over variables.
+
+    \item
+        $\ruleh{
+            a \in \BT
+            \\
+            b \in \SN
+        }
+        {
+            ab \in \BT
+        }$
+    \end{enumerate}
+\end{definition}
 
 \begin{theorem}
-    \emph{There are no closed welltyped terms in normal form which have the
-    type $\Pi X^\Prop : X$}.
+    \label{BaseTermsStronglyNormalizing}
+    \emph{All base terms are strongly normalizing}.
     $$
     \rulev{
-        [] \vdash t: \Pi X^\Prop. X
-        \\
-        t \in \NF
+        a \in \BT
     }
-    {\perp}
+    {
+        a \in \SN
+    }
     $$
-
     \begin{proof}
-        We assume $t \in \NF$ and $[] \vdash t : \Pi X^\Prop. X$ and derive a
-        contradiction.
-
-        \begin{enumerate}
-            \item By the previous theorem~\ref{NormalWelltypedTerms} $t$ has to
-                be either a sort, a product and abstraction or a base term. $t$
-                cannot be a sort nor a product, because they cannot have a type
-                equivalent to a product (the only valid type of both are sorts).
-                It cannot be a base term, because a base term has a free
-                variable in the head position and we are in the empty context
-                (only closed terms).
-
-                Therefore $t$ must be an abstraction, say $\lambda y^B.e$.
-
-            \item By the generation lemma~\ref{GenerationLemmata} for
-                abstractions we postulate the existence of a type $C$ such
-                that $[X^\Prop] \vdash e : C$ and $\Pi X^\Prop. X \betaeq \Pi
-                X^\Prop.C$ which imply $X \betaeq C$. Therefore we have
-                $$
-                [X^\Prop] \vdash e : X
-                $$ and $e$ must be in normal form.
-
-            \item $e$ cannot be a sort nor a product nor an abstraction, because
-                the type of the first two must be a sort and the type of the
-                last must be a product. Neither a sort nor a product can be beta
-                equivalent to a variable.
-
-                Therefore $e$ must be a base term. There are two possibilities:
-
-            \item $e$ is a variable, say $y$:
-
-                In that case we have $y = X$, because $X$ is the only free
-                variable available. By the generation
-                lemma~\ref{GenerationLemmata} for variables we get $\Prop
-                \betaeq X$ which is not possible.
-
-            \item $e$ has the form $y a_1, \ldots, a_n$ with $n > 0$: We get $y
-                = X$ as well for the same reason. Since $y$ is in a function
-                position its type must be betaequivalent to some product $\Pi
-                y^B.C$. However its type is $\Prop$ which cannot betaequivalent
-                to a product.
-        \end{enumerate}
+        Because a base terms begins with a variable followed by zero or more
+        strongly normalizing arguments, it has no redex whose reduction can
+        change the structure. I.e. only the arguments can reduce and they are by
+        definition strongly normalizing.
     \end{proof}
 \end{theorem}
 
@@ -798,6 +700,11 @@ Remark:
 
 
 
+
+
+
+\subsection{Lambda Function Space}
+%------------------------------------------
 
 
 \begin{definition}
@@ -2635,5 +2542,107 @@ $\terminter{t}{\rho}$
         which proves the goal because type interpretations of types are
         saturated sets~\ref{TypeInterpretationTypeSaturated} and saturated sets
         contain only strongly normaling terms by definition.
+    \end{proof}
+\end{theorem}
+
+
+
+
+\subsection{Logical Consistency}
+%------------------------------------------
+
+\begin{theorem}
+    \label{NormalWelltypedTerms}
+    \emph{All welltyped terms in normal form are either sorts, products,
+    abstractions or base terms}.
+    \begin{proof}
+        We prove the goal by induction on the structure of $t$.
+
+        \begin{enumerate}
+            \item For sorts, variables, products and abstractions there is
+                nothing to do, because they fall trivially into one of the
+                alternatives.
+
+            \item It remains to prove that a welltyped application in normal
+                form is a base term. Assume $\Gamma \vdash fa : T$ and $fa \in
+                \NF$.
+
+                By the generation lemma~\ref{GenerationLemmata} for applications
+                we postulate the existence of the types $A$ and $B$ such that
+                $\Gamma \vdash f: \Pi x^A. B$.
+
+                The first induction hypothesis states that $f$ falls into one of
+                the categories.
+
+                However it cannot be a sort nor a product,
+                because neither of them can have a type equivalent to $\Pi
+                x^A.B$.
+
+                $f$ cannot be an abstraction, otherwise $fa$ would not
+                be in normal form. Therefore $f$ can only be a base term.
+
+                If $f$ is a base term, then $fa$ is a base term as well, because
+                $a\in\NF \subseteq \SN$.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+\begin{theorem}
+    \emph{There are no closed welltyped terms in normal form which have the
+    type $\Pi X^\Prop : X$}.
+    $$
+    \rulev{
+        [] \vdash t: \Pi X^\Prop. X
+        \\
+        t \in \NF
+    }
+    {\perp}
+    $$
+
+    \begin{proof}
+        We assume $t \in \NF$ and $[] \vdash t : \Pi X^\Prop. X$ and derive a
+        contradiction.
+
+        \begin{enumerate}
+            \item By the previous theorem~\ref{NormalWelltypedTerms} $t$ has to
+                be either a sort, a product and abstraction or a base term. $t$
+                cannot be a sort nor a product, because they cannot have a type
+                equivalent to a product (the only valid type of both are sorts).
+                It cannot be a base term, because a base term has a free
+                variable in the head position and we are in the empty context
+                (only closed terms).
+
+                Therefore $t$ must be an abstraction, say $\lambda y^B.e$.
+
+            \item By the generation lemma~\ref{GenerationLemmata} for
+                abstractions we postulate the existence of a type $C$ such
+                that $[X^\Prop] \vdash e : C$ and $\Pi X^\Prop. X \betaeq \Pi
+                X^\Prop.C$ which imply $X \betaeq C$. Therefore we have
+                $$
+                [X^\Prop] \vdash e : X
+                $$ and $e$ must be in normal form.
+
+            \item $e$ cannot be a sort nor a product nor an abstraction, because
+                the type of the first two must be a sort and the type of the
+                last must be a product. Neither a sort nor a product can be beta
+                equivalent to a variable.
+
+                Therefore $e$ must be a base term. There are two possibilities:
+
+            \item $e$ is a variable, say $y$:
+
+                In that case we have $y = X$, because $X$ is the only free
+                variable available. By the generation
+                lemma~\ref{GenerationLemmata} for variables we get $\Prop
+                \betaeq X$ which is not possible.
+
+            \item $e$ has the form $y a_1, \ldots, a_n$ with $n > 0$: We get $y
+                = X$ as well for the same reason. Since $y$ is in a function
+                position its type must be betaequivalent to some product $\Pi
+                y^B.C$. However its type is $\Prop$ which cannot betaequivalent
+                to a product.
+        \end{enumerate}
     \end{proof}
 \end{theorem}
