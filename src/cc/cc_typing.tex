@@ -7,7 +7,7 @@ This section describes welltyped terms and basic properties of welltyped terms.
 What is needed to state that a term $t$ is welltyped? First we have to notice
 that the term $t$ might contain free variables. As opposed to bound variables,
 free variables don't have a type expressed within a term. Therefore we need a
-context $\Gamma$ which assigns a type to the free variables in the term $t$.
+context $\Gamma$ which assigns types to the free variables in the term $t$.
 Furthermore we need a type $T$. We write the statement \emph{The term $t$ has
 type $T$ in the context $\Gamma$ as}
 $$
@@ -19,7 +19,7 @@ $$
     \text{Contexts} \times \text{Terms} \times \text{Terms}
 $$
 
-In the following we define the typing relation inductively.
+In this section we define the typing relation inductively.
 
 Since terms are either sorts, variables, products, abstractions or applications,
 the typing relation has one introduction rule for each possible form of a term
@@ -212,15 +212,19 @@ Remarks:
         introduced variable (i.e. $A: s$ for some sort $s$). Since $\Any$ is not
         welltyped, it is impossible for a variable to have type $\Any$.
 
-        This has the important consequence that it is impossible to construct a
-        welltyped abstraction of the form $\lambda x^\Any. e$. Therefore it is
-        impossible to construct a function term $f$ such that $f \Prop$ is
-        welltyped.
+    \item The product type $\Pi x^A. B$ is the type of functions mapping objects
+        of type $A$ to objects of type $B$ where the result type $B$ might
+        contain the variable $x$. The introduction rule for products requires
+        that both $A$ and $B$ are welltyped types. Therefore neither of them can
+        be $\Any$. Therefore a function cannot receive arguments of type $\Any$
+        nor return results of type $\Any$.
 
         It is possible to compute with types but it is impossible to compute
-        with sorts (or kinds in general) as arguments. This is an important
-        difference to the \emph{extended calculus of constructions} which allow
-        variables of type $\Any_i$ because $\Any_i$ has type $\Any_{i+1}$.
+        with sorts (or kinds in general) as arguments and results. This is an
+        important difference to the \emph{extended calculus of constructions}
+        which allows variables of type $\Any_i$ because $\Any_i$ has type
+        $\Any_{i+1}$. The extended calculus of constructions can compute with
+        kinds, the calculus of constructions no.
 \end{itemize}
 
 
