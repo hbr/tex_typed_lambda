@@ -1,5 +1,50 @@
 \section{Proof of Strong Normalization}
 
+In this section we proof the strong normalization of the calculus of
+constructions i.e. we proof that all welltyped terms have no infinite reduction
+sequence which implies that all welltyped terms can be reduced to a normal form.
+
+In the last subsection of this chapter we use the proof on strong normalization
+to prove that the calculus of constructions is consistent as a logic i.e. that
+it is impossible to derive a contradiction in the calculus of constructions.
+
+The proof of strong normalization is not trivial and spans nearly the whole part
+of this chapter. Why is the proof nontrivial?
+
+A naive attempt to prove the strong normalization would be to prove
+$$
+    \ruleh{
+        \Gamma \vdash t : T
+    }
+    { t \in \SN }
+$$
+by induction on $\Gamma \vdash t : T$ (where $\SN$ is the set of all strongly
+normalizing terms).
+
+This attempt passes a lot of rules of the typing relation. But it fails at the
+rule for application. In the rule for application we have to prove the strong
+normalization of $f a$ by using the induction hypotheses that the function term
+$f$ and the argument term $a$ are strongly normalizing. The impossibility of
+this proof step can be seen by looking at a counterexample.
+
+The term $\lambda x^A. x x$ is strongly normalizing because it is in normal
+form. If we apply the term to any argument we get the reduction
+
+$$
+    (\lambda x^A. x x) a \reduce a a
+$$
+%
+If we apply the term to itself we get
+%
+$$
+    (\lambda x^A. x x) (\lambda x^A. x x)
+    \reduce
+    (\lambda x^A. x x) (\lambda x^A. x x)
+$$
+%
+It is obvious that no normal form can be reached because the reduction steps can
+be carried out forever.
+
 
 
 
