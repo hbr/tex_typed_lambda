@@ -12,6 +12,7 @@
 
 \def\dbrackleft{{[\![}}
 \def\dbrackright{{]\!]}}
+\def\dbrack#1{{\dbrackleft #1 \dbrackright}}
 
 \def\betaeq{\stackrel{\beta}{\sim}}
 
@@ -41,7 +42,7 @@
 \def\fromrel#1{\stackrel{#1}{\leftarrow}}
 
 \def\terminter#1#2{{\banana{#1}_{#2}}}
-\def\typeinter#1#2{{\dbrackleft #1\dbrackright}_{#2}}
+\def\typeinter#1#2{{\dbrack{#1}_{#2}}}
 
 \def\vdashmin{\vdash_\mu}
 \def\vec#1{{\mathbf #1}}

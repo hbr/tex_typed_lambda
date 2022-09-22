@@ -2,9 +2,18 @@
 
 In this section we proof the strong normalization of the calculus of
 constructions i.e. we proof that all welltyped terms have no infinite reduction
-sequence which implies that all welltyped terms can be reduced to a normal form.
+sequence which implies that all welltyped terms can be reduced to a normal
+form. The presented proof is based on the proof of Herman Geuvers of his paper
+\emph{A short and flexible proof of strong normalization for the calculus of
+constructions}~\cite{geuvers1994}.
 
-In the last subsection of this chapter we use the proof on strong normalization
+The article of Herman Geuvers is a scientific
+paper which assume some good knowledge of type theory. Here we present the proof
+in a text book style which makes the proof more accessible to readers who are
+less experts in type theory.
+
+
+In the last subsection of this chapter we use the proof of strong normalization
 to prove that the calculus of constructions is consistent as a logic i.e. that
 it is impossible to derive a contradiction in the calculus of constructions.
 
@@ -45,12 +54,193 @@ $$
 It is obvious that no normal form can be reached because the reduction steps can
 be carried out forever.
 
+The problem with this naive approach is that the goal $t \in \SN$ gives
+induction hypotheses which are too weak. The set of strongly normalizing terms
+$\SN$ is not connected to the type $T$ of the term $t$.
+
+\begin{itemize}
+    \item \emph{Type Interpretation}
+
+        It is better to find a subset of the strongly normalizing terms $\dbrack
+        T \subseteq \SN$ which reflects a set of strongly normalizing terms
+        which can represent terms of type $T$.  We call $\dbrack T$ an
+        \emph{interpretation} of the type $T$. The interpretation of a type
+        shall be chosen in a way such that
+        %
+        $$
+            \rulev
+            {f \in \dbrack {\Pi x^A. B} \\ a \in \dbrack A}
+            {fa \in \dbrack{B[x:=a]}}
+        $$
+        %
+        is valid where $\Pi x^A. B$ is the type of $f$ and $A$ is the type of
+        $a$.
+
+    \item \emph{Saturated Sets}
+
+        In the proof on strong normalization we use \emph{saturated sets} as
+        interpretations of types. Saturated sets are sets of strongly
+        normalizing terms which are closed in the sense that they contain all
+        base terms (strongly normalizing terms of the form $x a_1 a_2 \ldots
+        a_n$) and that they contain all strongly normalizing terms which reduce
+        by beta reduction of a redex in the leftmost position of the term to a
+        term in the set (key reductions).
+
+        These closure conditions are important in the proof.
+        The set of saturated set will be denoted by $\SAT$. Note that $\SAT$ is
+        a set of sets of strongly normalizing terms.
+
+    \item \emph{Lambda Function Space}
+
+        Having a type interpretation $\dbrack A$ for the type $A$ and a type
+        interpretation $\dbrack B$ it is possible to form a saturated set
+        $$
+            \dbrack A \tolambda \dbrack B
+        $$
+        which is the set of lambda terms $f$ which whenever applied to a term $a
+        \in \dbrack A$ guarantees that $fa \in \dbrack A \tolambda \dbrack B$ is
+        valid. Note that $\dbrack A \tolambda \dbrack B$ is a set of strongly
+        normalizing lambda terms and not a relation. We call such a set of
+        stronly normalizing terms  a \emph{lambda function space}. We use sets
+        in the form of a lambda function space as type interpretations of types
+        of the form $\Pi x^A.B$.
+
+        This lambda function space solves the problem of proving $fa \in \dbrack
+        B$ from the induction hypotheses $f \in \dbrack A \tolambda \dbrack B$
+        and $a \in \dbrack A$.
+
+        In the previous paragraph we have ignored the detail that the variable
+        $x$ might be contained in the type $B$ within the product $\Pi x^A.B$
+        and that each different value of the variable $x$ might generate a
+        different interpretation $\dbrack B$ of the type $B$. In the detailed
+        proof we will see that this fact is important when the type $A$ of the
+        variable $x$ is a kind. In that case we have to form some set of the
+        form
+        %
+        $$
+            \dbrack A \tolambda \bigcap_x \dbrack B
+        $$
+        %
+        where for the purposes of this overview we understand that $\bigcap_x
+        \dbrack B$ is the intersection of all possible interpretations $\dbrack
+        B$ for all possible values of $x$. In the detailed proof we give a
+        precise definition of this lambda function space. Here we get a first
+        hint why the closure conditions in the definition of saturated sets are
+        important. They guarantee that any intersection of saturated sets is a
+        saturated set.
+
+
+    \item \emph{Type Functions}
+
+        It is not sufficient to have interpretations $\dbrack A$ of types $A$.
+        E.g. a term which represents list $L$ in the calculus of constructions
+        is not a type. It is a type function of type $\Pi X^\Prop . \Prop$. We
+        have to find an interpretation for $L$ as well. But its interpretation
+        cannot be a saturated set. Its interpretation $\dbrack L$ has to be a
+        mathematical function which maps saturated sets to saturated sets.
+
+        In that case the term $L T$ which represents the type of a list of
+        elements of type $T$ has the interpretation $\dbrack{L T} \in \SAT \to
+        \SAT$. Note that $\SAT \to \SAT$ is a set of mathematical functions.
+
+        Since type functions can be arbitrarily nested, interpretations for type
+        functions can be drawn e.g from $\SAT$ for types i.e. $0$-ary type
+        functions, $\SAT \to \SAT$ for unary type functions, $(\SAT \to \SAT)
+        \to \SAT$ for unary type functions having a unary type function as
+        argument, $\SAT \to \SAT \to \SAT$ for binary type functions (e.g.
+        pairs), ... to arbitrary depth.
+
+    \item \emph{Models and Context Interpretations}
+
+        In the chapter \emph{Typing}~\ref{sec:Typing} we have shown that
+        \emph{kinds} are the types of $n$-ary type functions where the corner
+        case $n = 0$ is allowed. Based on this it is possible to define a
+        function $\nu$ which maps any kind $K$ to its appropriate model $\nu(K)$
+        which is the set of possible interpretations of terms of type $K$. This
+        set of interpretations is a model set for terms of type $K$.
+
+        Kinds have the advantage that they can be recognized by pure syntactical
+        analysis. This makes the definition of the function $\nu$ easy.
+
+        By looking at the types in a context $\Gamma$ it is decidable whether
+        the type $A$ of a variable $x$ is a kind or not. A \emph{context
+        interpretation} $\xi = [x_1^{M_1}, \ldots, x_n^{M_n}]$ is a sequence of
+        models for all variables in the context whose type is a kind. We say
+        that $\xi$ is a valid interpretation of a valid context $\Gamma$ which
+        we denote by $\xi \vDash \Gamma$ if $\xi$ associates to each variable in
+        the context which is a type function a model from the corresponding set
+        $\nu(K)$ where $K$ is the type of the variable (which has to be a kind).
+
+    \item \emph{Type Interpretation Function}
+
+        Based on a valid context interpretation $\xi \vDash \Gamma$ it is
+        possible to define a function $\typeinter{F}{\xi\Gamma}$ which maps each
+        welltyped type function $F$ (i.e. not only the variables which are type
+        functions) into a type interpretation which is in the set $\nu(K)$ where
+        $K$ is the type of $F$.
+
+        In the definition of the type interpretation function it is crucial to
+        map all types to saturated sets i.e. that all types are interpreted by
+        staturated sets i.e. sets of strongly normalizing terms.
+
+        The definition of the type interpretation function is nontrivial because
+        it has to be shown in each case that the return value is in the correct
+        set.
+
+        Furthermore it has to be proved that the type interpretation function
+        returns for equivalent types the same interpretation. This is important
+        because beta equivalent types are practically the same types. Therefore
+        it is not allowed that they have different interpretations. In order to
+        prove this fact we have to show that substitutions which are the basis
+        of beta reduction and beta equality are treated in a consistent manner.
+        This prove is nontrivial either.
+
+
+    \item \emph{Term Interpretations and Context Models}
+
+        In addition to type interpretations $\xi$ we add term interpretations
+        $\rho$. Term interpretations or better variable interpretations are
+        a mapping from variables to terms which are an element of the type
+        interpretation of the corresponding type i.e. strongly normalizing
+        terms.
+
+        The term interpretation $\terminter{t}{\rho}$ replaces in the term $t$
+        all free occurrences of a variable by its corresponding variable
+        interpretation.
+
+        A context model $\rho\xi \vDash \Gamma$ is a variable
+        interpretation $\rho$ and a type variable interpretation $\xi$ which are
+        consistent.
+
+        The additional complexity of term interpretations $\terminter t \rho$ is
+        necessary to be able to enter binders like $\lambda x^A. e$ and $\Pi x^A
+        B$ and get sufficiently strong induction hypotheses.
+
+    \item \emph{Soundness Theorem}
+
+        The whole machinery culminates in the proof of the soundness theorem
+        which states that for all context models with $\rho\xi \vDash \Gamma$
+        and all welltyped term $t$ with $\Gamma \vdash t : T$ we
+        can prove $\terminter t \rho \in \typeinter T {\xi\Gamma}$.
+
+        Since all type interpretations of types are saturated sets i.e. sets of
+        strongly normalizing terms and there is a canonical interpretation of
+        type variables and the term interpretation which is the identity
+        function is possible (base terms include variables and are in all
+        saturated sets) we easily conclude that all welltyped terms are strongly
+        normalizing.
+\end{itemize}
+
 
 
 
 
 \subsection{Strong Normalization}
 %------------------------------------------
+
+We start the proof of strong normalization with a definition of the set of
+\emph{normal forms} $\NF$ and the set of \emph{strongly normalizing terms} $\SN$
+and prove some properties based on these definitions.
 
 \begin{definition}
     The set $\NF$ of terms in \emph{normal form} is the set of all terms which
@@ -414,7 +604,7 @@ corner.
 
 
 
-\begin{theorem}
+\begin{lemma}
     \label{KeyReductionDiamond}
     \emph{Let $a \keyreduce b$ and $a \reduce a_1$ where $a_1 \ne b$. Then there
     exists a term $b_1$ with $a_1 \keyreduce b_1$ and $b \reducestar b_1$}.
@@ -511,7 +701,7 @@ corner.
                 \end{enumerate}
         \end{enumerate}
     \end{proof}
-\end{theorem}
+\end{lemma}
 
 
 
@@ -621,7 +811,7 @@ corner.
                 $$
 
                 Since we have $a \keyreduce b$ by
-                theorem~\ref{KeyReductionDiamond} there exists a $b_1$ such
+                lemma~\ref{KeyReductionDiamond} there exists a $b_1$ such
                 that $a_1 \keyreduce b_1$ and $b \reducestar b_1$. Because of
                 $bc \in \SN$ we have $b_1c \in \SN$ as well. Therefore all
                 premises of the induction hypothesis of step 1 are satisfied and
@@ -650,10 +840,6 @@ corner.
 
 \subsection{Saturated Sets}
 %------------------------------------------
-
-
-
-
 
 
 \begin{definition}
@@ -863,7 +1049,7 @@ Remark:
     \emph{Canonical Model} For $K \in \Kinds$ we define the
     canonical model $\nu^c(K)$ by
     $$
-        \nu(K) :=
+        \nu^c(K) :=
         \left \{
         \begin{array}{llll}
             \nu^c(s) &:=& \SN & s \text{ is a sort}
@@ -2603,7 +2789,7 @@ context.
         $$
         which proves the goal because type interpretations of types are
         saturated sets~\ref{TypeInterpretationTypeSaturated} and saturated sets
-        contain only strongly normaling terms by definition.
+        contain only strongly normalizing terms by definition.
     \end{proof}
 \end{theorem}
 
@@ -2613,7 +2799,33 @@ context.
 \subsection{Logical Consistency}
 %------------------------------------------
 
-\begin{theorem}
+Logical consistency means of the calculus of constructions means that it is not
+possible to prove contradictions in the calculus. Since a contradiction implies
+everything we can state logical consistency as \emph{It is not possible to prove
+every proposition}.
+
+Via the Curry-Howard correspondence we interpret types as propositions and terms
+of a type as a proof of the proposition which corresponds to that type. In the
+calculus of constructions terms of the type $\Pi X^\Prop. X$ are functions which
+map every type $X$ into a proof of that type.
+
+Therefore logical consistency in the calculus of contructions means that there
+does not exist a term $t$ of type $\Pi X^\Prop. X$ in the empty context.
+
+It is important to use the empty context here because a context $\Gamma =
+[x_1^{A_1}, \ldots, x_n^{A_n}]$ is a sequence of assumptions and it is perfectly
+possible to make contradictory assumptions e.g. having $f^{\Pi X^\Prop. X}$ as
+one assumption. In such a context $f$ is a term of type $\Pi X^\Prop. X$.
+
+In the previous section we have proved that all welltyped terms in the calculus
+of constructions are strongly normalizing. I.e. all welltyped terms can be
+reduced to their normal form. Therefore it is sufficient to prove that in the
+empty context there exists no term in normal form which has the type $\Pi
+X^\Prop. X$.
+
+
+
+\begin{lemma}
     \label{NormalWelltypedTerms}
     \emph{All welltyped terms in normal form are either sorts, products,
     abstractions or base terms}.
@@ -2643,17 +2855,17 @@ context.
                 $f$ cannot be an abstraction, otherwise $fa$ would not
                 be in normal form. Therefore $f$ can only be a base term.
 
-                If $f$ is a base term, then $fa$ is a base term as well, because
-                $a\in\NF \subseteq \SN$.
+                If $f$ is a base term, then by definition of base terms $fa$ is
+                a base term as well, because $a\in\NF \subseteq \SN$.
         \end{enumerate}
     \end{proof}
-\end{theorem}
+\end{lemma}
 
 
 
 \begin{theorem}
-    \emph{There are no closed welltyped terms in normal form which have the
-    type $\Pi X^\Prop : X$}.
+    \emph{There are no welltyped terms in normal form which have the
+    type $\Pi X^\Prop : X$} in the empty context.
     $$
     \rulev{
         [] \vdash t: \Pi X^\Prop. X
@@ -2669,7 +2881,7 @@ context.
 
         \begin{enumerate}
             \item By the previous theorem~\ref{NormalWelltypedTerms} $t$ has to
-                be either a sort, a product and abstraction or a base term. $t$
+                be either a sort, a product an abstraction or a base term. $t$
                 cannot be a sort nor a product, because they cannot have a type
                 equivalent to a product (the only valid type of both are sorts).
                 It cannot be a base term, because a base term has a free
@@ -2702,8 +2914,8 @@ context.
 
             \item $e$ has the form $y a_1, \ldots, a_n$ with $n > 0$: We get $y
                 = X$ as well for the same reason. Since $y$ is in a function
-                position its type must be betaequivalent to some product $\Pi
-                y^B.C$. However its type is $\Prop$ which cannot betaequivalent
+                position its type must be beta equivalent to some product $\Pi
+                y^B.C$. However its type is $\Prop$ which cannot beta equivalent
                 to a product.
         \end{enumerate}
     \end{proof}
