@@ -20,7 +20,8 @@ build-dir = ../../_build/cc/
 
 source-files = \
 	cc.tex \
-	cc_macros.tex \
+	cc_abstract.tex     \
+	cc_macros.tex       \
 	cc_introduction.tex \
 	cc_mathematics.tex  \
 	cc_calculus.tex \
