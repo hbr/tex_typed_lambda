@@ -43,5 +43,109 @@ lambda terms which represent a function.
 
 
 
+\subsection{Value Sets}
+
+
+
+\subsection{Context Model}
+
+\begin{definition}
+$\rho\xi \vDash \Gamma$
+\end{definition}
+
+
+\subsection{Evaluation}
+
+Specification of an evaluation $\eval t \rho \xi \Gamma$:
+
+$$
+\rulev{
+    \Gamma \vdash t : T
+    \\
+    \rho \xi \vDash \Gamma
+}
+{
+    \eval t \rho \xi \Gamma \in \valset \Gamma t
+}
+$$
+
+\begin{definition}
+    We define an \emph{evaluation} $\eval t \rho \xi \Gamma$ recursively by
+    cases.
+
+    \def\evals#1{{\eval {#1} \rho \xi \Gamma}}
+
+    \begin{enumerate}
+    \item
+        Terms with propositional type:
+        $$
+        \rulev{
+            \Gamma \vdash T : \Prop
+        }
+        {
+            \evals t := \nothing
+        }
+        $$
+
+    \item Sorts:
+        $$
+        \evals s := \SN_s
+        $$
+
+    \item Variables:
+        $$
+        \rulev{x^M \in \xi}{\evals x := M}
+        $$
+
+    \item Products:
+        $$
+        \evals {\Pi x^A. B} :=
+        \set{
+            F |
+            \bracklist{
+                \Gamma \vdash F : \subst A \rho
+                \\
+                \ruleall {a M} {
+                    a \in \evals A
+                    \\
+                    M \in \valset {\Gamma,x^A} B
+                }
+                {
+                    F a \in
+                    \eval B {(\rho, x^a)} {(\xi, x^M)} {(\Gamma, x^A)}
+                }
+            }
+        }
+        $$
+
+    \item Abstractions:
+        $$
+        \rulev{
+            \dom f =
+            \set{
+                (a,M) |
+                \bracklist{
+                    \Gamma \vdash a : \subst A \rho
+                    \\
+                    M \in \valset \Gamma a
+                }
+            }
+            \\
+            f(a,M) := \eval e {(\rho,x^a)} {(\xi,x^M)} {(\Gamma,x^A)}
+        }
+        {
+            \evals{\lambda x^A. e} := f
+        }
+        $$
+
+    \item Applications:
+        $$
+        \evals {a b} := \evals a \left( \subst b \rho, \evals b \right)
+        $$
+    \end{enumerate}
+
+\end{definition}
+
+
 
 

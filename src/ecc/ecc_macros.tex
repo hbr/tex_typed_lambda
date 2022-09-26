@@ -10,6 +10,7 @@
 
 \def\dbrackleft{{[\![}}
 \def\dbrackright{{]\!]}}
+\def\dbrack#1{{\dbrackleft #1 \dbrackright}}
 
 \def\betaeq{\stackrel{\beta}{\sim}}
 
@@ -26,10 +27,11 @@
 
 \def\Prop{{\cal P}}
 
+\def\SAT{\text{SAT}}
 \def\SN{\text{SN}}   % strongly normalizing terms
 
 \def\satsets{\text{SAT}}
-\def\set#1{{\{#1\}}}
+\def\set#1{{\left\{#1\right\}}}
 \def\skinds{{\cal K}}
 \def\stypes{{\cal T}}
 
@@ -39,7 +41,6 @@
 \def\fromrel#1{\stackrel{#1}{\leftarrow}}
 
 \def\typeinter#1#2{{\dbrackleft #1\dbrackright}_{#2}}
-
 \def\vdashmin{\vdash_\mu}
 \def\vec#1{{\mathbf #1}}
 
@@ -56,9 +57,47 @@
 \def\derivesmin#1#2#3{#1 \vdashmin #2: #3}
 
 
+% Logic
+%------------------------
+
+\def\vertlist#1{
+    \begin{array}{l}
+    #1
+    \end{array}
+}
+
+\def\bracklist#1{
+    \left[ \vertlist{#1} \right]
+}
+
 \def\ruleh#1#2{\begin{array}{c} #1 \\ \hline #2\end{array}}
 \def\rulev#1#2{\begin{array}{l} #1 \\ \hline #2\end{array}}
 
+\def\allbracket#1#2{
+    \forall #1. \left[ #2 \right]
+}
+\def\existbracket#1#2{\exists #1. \bracklist{#2}}
+
+\def\ruleall#1#2#3{
+    \allbracket {#1} {\rulev{#2}{#3}}
+}
+\def\ruleallh#1#2#3{
+    \allbracket {#1} {\ruleh{#2}{#3}}
+}
+
+
+
+
+% Strong normalisation proof
+%---------------------------
+
+
+\def\dom#1{{\text{dom}(#1)}}
+
+\def\valset#1#2{{\nu_{#1}(#2)}}
+\def\eval#1#2#3#4{{\dbrack {#1}_{#2#3#4}}}
+\def\subst#1#2{{{\banana #1}_#2}}
+\def\nothing{\theta}
 
 
 
