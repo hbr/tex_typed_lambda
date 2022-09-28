@@ -281,5 +281,59 @@ The calculus of constructions has enormous computational power and is very
 expressive as a logic and proof system. Therefore it is a sweet spot in the
 design space of typed lambda calculi.
 
-In this paper we introduce the calculus of constructions, explain the type
-system and proof the termination of all welltyped terms in the calculus.
+
+
+\paragraph{This Paper}
+%-------------------------
+%
+In this paper we introduce the calculus of constructions.
+
+\begin{itemize}
+
+\item Section \emph{Basic Mathematics}~\ref{sec:BasicMathematics} describes the
+basic mathematics needed to understand the following chapters. It is important
+to understand the used logic notation and the form of induction proofs. In type
+theory induction proofs on inductively defined sets and relations are used
+excessively. Therefore a special layout has been chosen to present such proofs
+and figure out the induction hypotheses clearly.
+
+\item In section \emph{The Calculus}~\ref{sec:Calculus} the calculus of
+constructions is explained. It defines the terms of the calculus, the contexts
+to give types to free variables, the basic computation steps and term
+equivalence.
+
+
+\item Section \emph{Confluence}~\ref{sec:Confluence} proves an important
+property of the calculus: Uniqueness of results. The computation steps in the
+calculus are nondeterministic. At each state of the computation which is not a
+final state different steps might be possible. The property of confluence
+guarantees that all computation paths starting from a term can be joined and
+that the final result (if it exists) is unique.
+
+\item Section \emph{Typing}~\ref{sec:Typing} introduces the typing relation and
+proves important properties about this relation. The typing relation defines the
+welltyped terms. Terms in the calculus formed according to section \emph{The
+Calculus}~\ref{sec:Calculus} are wellformed, but not necessarily welltyped. In
+order to be welltyped they have to be valid terms in the typing relation.
+
+
+\item Section \emph{Proof of Strong Normalization}~\ref{sec:NormalizationProof}:
+This section contains the proof that all welltyped terms in the calculus of
+constructions are strongly normalizing. I.e. Every welltyped term reduces in a
+finite number of computation steps to a normal form which is the result of the
+computation.
+
+The proof of strong normalization is rather involved and requires a lot of
+machinery to go through. All needed concepts and theorems are explained in
+detail. Therefore this chapter is the longest in the paper.
+
+The strong normalization implies consistency when regarded
+as a model of a proof system for logic. Consistency in logic means that it is
+free of contradictions. A type system is consistent as a logic if there are
+types which are uninhabited in the empty context. In the Curry-Howard
+isomorphism an uninhabited type corresponds to a proposition which is
+impossible to prove.
+
+The proof of consistency is the last subsection in this chapter.
+
+\end{itemize}
