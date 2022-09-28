@@ -20,9 +20,15 @@ It is assumed that the reader is familiar with the following concepts:
 \item Basic set notation: Elements of a set $a \in A$, Subsets $A \subseteq B$
 defined as $a \in A$ implies $a \in B$.
 
-\item Relations: A (endo-) relation $r$ over the set $A$ is the set of pairs
-$(a,b)$ (i.e. $r \subseteq A \times A$) where $a$ and $b$ are drawn from the set
-$A$. We write $(a,b) \in r$ more pictorially as $a \torel r b$.
+\item Endorelations: An (endo-) relation $r$ over the set $A$ is the set of pairs
+    $(a,b)$ (i.e. $r \subseteq A \times A$) where $a$ and $b$ are drawn from the
+    set $A$. We write $(a,b) \in r$ more pictorially as $a \torel r b$.
+
+\item $n$-ary Relations: An endorelation is a binary relation where the domain
+    and the codomain are the same. An $n$-ary relation over the domains $A_1,
+        A_2, \ldots, A_n$ is a subset from the cartesian product $A_1 \times A_2
+        \times \ldots \times A_n$. In this paper we use a ternary relation as
+        the typing relation.
 
 \item An intuitive understanding of the reflexive transitive closure $r^*$ of a
 relation $r$, the reflexivity, symmetry and transitivity of a relation and
@@ -50,7 +56,7 @@ $$
 p_1 \land p_2 \land \ldots \land p_n \imp c
 $$
 
-In many cases this notation with logical connectives is very clumsy and not very
+In many cases this notation with logical connectives is clumsy and not very
 readable. We use the rule notation
 $$
 \ruleh{p_1 \\ p_2 \\ \ldots \\ p_n}{c}
@@ -209,7 +215,7 @@ manner:
 \end{quote}
 
 For each rule in the inductive definition of the set we write a matrix. The left
-part of the matrix is just the rule. The goal is alway in the lower right corner
+part of the matrix is just the rule. The goal is always in the lower right corner
 of the matrix. For each recursive premise (i.e. that some other elements are
 already in the set we get an induction hypothesis.
 
@@ -444,7 +450,7 @@ more than one subterm. In that case we get more than one induction hypothesis.
 
 \subsection{Recursive Functions}
 
-In the previous section we have shown that for each definition of set  with a
+In the previous section we have shown that for each definition of a set with a
 term grammar there is a corresponding inductive definition. However with terms
 defined via a term grammar we can define recursive functions.
 

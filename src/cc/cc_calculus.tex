@@ -254,6 +254,9 @@ Remark:
         variable which is different from $y$ and does not occur free in the term
         $u$.
 
+Remark:
+        Many authors in the literature use $t[u/y]$ as a notation for $t[y:=u]$.
+        Both notations mean the same thing.
 
 
 \begin{lemma}
@@ -411,7 +414,7 @@ The intuitive meaning of beta reduction is quite clear. The term $\lambda x^A.e$
 is a function with a formal argument $x$ of type $A$. The \emph{body} $e$ is the
 \emph{implementation} of this function which can use the variable $x$. As with
 any programming language which support functions the name of the formal
-argument is irrelevant. An arbitrary name can be choses and the variable is only
+argument is irrelevant. An arbitrary name can be chosen and the variable is only
 used \emph{internally} and is not visible to the \emph{outside world}. We can
 apply the function to an argument $a$ i.e. form the term $(\lambda x^A.e) a$. In
 order to compute the result we use the \emph{implementation} $e$ and substitute
@@ -491,16 +494,28 @@ the actual argument $a$ for the formal argument $x$ i.e. we form $e[x:=a]$.
     \end{enumerate}
 \end{definition}
 
+Note that beta reduction is not deterministic. There might be two possibilities
+to reduce an application, a product and an abstraction. And there might be more
+ambiguous subterms contained. In section \emph{Confluence}~\ref{sec:Confluence}
+we prove that the choice of the redex does not affect the final result.
+
+
 \begin{lemma}
     \emph{Reduction to sort lemma}: A term which reduces to a sort must be a
-    redex where the sort is the body or the body is the variable and the
-    argument is the sort.
+    redex where the sort is the body or the abstraction is the identity function
+    and the argument is the sort.
     $$
     \ruleh{
         t \reduce s
     }
     {
-        t = (\lambda x^A. s) a \lor t = (\lambda x^A. x)s
+        \left(
+            \exists Aa. t = (\lambda x^A. s) a
+        \right)
+        \lor
+        \left(
+            \exists A. t =(\lambda x^A. x) s
+        \right)
     }
     $$
 
@@ -700,7 +715,7 @@ Beta equivalence is just the reflexive, symmetric and transitive closure of the
 beta reduction.
 
 \begin{definition}
-    We define \emph{beta equivalence} as a binary relation $a \equiv b$ between
+    We define \emph{beta equivalence} as a binary relation $a \betaeq b$ between
     the terms $a$ and $b$ inductively by the rules
     \begin{enumerate}
     \item Reflexive:

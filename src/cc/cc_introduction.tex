@@ -4,6 +4,9 @@
 
 \begin{comment}
 
+    Skeleton
+    ---------------
+
     Computation: Can be carried out mechanically
 
         like
@@ -87,7 +90,7 @@ A \emph{computer} had no authority. He/She had to carry out computations
 following some fixed rules.
 
 Carring out computations according to fixed rules had been present in the whole
-history of mankind for more than 2000 years. Think of adding, multiplying
+history of mankind for more than 2000 years. Think of adding and multiplying
 numbers, using Gaussian elimination to solve a system of linear equations, using
 Newton's method to find the root of a nonlinear function etc.
 
@@ -177,7 +180,7 @@ logic. This laid the basis for the Curry-Howard isomorphism. The Curry-Howard
 isomorphism connects two seemingly unrelated formalisms: computations and proof
 systems.
 
-The types in computation are connected to propositions in logic via the
+The types in computations are connected to propositions in logic via the
 Curry-Howard isomorphism. The terms of a certain type are proofs of the
 corresponding proposition. A proof of an implication $A \imp B$ is a function
 (i.e. a computation) mapping a proof of $A$ i.e. a term of type $A$ to a
@@ -189,13 +192,13 @@ trivial in this computation analogy. It is a function taking two arguments. It
 takes an object $a$ of type $A$ and a function $f$ of type $A \imp B$ and it
 returns an object of type $B$ by just applying $f$ to $a$.
 
-However if we want lambda calculus as a model for logic and proof system then
-\emph{termination} becomes crucial. Proofs must be finite. An infinite proof
-makes no sense. Nobody can check the correctness of an infinite proof.
+However if we want lambda calculus to be a model for logic and proof systems,
+then \emph{termination} becomes crucial. Proofs must be finite. An infinite
+proof makes no sense. Nobody can check the correctness of an infinite proof.
 
-In the computational world the definition of the function $f(x: A): B := f(x)$
-is welltyped but useless. Calling $f$ with an object $a$ of type $A$ ends up in
-an infinite recursion.
+In the computational world the definition of a function directly in terms of
+itself e.g.  $f(x: A): B := f(x)$ is welltyped but useless. Calling $f$ with an
+object $a$ of type $A$ ends up in an infinite recursion.
 
 The counterpart of this nonterminating function $f$ in logic is a proof of $A
 \imp B$ which uses a proof of $A \imp B$. This \emph{circular} logic is not
@@ -208,7 +211,7 @@ proved by using circular logic.
 \paragraph{Typed Lambda Calculi}
 %--------------------------------
 The untyped lambda calculus can be extended to many forms of typed lambda
-calculus which serves both as model of computation and a model of logic i.e.
+calculus which serve both as model of computation and a model of logic i.e.
 they avoid silly terms and they guarantee termination.
 
 We come from untyped lambda calculus to typed lambda calculus by adding type
@@ -327,7 +330,7 @@ The proof of strong normalization is rather involved and requires a lot of
 machinery to go through. All needed concepts and theorems are explained in
 detail. Therefore this chapter is the longest in the paper.
 
-The strong normalization implies consistency when regarded
+Strong normalization implies consistency when regarded
 as a model of a proof system for logic. Consistency in logic means that it is
 free of contradictions. A type system is consistent as a logic if there are
 types which are uninhabited in the empty context. In the Curry-Howard

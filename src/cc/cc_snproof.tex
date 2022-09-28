@@ -1,17 +1,17 @@
 \section{Proof of Strong Normalization}
 \label{sec:NormalizationProof}
 
-In this section we proof the strong normalization of the calculus of
-constructions i.e. we proof that all welltyped terms have no infinite reduction
+In this section we prove the strong normalization of the calculus of
+constructions i.e. we prove that all welltyped terms have no infinite reduction
 sequence which implies that all welltyped terms can be reduced to a normal
-form. The presented proof is based on the proof of Herman Geuvers of his paper
+form. The presented proof is based on the proof of Herman Geuvers in his paper
 \emph{A short and flexible proof of strong normalization for the calculus of
 constructions}~\cite{geuvers1994}.
 
 The article of Herman Geuvers is a scientific
 paper which assume some good knowledge of type theory. Here we present the proof
 in a text book style which makes the proof more accessible to readers who are
-less experts in type theory.
+no experts in type theory.
 
 
 In the last subsection of this chapter we use the proof of strong normalization
@@ -115,8 +115,8 @@ $\SN$ is not connected to the type $T$ of the term $t$.
         and that each different value of the variable $x$ might generate a
         different interpretation $\dbrack B$ of the type $B$. In the detailed
         proof we will see that this fact is important when the type $A$ of the
-        variable $x$ is a kind. In that case we have to form some set of the
-        form
+        variable $x$ is a kind. In that case we have to form the lambda function
+        space
         %
         $$
             \dbrack A \tolambda \bigcap_x \dbrack B
@@ -141,8 +141,11 @@ $\SN$ is not connected to the type $T$ of the term $t$.
         mathematical function which maps saturated sets to saturated sets.
 
         In that case the term $L T$ which represents the type of a list of
-        elements of type $T$ has the interpretation $\dbrack{L T} \in \SAT \to
-        \SAT$. Note that $\SAT \to \SAT$ is a set of mathematical functions.
+        elements of type $T$ where $\dbrack T \in \SAT$ and $\dbrack {L T} \in
+        \SAT$ are valid. Therefore the interpretation of $L$ must be a
+        mathematical function which maps saturated sets to saturated sets i.e.
+        $\dbrack L \in \SAT \to \SAT$.  Note that $\SAT \to \SAT$ is a set of
+        mathematical functions.
 
         Since type functions can be arbitrarily nested, interpretations for type
         functions can be drawn e.g from $\SAT$ for types i.e. $0$-ary type
@@ -156,9 +159,9 @@ $\SN$ is not connected to the type $T$ of the term $t$.
         In the chapter \emph{Typing}~\ref{sec:Typing} we have shown that
         \emph{kinds} are the types of $n$-ary type functions where the corner
         case $n = 0$ is allowed. Based on this it is possible to define a
-        function $\nu$ which maps any kind $K$ to its appropriate model $\nu(K)$
-        which is the set of possible interpretations of terms of type $K$. This
-        set of interpretations is a model set for terms of type $K$.
+        function $\nu$ which maps any kind $K$ to its appropriate set of models
+        $\nu(K)$ which is the set of possible interpretations of terms of type
+        $K$.
 
         Kinds have the advantage that they can be recognized by pure syntactical
         analysis. This makes the definition of the function $\nu$ easy.
@@ -282,21 +285,21 @@ manner.
     \item A term which is already in normalform i.e. it has no reducts is
         strongly normalizing. In hat case all its reducts (there are none) are
         vacuously strongly normalizing. I.e. terms in normal form form the
-        $0$th generation of strongly normalizing terms.
+        $0$-th generation of strongly normalizing terms.
 
-    \item The 2nd generation of strongly normalizing terms are terms which
+    \item The $1$st generation of strongly normalizing terms are terms which
         reduce only to terms in normal form.
 
     \item The $(n+1)$th generation of strongly normalizing terms are terms which
-        reduce only to terms of the $n$th generation of strongly normalizng
+        reduce only to terms of the $n$th generation of strongly normalizing
         terms.
 
     \item $\ldots$
 
 \end{itemize}
 
-This intuitive definition defines the terms which are guaranteed to reduce in
-$n$ steps to terms in normal form. The strongly normalizing terms are terms
+This intuitive definition defines the terms which are guaranteed to reduce in at
+most $n$ steps to terms in normal form. The strongly normalizing terms are terms
 which are guaranteed to reduce in $n$ steps to terms in normal form for some
 natural number $n$.
 
@@ -850,7 +853,7 @@ corner.
     \item All base terms are in a saturated set:
         $$ \rulev{b \in \BT}{b \in S}$$
 
-    \item All strongly normalizing terms which keyreduce to a term is the
+    \item All strongly normalizing terms which keyreduce to a term in the
         saturated set are in the saturated set as well:
             $$
             \rulev{
@@ -1085,12 +1088,12 @@ $$
 $$
 
 
-In order to prove the property we prove first a similar lemma for kinds.
+In order to prove the property we first prove a similar lemma for kinds.
 
 \begin{lemma}
     \label{ModelEquivalentKinds}
-    \emph{The model set of a kind is the same as the model set of any beta
-    equivalent type}.
+    \emph{The model set of a welltyped kind is the same as the model set of any beta
+    equivalent welltyped type}.
     $$
     \rulev{
         K \in \Kinds
@@ -2208,7 +2211,7 @@ is a kind) in the context a model which is an element of $\nu(A)$.
                 \typeinter{e[x:=a]}{\xi\Gamma}
             \end{array}
             $$
-            We used the definition of type interpretation for applications and
+            We have used the definition of type interpretation for applications and
                 abstractions and
                 theorem~\ref{TypeInterpretationSubstitution}.
 
@@ -2235,7 +2238,7 @@ is a kind) in the context a model which is an element of $\nu(A)$.
                 \typeinter{e[x:=a]}{\xi\Gamma}
             \end{array}
             $$
-            We used the definition of type interpretation for applications and
+            We have used the definition of type interpretation for applications and
                 abstractions and
                 theorem~\ref{TypeInterpretationSubstitution}.
         \end{enumerate}
@@ -2316,6 +2319,30 @@ is a kind) in the context a model which is an element of $\nu(A)$.
     \emph{A term interpretation $\terminter u \rho$ replaces each free
     variable $x$ in the term $u$ with the term $t$ when $x^t \in \rho$,
     otherwise leaves the variable unchanged.}
+    $$
+    \terminter u \rho :=
+    \left\{
+    \begin{array}{lll}
+        \terminter s \rho &:=& s
+        \\
+        \terminter x \rho &:=&
+        \begin{cases}
+            t & x^t \in \rho
+            \\
+            x & \text{otherwise}
+        \end{cases}
+        \\
+        \terminter {\Pi x^A. B} \rho &:=&
+        \Pi x^{\terminter A \rho} . \terminter B {\rho,x^x}
+        \\
+        \terminter {\lambda x^A. e} \rho &:=&
+        \lambda x^{\terminter A \rho} . \terminter e {\rho,x^x}
+        \\
+        \terminter {a b} \rho &:=&
+        \terminter a \rho \terminter b \rho
+    \end{array}
+    \right.
+    $$
 \end{definition}
 
 A term interpretation is just a parallel substitution of the free variables in a
@@ -2771,7 +2798,7 @@ context.
         Assume $\Gamma \vdash t : T$, i.e. $\Gamma = [x_1 : A_1, \ldots, x_n :
         A_n]$ is a valid context.
 
-        By theorem~\ref{CanonicalContextInterpretation} $\xi = \xi^c(\Gamma)$ is
+        By theorem~\ref{CanonicalContextInterpretation} $\xi := \xi^c(\Gamma)$ is
         a valid interpretation for the context $\Gamma$ with $\xi \vDash
         \Gamma$.
 
@@ -2800,7 +2827,7 @@ context.
 \subsection{Logical Consistency}
 %------------------------------------------
 
-Logical consistency means of the calculus of constructions means that it is not
+Logical consistency of the calculus of constructions means that it is not
 possible to prove contradictions in the calculus. Since a contradiction implies
 everything we can state logical consistency as \emph{It is not possible to prove
 every proposition}.
@@ -2810,7 +2837,7 @@ of a type as a proof of the proposition which corresponds to that type. In the
 calculus of constructions terms of the type $\Pi X^\Prop. X$ are functions which
 map every type $X$ into a proof of that type.
 
-Therefore logical consistency in the calculus of contructions means that there
+Therefore in the calculus of contructions logical consistency means that there
 does not exist a term $t$ of type $\Pi X^\Prop. X$ in the empty context.
 
 It is important to use the empty context here because a context $\Gamma =
