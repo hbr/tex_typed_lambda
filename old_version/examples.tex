@@ -112,8 +112,7 @@ translate it into the lambda calculus.
 
 $$
 \text{not}
-:= \lambda a \alpha .
-  a \, \alpha \, (\false\,\alpha) \, (\true \, \alpha)
+:= \lambda a^B. a\, B\, \false\, \true
 : \Bool \to \Bool
 $$
 
@@ -121,28 +120,15 @@ Let's compute $\text{not} \, \true$
 $$
 %
 \begin{array}{lll}
-  \text{not} \, \true
-  &=
-  & (\lambda a \alpha .
-    a \, \alpha \, (\false\,\alpha) \, (\true \, \alpha)) \,
-    \true
-  \\
-  & \reduce
-  & \lambda \alpha .
-    \true \, \alpha \, (\false\,\alpha) \, (\true \,
-    \alpha)
-  \\
-  & \reduce
-  & \lambda \alpha. \false\,\alpha
-  \\
-  & =
-  & \lambda \alpha . (\lambda \beta x y. y) \, \alpha
-  \\
-  & \reduce & \lambda \alpha . \lambda x y . y
-  \\
-  & = & \lambda \alpha x y . y
-  \\
-  & = & \false
+    \text{not} \, \true
+    &=&
+    (\lambda a. a\, B\, \false\, \true)\, \true
+    \\
+    &\reduce& \true\, B\, \false\, \true
+    \\
+    &=& (\lambda \alpha x y. x)\, B\, \false\, \true
+    \\
+    &\reduce& \false
 \end{array}
 $$
 
@@ -161,7 +147,8 @@ $$
 The same in lambda calculus
 $$
 \andb
-:= \lambda a b \alpha. a \, (b\, \alpha) (\false\, \alpha)
+:=
+\lambda a b. a\, \Bool\, b\, \false
 : \Bool \to \Bool \to \Bool
 $$
 
@@ -175,7 +162,7 @@ The function \code{or}:
 and in lambda calculus
 $$
 \orb
-:= \lambda a b \alpha. a \, (\true \, \alpha) (b \, \alpha)
+:= \lambda a b. a\, \Bool\, \true\, b
 : \Bool \to \Bool \to \Bool
 $$
 
@@ -204,20 +191,22 @@ $$
   \\
 
   \text{not}
-  &:=& \lambda a \alpha .
-  a \, \alpha \, (\false\,\alpha) \, (\true \, \alpha)
+  &:=&
+    \lambda a. a\, \Bool\, \false\, \true
   &:& \Bool \to \Bool
 
   \\
 
   \andb
-  &:=& \lambda a b \alpha. a \, (b\, \alpha) (\false\, \alpha)
+  &:=&
+    \lambda a b. a\, \Bool\, b\, \false
   &:& \Bool \to \Bool \to \Bool
 
   \\
 
   \orb
-  &:=& \lambda a b \alpha. a \, (\true \, \alpha) (b \, \alpha)
+  &:=&
+    \lambda a b. a\, \Bool\, \true\, b
   &:& \Bool \to \Bool \to \Bool
 \end{array}
 $$
