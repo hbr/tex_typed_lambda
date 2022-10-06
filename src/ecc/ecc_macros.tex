@@ -1,3 +1,4 @@
+\def\dontcare{\bullet}
 \def\Any{{\cal U}}
 
 
@@ -83,6 +84,14 @@
 }
 \def\ruleallh#1#2#3{
     \allbracket {#1} {\ruleh{#2}{#3}}
+}
+
+\def\dcases#1{
+    \left\{
+        \begin{array}{lll}
+            #1
+        \end{array}
+    \right.
 }
 
 

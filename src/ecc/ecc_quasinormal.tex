@@ -60,6 +60,318 @@
 
 
 
+
+
+
+\subsection{Subtype}
+%----------------------------------------------------------------------
+
+
+
+\begin{definition}
+    \label{def:ProperSubtype}
+    %-----------------------------
+    The relation $A <_i B$ which says that $A$ is a \emph{proper subtype} of $B$
+    with arity $i$ is defined inductively by the rules
+    \begin{enumerate}
+        \item $\ruleh{j < k} {\Any_j <_0 \Any_k}$
+
+        \item $\ruleh{B <_i C} {\Pi x^A. B <_{i+1} \Pi x^A. C}$
+    \end{enumerate}
+\end{definition}
+
+
+
+\begin{definition}
+    \label{def:Subtype}
+    %-----------------------------
+    The relation $A \le B$ which says that $A$ is a \emph{subtype} of $B$ is
+    defined inductively by the rules
+    \begin{enumerate}
+        \item $\ruleh{A \betaeq B}{A \le B}$
+
+        \item $
+            \ruleh
+            {A \reducestar A_1\quad A_1 <_i B_1\quad B \reducestar B_1}
+            {A \le B}
+            $
+    \end{enumerate}
+\end{definition}
+
+
+
+
+
+
+
+
+\subsection{Sort Sets, $i$-Normal Terms}
+%----------------------------------------------------------------------
+
+
+\begin{definition}
+    \label{def:UpperSet}
+    %-----------------------------
+    The \emph{upper set} $\upper {\Any_i}$ of a sort $\Any_i$ are all sorts
+    $\Any_j$ where $i \le j$.
+    $$
+    \upper {\Any_i} := \set{\Any_j \mid i \le j}
+    $$
+\end{definition}
+
+
+
+
+\begin{definition}
+    \label{def:SortSet}
+    %-----------------------------
+    The \emph{sort set $S_\Gamma(T)$ of a type $T$} is defined inductively by
+    the rule
+    $$
+    \ruleh{
+        \Gamma \vdash T : s_1\quad
+        T \reducestar U\quad
+        \Gamma \vdash U : s
+    }
+    {
+        s \in S_\Gamma(T)
+    }
+    $$
+
+    We often write $S(T)$ without the subscript $\Gamma$ when the context is
+    clear.
+\end{definition}
+
+
+
+
+
+\begin{theorem}
+    \label{thm:SortSetUpperClosed}
+    %-----------------------------
+    \emph{A sort set is upper closed}.
+    $$
+        \ruleh{
+            \Any_i \in S_\Gamma(T)
+            \\
+            i \le j
+        }
+        {
+            \Any_j \in S_\Gamma(T)
+        }
+    $$
+    \begin{proof}
+        By the cumulativity rule of the typing relation.
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+\begin{theorem}
+    \label{thm:SortSetSubstitution}
+    %-----------------------------
+    \emph{Type safe substitution makes the sort set bigger}.
+    $$
+        \ruleh{
+            \Gamma \vdash a : A \quad \Gamma,x^A \vdash B
+        }
+        {
+            S_{\Gamma,x^A}(B) \subseteq S_\Gamma(B[a/x])
+        }
+    $$
+    \begin{proof}
+        Assume $s \in S_{\Gamma,x^A}(B)$.
+
+        Then by the definition of sort sets~\ref{def:SortSet}
+        there exists $C$ with $B \reducestar C$ and $\Gamma,x^A \vdash C: s$.
+        This implies $B[a/x] \reducestar C[a/x]$ and $\Gamma \vdash C[a/x] : s$
+        by the subject reduction~\ref{SubjectReduction} and the substitution
+        theorem~\ref{SubstitutionLemma}.
+
+        The definition of sort sets~\ref{def:SortSet} implies $s \in
+        S_\Gamma(B[a/x])$ which completes the proof.
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+\begin{theorem}
+    \label{thm:SortSetProduct}
+    %-----------------------------
+    \emph{The sorts set of a product is either $\upper\Prop$ in case the product
+    is a proposition or the intersection of the sort sets of the argument and
+    the result type.}
+    $$
+    \ruleh{
+        \Gamma \vdash \Pi x^A. B : \dontcare
+    }
+    {
+        S(\Pi x^A, B) =
+        \dcases{
+            \upper\Prop & \text{if }\Gamma \vdash \Pi x^A . B : \Prop
+            \\
+            S(A) \cap S(B) & \text{otherwise}
+        }
+    }
+    $$
+    \begin{proof}
+        If the product is a proposition the proof is trivial because
+        $\upper\Prop$ is the biggest possible sort set. For the
+        non-propositional case we have to prove both directions:
+        \begin{enumerate}
+            \item $S(\Pi x^A. B) \subseteq S(A) \cap S(B)$:
+                Assume $s$ is in the sort set of the product. By definition
+                there exist reducts $A'$ and $B'$ of $A$ and $B$ such that
+                $\Gamma \vdash \Pi x^{A'}. B' : s$. By the generation
+                lemma~\ref{GenerationLemma} for products there exist a sort
+                $s_0$ which is a valid type of $A'$ and $B'$ with $s_0 \le s$.
+                Therefore $s_0$ is in the sort sets of $A$ and $B$. Because sort
+                sets are upper closed $s$ is in both sort sets as well.
+
+            \item $S(A) \cap S(B) \subseteq S(\Pi x^A. B)$:
+                Assume $s$ is in both sort sets of $A$ and $B$. By definition
+                there exist reducts $A'$ and $B'$ such that $s$ is a type of
+                $A'$ and $B'$. The introduction rule for products in the typing
+                relation says that $s$ is a type of the product $\Pi x^{A'}.
+                B'$. By definition of the sort set $s$ is in the sort set of
+                $\Pi x^A. B$.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+\begin{theorem}
+    \label{thm:SortSetsSubtype}
+    %-----------------------------
+    \emph{Let $A$ and $B$ be some welltyped terms in the same context. Then the
+    following is valid:}
+    \begin{enumerate}
+
+        \item $A \betaeq B \imp S(A) = S(B)$
+
+        \item $A <_i B \imp S(B) \subset S(A)$
+    \end{enumerate}
+    \begin{proof}
+
+        \ \begin{enumerate}
+
+            \item Because of confluence there exists a common reduct $C$ of $A$
+                and $B$. Then by definition of the sort set $S(A) = S(C) =
+                S(B)$.
+
+            \item By induction on $ A <_i B$.
+                \begin{enumerate}
+                    \item The base case is trivial.
+
+                    \item In the induction step we have $\Pi x^A . B_1 <_{i+1}
+                        \Pi x^A. B_2$ where $S(B_2) \subset S(B_1)$ is given by
+                        the induction hypothesis.
+
+                        In case that $\Pi x^A. B_1$ is a proposition the goal is
+                        trivial because $\upper\Prop$ is the largest possible
+                        sort set.
+
+                        It remains the case that both are not propositions ($\Pi
+                        x^A. B_2$ cannot be a proposition because it is a proper
+                        supertype).
+
+                        Then we have
+                        $$
+                        S(\Pi x^A. B_2) = S(A) \cap S(B_2) \subset S(A) \cap
+                        S(B_2) = S(\Pi x^A. B_1)
+                        $$
+                        by using the induction hypothesis
+                        and~\ref{thm:SortSetProduct}.
+                \end{enumerate}
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+\begin{definition}
+    \label{def:RedexSortSet}
+    %-----------------------------
+    \emph{Sort set of a redex}
+
+    The sort set of a redex $(\lambda x^A. e) a$ is the sort set of a
+    minimal type of its function term $\lambda x^A. e$.
+
+    This set is welldefined because a minimal type of a term is unique up to
+    beta equivalence and due to~\ref{thm:SortSetsSubtype} all beta equivalent
+    types have the same sort set.
+\end{definition}
+
+
+
+
+\begin{definition}
+    \label{def:INormalTerm}
+    %-----------------------------
+    \emph{Welltyped $i$-normal terms}
+
+    A welltyped term $t$ is $i$-normal if it contains no redexes whose sort set
+    is a subset of $\upper {\Any_i}$.
+\end{definition}
+
+
+
+
+
+
+\begin{theorem}
+    \label{thm:NormalBaseTerm}
+    %-----------------------------
+    \emph{Let $fa$ be a welltyped $i+1$-normal term whose sort set is $\upperany
+    i$.  Then $fa$ is a base term.}
+
+    \begin{proof}
+        We proof the more general theorem using $f b \vec c$ as the welltyped
+        $i+1$-normal term whose sort set is $\upperany i$ and prove that $f b
+        \vec c$ is a base term. $\vec c$ is a possibly empty sequence $c_1, c_2,
+        \ldots, c_n$ of arguments.
+
+        The proof goes by induction on the structure of the function term $f$.
+        \begin{enumerate}
+
+            \item $f$ can neither be a sort nor a product. This would contradict
+                the fact that $f b \vec c$ is welltyped.
+
+            \item If $f$ is a variable then $f b \vec c$ is by definition a base
+                term.
+
+            \item $f$ is the application $ga$: In that case $gab\vec c$ is a
+                welltyped $i+1$-normal type whose sort set is $\upperany i$ and
+                by the induction hypothesis for $g$ we conclude that $g a b \vec
+                c = f b \vec c$ is a base term.
+
+            \item $f$ is the abstraction $\lambda x^A. e$:
+
+                MISSING
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+
+
 \subsection{Overview}
 
 The goal of this section is to prove that any welltyped term can be reduced to a
@@ -107,194 +419,6 @@ $$
 $$
 I.e. the minimal sort can go down via beta reduction. However we want to
 characterize a type by a sort/universe which is independent of reduction.
-
-
-
-
-\begin{definition}
-    \label{def:UpperSet}
-    %-----------------------------
-    The \emph{upper set} $\upper {\Any_i}$ of a sort $\Any_i$ are all sorts
-    $\Any_j$ where $i \le j$.
-    $$
-    \upper {\Any_i} := \set{\Any_j \mid i \le j}
-    $$
-\end{definition}
-
-
-
-
-\begin{definition}
-    \label{def:SortSet}
-    %-----------------------------
-    The \emph{sort set $S_\Gamma(T)$ of a type $T$} is defined inductively by
-    the rule
-    $$
-    \ruleh{
-        \Gamma \vdash T : s_1\quad
-        T \reducestar U\quad
-        \Gamma \vdash U : s
-    }
-    {
-        s \in S_\Gamma(T)
-    }
-    $$
-
-    We often write $S(T)$ without the subscript $\Gamma$ when the context is
-    clear.
-\end{definition}
-
-
-
-
-
-\begin{theorem}
-    \label{th:SortSetUpperClosed}
-    %-----------------------------
-    \emph{A sort set is upper closed}.
-    $$
-        \ruleh{
-            \Any_i \in S_\Gamma(T)
-            \\
-            i \le j
-        }
-        {
-            \Any_j \in S_\Gamma(T)
-        }
-    $$
-    \begin{proof}
-        By the cumulativity rule of the typing relation.
-    \end{proof}
-\end{theorem}
-
-
-
-
-
-
-\begin{theorem}
-    \label{th:SortSetSubstitution}
-    %-----------------------------
-    \emph{Type safe substitution makes the sort set bigger}.
-    $$
-        \ruleh{
-            \Gamma \vdash a : A \quad \Gamma,x^A \vdash B
-        }
-        {
-            S_{\Gamma,x^A}(B) \subseteq S_\Gamma(B[a/x])
-        }
-    $$
-    \begin{proof}
-        Assume $s \in S_{\Gamma,x^A}(B)$.
-
-        Then by the definition of sort sets~\ref{def:SortSet}
-        there exists $C$ with $B \reducestar C$ and $\Gamma,x^A \vdash C: s$.
-        This implies $B[a/x] \reducestar C[a/x]$ and $\Gamma \vdash C[a/x] : s$
-        by the subject reduction~\ref{SubjectReduction} and the substitution
-        theorem~\ref{SubstitutionLemma}.
-
-        The definition of sort sets~\ref{def:SortSet} implies $s \in
-        S_\Gamma(B[a/x])$ which completes the proof.
-    \end{proof}
-\end{theorem}
-
-
-
-
-
-
-\begin{theorem}
-    \label{th:SortSetsSubtype}
-    %-----------------------------
-    \emph{Let $A$ and $B$ be some welltyped terms in the same context. Then the
-    following is valid:}
-    \begin{enumerate}
-
-        \item $A \betaeq B \imp S(A) = S(B)$
-
-        \item $A <_i B \imp S(A) \subset S(B)$
-    \end{enumerate}
-    \begin{proof}
-
-        \ \begin{enumerate}
-
-            \item Because of confluence there exists a common reduct $C$ of $A$
-                and $B$. Then by definition of the sort set $S(A) = S(C) =
-                S(B)$.
-
-            \item By induction on $i$.
-        \end{enumerate}
-    \end{proof}
-\end{theorem}
-
-
-
-
-
-
-\begin{definition}
-    \label{def:RedexSortSet}
-    %-----------------------------
-    \emph{Sort set of a redex}
-
-    The sort set of a redex $(\lambda x^A. e) a$ is the sort set of a
-    minimal type of its function term $\lambda x^A. e$.
-
-    This set is welldefined because a minimal type of a term is unique modulo
-    beta equivalence and due to~\ref{th:SortSetsSubtype} all beta equivalent
-    types have the same sort set.
-\end{definition}
-
-
-
-
-\begin{definition}
-    \label{def:INormalTerm}
-    %-----------------------------
-    \emph{Welltyped $i$-normal terms}
-
-    A welltyped term $t$ is $i$-normal if it contains no redexes whose sort set
-    is a subset of $\upper {\Any_i}$.
-\end{definition}
-
-
-
-
-
-
-\begin{theorem}
-    \label{th:NormalBaseTerm}
-    %-----------------------------
-    \emph{Let $fa$ be a welltyped $i+1$-normal term whose sort set is $\upperany
-    i$.  Then $fa$ is a base term.}
-
-    \begin{proof}
-        We proof the more general theorem using $f b \vec c$ as the welltyped
-        $i+1$-normal term whose sort set is $\upperany i$ and prove that $f b
-        \vec c$ is a base term. $\vec c$ is a possibly empty sequence $c_1, c_2,
-        \ldots, c_n$ of arguments.
-
-        The proof goes by induction on the structure of the function term $f$.
-        \begin{enumerate}
-
-            \item $f$ can neither be a sort nor a product. This would contradict
-                the fact that $f b \vec c$ is welltyped.
-
-            \item If $f$ is a variable then $f b \vec c$ is by definition a base
-                term.
-
-            \item $f$ is the application $ga$: In that case $gab\vec c$ is a
-                welltyped $i+1$-normal type whose sort set is $\upperany i$ and
-                by the induction hypothesis for $g$ we conclude that $g a b \vec
-                c = f b \vec c$ is a base term.
-
-            \item $f$ is the abstraction $\lambda x^A. e$:
-
-                MISSING
-        \end{enumerate}
-    \end{proof}
-\end{theorem}
-
 
 
 
