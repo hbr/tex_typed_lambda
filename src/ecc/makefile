@@ -34,6 +34,12 @@ source-files = \
 
 run-latex = (cd $(build-dir); pdflatex ecc.tex)
 
+# make the pdf
+.PHONY: pdf
+pdf:
+	cp $(source-files) $(build-dir); $(run-latex)
+
+
 # Create pdf up to pass2. Make pass1 if not yet run on the current version of
 # the sources.
 .PHONY: pass2

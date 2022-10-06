@@ -1,4 +1,63 @@
+%-------------------------------------------------------------------------------
 \section{Quasinormalization}
+%-------------------------------------------------------------------------------
+
+\begin{comment}
+    Level:
+
+        A set of sorts a type can live in, even if beta reduced.
+
+        Note:
+            Beta reduction can reduce the sort. E.g.
+
+                (\ (A: Any (i+k+1)) := A) (Any i) ~> Any i
+
+            where `Any i` has type  `Any (i+1)` and
+            `(\ (A: Any (i+k+1)) := A) (Any i)` has type `Any (i+k+1)` because
+            the result of the function term is `A` which has type `Any (i+k+1)`.
+
+
+    Level of a redex:
+
+        All redexes have a function term which has a minimal type of the form
+        'all (x: A): B' (or beta equivalents). The level of this type is the
+        level of a redex.
+
+
+    j-Quasinormal term:
+
+        Does not have redexes of level 'upper (Any j)' or subsets of it.
+
+        "Quasi" is not necessary. We can speak of j-normal terms. 0-normal terms
+        are normal terms, because they contain no redexes.
+
+
+    Proof idea:
+
+        In ECCn a redex of level n is not possible. Therefore we have a function
+        rn which reduces any term to its n-normal form. Since all terms are in
+        n-normal form rn is the identity function.
+
+        Induction step: Assume there is a reduction function ri+1, find a
+        reduction function ri.
+
+            We have the term t and reduce it via ri+1 to its i+1 normal form.
+            This term has redexes of level i and lower. We want to remove all
+            level i redexes.
+
+            The type of the function term of an i level redex can be transformed
+            via ri+1 into i+1 normal form.
+
+
+        Needed theorem: If T is the type of the function term of a redex in a
+        i+1 normal term, then T is either a base term or a sort or a product.
+
+        Or maybe more general: If T is a type in i+1 normal form, then it is
+        either a base term or a sort or a product.
+
+            It might contain redexes of level i, but not of level i+1.
+\end{comment}
+
 
 
 \subsection{Overview}
@@ -49,6 +108,199 @@ $$
 I.e. the minimal sort can go down via beta reduction. However we want to
 characterize a type by a sort/universe which is independent of reduction.
 
+
+
+
+\begin{definition}
+    \label{def:UpperSet}
+    %-----------------------------
+    The \emph{upper set} $\upper {\Any_i}$ of a sort $\Any_i$ are all sorts
+    $\Any_j$ where $i \le j$.
+    $$
+    \upper {\Any_i} := \set{\Any_j \mid i \le j}
+    $$
+\end{definition}
+
+
+
+
+\begin{definition}
+    \label{def:SortSet}
+    %-----------------------------
+    The \emph{sort set $S_\Gamma(T)$ of a type $T$} is defined inductively by
+    the rule
+    $$
+    \ruleh{
+        \Gamma \vdash T : s_1\quad
+        T \reducestar U\quad
+        \Gamma \vdash U : s
+    }
+    {
+        s \in S_\Gamma(T)
+    }
+    $$
+
+    We often write $S(T)$ without the subscript $\Gamma$ when the context is
+    clear.
+\end{definition}
+
+
+
+
+
+\begin{theorem}
+    \label{th:SortSetUpperClosed}
+    %-----------------------------
+    \emph{A sort set is upper closed}.
+    $$
+        \ruleh{
+            \Any_i \in S_\Gamma(T)
+            \\
+            i \le j
+        }
+        {
+            \Any_j \in S_\Gamma(T)
+        }
+    $$
+    \begin{proof}
+        By the cumulativity rule of the typing relation.
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+\begin{theorem}
+    \label{th:SortSetSubstitution}
+    %-----------------------------
+    \emph{Type safe substitution makes the sort set bigger}.
+    $$
+        \ruleh{
+            \Gamma \vdash a : A \quad \Gamma,x^A \vdash B
+        }
+        {
+            S_{\Gamma,x^A}(B) \subseteq S_\Gamma(B[a/x])
+        }
+    $$
+    \begin{proof}
+        Assume $s \in S_{\Gamma,x^A}(B)$.
+
+        Then by the definition of sort sets~\ref{def:SortSet}
+        there exists $C$ with $B \reducestar C$ and $\Gamma,x^A \vdash C: s$.
+        This implies $B[a/x] \reducestar C[a/x]$ and $\Gamma \vdash C[a/x] : s$
+        by the subject reduction~\ref{SubjectReduction} and the substitution
+        theorem~\ref{SubstitutionLemma}.
+
+        The definition of sort sets~\ref{def:SortSet} implies $s \in
+        S_\Gamma(B[a/x])$ which completes the proof.
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+\begin{theorem}
+    \label{th:SortSetsSubtype}
+    %-----------------------------
+    \emph{Let $A$ and $B$ be some welltyped terms in the same context. Then the
+    following is valid:}
+    \begin{enumerate}
+
+        \item $A \betaeq B \imp S(A) = S(B)$
+
+        \item $A <_i B \imp S(A) \subset S(B)$
+    \end{enumerate}
+    \begin{proof}
+
+        \ \begin{enumerate}
+
+            \item Because of confluence there exists a common reduct $C$ of $A$
+                and $B$. Then by definition of the sort set $S(A) = S(C) =
+                S(B)$.
+
+            \item By induction on $i$.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+\begin{definition}
+    \label{def:RedexSortSet}
+    %-----------------------------
+    \emph{Sort set of a redex}
+
+    The sort set of a redex $(\lambda x^A. e) a$ is the sort set of a
+    minimal type of its function term $\lambda x^A. e$.
+
+    This set is welldefined because a minimal type of a term is unique modulo
+    beta equivalence and due to~\ref{th:SortSetsSubtype} all beta equivalent
+    types have the same sort set.
+\end{definition}
+
+
+
+
+\begin{definition}
+    \label{def:INormalTerm}
+    %-----------------------------
+    \emph{Welltyped $i$-normal terms}
+
+    A welltyped term $t$ is $i$-normal if it contains no redexes whose sort set
+    is a subset of $\upper {\Any_i}$.
+\end{definition}
+
+
+
+
+
+
+\begin{theorem}
+    \label{th:NormalBaseTerm}
+    %-----------------------------
+    \emph{Let $fa$ be a welltyped $i+1$-normal term whose sort set is $\upperany
+    i$.  Then $fa$ is a base term.}
+
+    \begin{proof}
+        We proof the more general theorem using $f b \vec c$ as the welltyped
+        $i+1$-normal term whose sort set is $\upperany i$ and prove that $f b
+        \vec c$ is a base term. $\vec c$ is a possibly empty sequence $c_1, c_2,
+        \ldots, c_n$ of arguments.
+
+        The proof goes by induction on the structure of the function term $f$.
+        \begin{enumerate}
+
+            \item $f$ can neither be a sort nor a product. This would contradict
+                the fact that $f b \vec c$ is welltyped.
+
+            \item If $f$ is a variable then $f b \vec c$ is by definition a base
+                term.
+
+            \item $f$ is the application $ga$: In that case $gab\vec c$ is a
+                welltyped $i+1$-normal type whose sort set is $\upperany i$ and
+                by the induction hypothesis for $g$ we conclude that $g a b \vec
+                c = f b \vec c$ is a base term.
+
+            \item $f$ is the abstraction $\lambda x^A. e$:
+
+                MISSING
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\noindent OLD MATERIAL
+%---------------------------------------------------------------
 
 \begin{definition}
     A \emph{level} $l$ is a set of sorts which is upper closed i.e.
