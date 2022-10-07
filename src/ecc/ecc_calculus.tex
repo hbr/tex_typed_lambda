@@ -404,8 +404,8 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
 \begin{theorem}
     \label{SubstituteReduction}
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    \emph{Substitute Reduction} A reduction remains valid if we do the same
-    substitution before and after the reduction.
+    \emph{Substitution respects reduction} A reduction remains valid if we do
+    the same substitution before and after the reduction.
     $$
     \ruleh{
         t \reduce u
@@ -564,6 +564,25 @@ $e[x:=a]$. Beta reduction can be done in any subterm of a term.
 \end{definition}
 
 
+\begin{theorem}
+    \label{thm:SubstitutionRespectsEquivalence}
+    \emph{Substitution respects beta equivalence}.
+    $$
+    \ruleh{
+        t \betaeq u
+    }
+    { \sub a x t \betaeq \sub a x u}
+    $$
+    \begin{proof}
+        By induction on $t \betaeq u$.
+
+        The reflexive case is trivial. The forward and backward cases use the
+        induction hypothesis and the fact that substitution respects beta
+        reduction~\ref{SubstituteReduction}
+    \end{proof}
+\end{theorem}
+
+
 
 \subsection{Confluence}
 %----------------------------------------------------------------------
@@ -591,6 +610,25 @@ confluence.
 \end{definition}
 
 
+\begin{theorem}
+    \label{thm:SubstitutionRespectsProperSubtype}
+    \emph{Substitution respects proper subtypes}.
+    %------------------------------------------------------------
+    $$
+    \ruleh{
+        T <_i U
+    }
+    {
+        \sub a x T <_i \sub a x U
+    }
+    $$
+    \begin{proof}
+        By induction on $T <_i U$. The base case is trivial. The inductive case
+        is an immediate consequence of the induction hypothesis and the
+        definition of substitution.
+    \end{proof}
+\end{theorem}
+
 
 \begin{definition}
     \label{def:Subtype}
@@ -607,3 +645,69 @@ confluence.
             $
     \end{enumerate}
 \end{definition}
+
+
+\begin{theorem}
+    \label{thm:SubstitutionRespectsSubtype}
+    \emph{Substitution respects subtypes}.
+    %------------------------------------------------------------
+    $$
+    \ruleh{
+        T \le U
+    }
+    {
+        \sub a x T \le \sub a x U
+    }
+    $$
+    \begin{proof}
+        By induction on $T \le U$.
+
+        The equivalence case follows from the fact that substitution respects
+        beta equivalence~\ref{thm:SubstitutionRespectsEquivalence}. Furthermore
+        substitution respects proper
+        subtypes~\ref{thm:SubstitutionRespectsProperSubtype}. This implies the
+        second case.
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\begin{theorem}
+    \label{thm:ProductSubtype}
+    %------------------------------------------------------------
+    $$
+    \ruleh{
+        \Pi x^A. B \le \Pi x^{A'}. B'
+    }
+    {
+        A \betaeq A' \land B \le B'
+    }
+    $$
+    \begin{proof}
+        MISSING!!
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\begin{theorem}
+    \label{thm:SubtypeAntisymmetric}
+    %------------------------------------------------------------
+    $$
+    \ruleh{
+        A \le B
+        \\
+        B \le A
+    }
+    {
+        A \betaeq B
+    }
+    $$
+    \begin{proof}
+        MISSING!!
+    \end{proof}
+\end{theorem}

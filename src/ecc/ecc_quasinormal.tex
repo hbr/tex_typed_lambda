@@ -172,7 +172,7 @@
         \Gamma \vdash \Pi x^A. B : \dontcare
     }
     {
-        S(\Pi x^A, B) =
+        S(\Pi x^A. B) =
         \dcases{
             \upper\Prop & \text{if }\Gamma \vdash \Pi x^A . B : \Prop
             \\
@@ -180,7 +180,14 @@
         }
     }
     $$
+
+    This theorem has the immediate consequence $S\Pi x^A. B \subseteq S(B)$. In
+    the propositional case this is trivial. In the non-propositional case it is
+    a consequence of the intersection.
+
     \begin{proof}
+        Now we prove the main theorem.
+
         If the product is a proposition the proof is trivial because
         $\upper\Prop$ is the biggest possible sort set. For the
         non-propositional case we have to prove both directions:
@@ -254,6 +261,56 @@
                         and~\ref{thm:SortSetProduct}.
                 \end{enumerate}
         \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+\begin{theorem}
+    \label{thm:SortSetApplication}
+    %-----------------------------
+    \emph{Sort sets of applications} Let $fa$ be an application where $F$ is a
+    minimal type of $f$ and $R$ is a minimal type of $fa$. Then the sort set of
+    $F$ is a subset of the sort set of $R$.
+    $$
+    \ruleh{
+        \Gamma \vdashmin f : F
+        \\
+        \Gamma \vdashmin fa : R
+    }
+    {
+        S(F) \subseteq S(R)
+    }
+    $$
+    \begin{proof}
+
+        By~\ref{thm:MinimalTypeFunctionTerm} there exist the types $A$ and $B$
+        such that $\Pi x^A. B$ is a minimal type of $f$. Therefore $F$ and $\Pi
+        x^A.B$ are beta equivalent and have the same sort sets.
+
+        The generation lemma~\ref{GenerationLemma} for application guarantees
+        the existence of $A'$ and $B'$ such that $\Pi x^{A'}.B'$ is a valid type
+        of $f$ and $A'$ is a valid type of $a$ and $\sub a x {B'} \le R$.
+
+        Since $\Pi x^A. B$ is minimal we have $A \betaeq A'$ and $B \le B'$
+        by~\ref{thm:ProductSubtype}.
+
+        The minimality of $R$, the antisymmetry of
+        subtypes~\ref{thm:SubtypeAntisymmetric} and the fact that
+        substitution respects subtypes~\ref{thm:SubstitutionRespectsSubtype} we
+        have $\sub a x B \betaeq R$.
+
+        In combination with \ref{thm:SortSetsSubtype} and
+        \ref{thm:SortSetProduct} and \ref{thm:SortSetSubstitution} we get
+        $$
+        S(F) = S(\Pi x^A. B)
+            \subseteq S(B)
+            \subseteq S(\sub a x B)
+            = S(R)
+        $$
     \end{proof}
 \end{theorem}
 

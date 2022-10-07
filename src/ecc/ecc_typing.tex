@@ -1835,6 +1835,25 @@ prove that each welltyped term has a minimal type.
 
 
 
+\begin{theorem}
+    \label{thm:MinimalTypeFunctionTerm}
+    \emph{If $f$ is the function term of a welltyped application $fa$, then
+    there is a minimal type of $f$ in the form $\Pi x^A. B$}.
+    $$
+    \ruleh{
+        \Gamma \vdash f a : \dontcare
+    }
+    {
+        \exists AB. \Gamma \vdashmin f : \Pi x^A. B
+    }
+    $$
+    \begin{proof}
+
+        MISSING!!!
+    \end{proof}
+\end{theorem}
+
+
 \subsection{Uninhabited Types}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
