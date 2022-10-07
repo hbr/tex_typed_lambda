@@ -276,7 +276,7 @@
     minimal type of $f$ and $R$ is a minimal type of $fa$. Then the sort set of
     $F$ is a subset of the sort set of $R$.
     $$
-    \ruleh{
+    \rulev{
         \Gamma \vdashmin f : F
         \\
         \Gamma \vdashmin fa : R
@@ -311,6 +311,57 @@
             \subseteq S(\sub a x B)
             = S(R)
         $$
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+\begin{theorem}
+    \label{thm:SortSetApplications}
+    %-----------------------------
+    \emph{Sort sets of generalized applications} This is a generalization of the
+    previous theorem~\ref{thm:SortSetApplication}.
+
+    Let $fb \vec c$ be an application where
+    $F$ is a minimal type of $f$ and $R$ is a minimal type of $fb \vec c$ where
+    $\vec b$ is a possibly empty sequence of arguments $b_1, b_2, \ldots, b_n$.
+    Then the sort set of $F$ is a subset of the sort set of $R$.
+    $$
+    \rulev{
+        \Gamma \vdashmin f : F
+        \\
+        \Gamma \vdashmin f a \vec b : R
+    }
+    {
+        S(F) \subseteq S(R)
+    }
+    $$
+    \begin{proof}
+        We prove the goal by induction on the length $n$ of $\vec b$.
+        \begin{enumerate}
+            \item $n=0$: Immediate consequence of the previous
+                theorem~\ref{thm:SortSetApplication}.
+
+            \item Induction step from $n$ to $n+1$:
+                Assume $S(F) \subseteq S(R)$ for $n = |\vec b|$. We have to
+                prove the goal
+                $$
+                \rulev{
+                    \Gamma \vdashmin f a \vec b b_{n+1} : R'
+                }
+                {
+                    S(F) \subseteq S(R')
+                }
+                $$
+                By using the the induction hypothesis and the previous
+                theorem~\ref{thm:SortSetApplication} we can prove the goal
+                $$
+                    S(F) \subseteq S(R) \subseteq S(R')
+                $$
+        \end{enumerate}
     \end{proof}
 \end{theorem}
 
