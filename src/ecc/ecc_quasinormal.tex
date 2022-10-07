@@ -63,46 +63,6 @@
 
 
 
-\subsection{Subtype}
-%----------------------------------------------------------------------
-
-
-
-\begin{definition}
-    \label{def:ProperSubtype}
-    %-----------------------------
-    The relation $A <_i B$ which says that $A$ is a \emph{proper subtype} of $B$
-    with arity $i$ is defined inductively by the rules
-    \begin{enumerate}
-        \item $\ruleh{j < k} {\Any_j <_0 \Any_k}$
-
-        \item $\ruleh{B <_i C} {\Pi x^A. B <_{i+1} \Pi x^A. C}$
-    \end{enumerate}
-\end{definition}
-
-
-
-\begin{definition}
-    \label{def:Subtype}
-    %-----------------------------
-    The relation $A \le B$ which says that $A$ is a \emph{subtype} of $B$ is
-    defined inductively by the rules
-    \begin{enumerate}
-        \item $\ruleh{A \betaeq B}{A \le B}$
-
-        \item $
-            \ruleh
-            {A \reducestar A_1\quad A_1 <_i B_1\quad B \reducestar B_1}
-            {A \le B}
-            $
-    \end{enumerate}
-\end{definition}
-
-
-
-
-
-
 
 
 \subsection{Sort Sets, $i$-Normal Terms}
