@@ -24,38 +24,45 @@
         level of a redex.
 
 
-    j-Quasinormal term:
+    j-normal term:
 
         Does not have redexes of level 'upper (Any j)' or subsets of it.
 
-        "Quasi" is not necessary. We can speak of j-normal terms. 0-normal terms
-        are normal terms, because they contain no redexes.
+        0-normal terms are normal terms, because they contain no redexes.
 
 
     Proof idea:
 
-        In ECCn a redex of level n is not possible. Therefore we have a function
-        rn which reduces any term to its n-normal form. Since all terms are in
-        n-normal form rn is the identity function.
+        In ECCn a redex with sort set upper (Any n) is not possible. Therefore
+        we have a function rn which reduces any term to its n-normal form. Since
+        all terms are in n-normal form rn is the identity function.
 
         Induction step: Assume there is a reduction function ri+1, find a
         reduction function ri.
 
-            We have the term t and reduce it via ri+1 to its i+1 normal form.
-            This term has redexes of level i and lower. We want to remove all
-            level i redexes.
+            We look into redexes whose sort set of its function term type is
+            upper (Any i). We can transform all these types into i+1 normal form
+            via ri+1. The normalized type is a sort or a product or a base term.
+            We can compute the degree of all these types.
 
-            The type of the function term of an i level redex can be transformed
-            via ri+1 into i+1 normal form.
+            We use the triple
 
+                (i, d, n)
 
-        Needed theorem: If T is the type of the function term of a redex in a
-        i+1 normal term, then T is either a base term or a sort or a product.
+            where d is the maximal degree of all these types and n is the number
+            of redexes which have this maximal degree.
 
-        Or maybe more general: If T is a type in i+1 normal form, then it is
-        either a base term or a sort or a product.
+            We reduce the rightmost redex of degree d and claim that this
+            reduces n by one. We continue until n=0 i.e. there are no more
+            redexes of degree d.
 
-            It might contain redexes of level i, but not of level i+1.
+            We continue this process until there are no more redexes of level i.
+
+            The i-normal term is unique because the rightmost redex is unique.
+            Therefore we have found the reduction function ri.
+
+        Crucial in the construction: The reduction of the rightmost redex of the
+        highest degree does not make new redexes of this degree.
 \end{comment}
 
 
@@ -65,7 +72,7 @@
 
 
 
-\subsection{Sort Sets, $i$-Normal Terms}
+\subsection{Sort Sets}
 %----------------------------------------------------------------------
 
 
@@ -325,8 +332,8 @@
     \emph{Sort sets of generalized applications} This is a generalization of the
     previous theorem~\ref{thm:SortSetApplication}.
 
-    Let $fb \vec c$ be an application where
-    $F$ is a minimal type of $f$ and $R$ is a minimal type of $fb \vec c$ where
+    Let $fa \vec b$ be an application where
+    $F$ is a minimal type of $f$ and $R$ is a minimal type of $fa \vec b$ where
     $\vec b$ is a possibly empty sequence of arguments $b_1, b_2, \ldots, b_n$.
     Then the sort set of $F$ is a subset of the sort set of $R$.
     $$
@@ -370,6 +377,10 @@
 
 
 
+\subsection{$i$-Normal Terms}
+%------------------------------------------------------------
+
+
 \begin{definition}
     \label{def:RedexSortSet}
     %-----------------------------
@@ -403,14 +414,14 @@
 \begin{theorem}
     \label{thm:NormalBaseTerm}
     %-----------------------------
-    \emph{Let $fa$ be a welltyped $i+1$-normal term whose sort set is $\upperany
-    i$.  Then $fa$ is a base term.}
+    \emph{Let $fa$ be a welltyped $i+1$-normal type whose sort set is a subset
+    of $\upperany i$.  Then $fa$ is a base term.}
 
     \begin{proof}
-        We proof the more general theorem using $f b \vec c$ as the welltyped
-        $i+1$-normal term whose sort set is $\upperany i$ and prove that $f b
-        \vec c$ is a base term. $\vec c$ is a possibly empty sequence $c_1, c_2,
-        \ldots, c_n$ of arguments.
+        We proof the more general theorem using $f a \vec b$ as the welltyped
+        $i+1$-normal term whose sort set is a subset of  $\upperany i$ and prove
+        that $f a \vec b$ is a base term. $\vec b$ is a possibly empty sequence
+        $b_1, b_2, \ldots, b_n$ of arguments.
 
         The proof goes by induction on the structure of the function term $f$.
         \begin{enumerate}
@@ -418,23 +429,66 @@
             \item $f$ can neither be a sort nor a product. This would contradict
                 the fact that $f b \vec c$ is welltyped.
 
-            \item If $f$ is a variable then $f b \vec c$ is by definition a base
+            \item If $f$ is a variable then $f a \vec b$ is by definition a base
                 term.
 
-            \item $f$ is the application $ga$: In that case $gab\vec c$ is a
-                welltyped $i+1$-normal type whose sort set is $\upperany i$ and
-                by the induction hypothesis for $g$ we conclude that $g a b \vec
-                c = f b \vec c$ is a base term.
+            \item $f$ is the application $ga_0$: In that case $ga_0 a \vec b$ is
+                a welltyped $i+1$-normal type whose sort set is $\upperany i$
+                and by the induction hypothesis for $g$ we conclude that $g a_0
+                a \vec b = f a \vec b$ is a base term.
 
-            \item $f$ is the abstraction $\lambda x^A. e$:
+            \item $f$ is an abstraction:
 
-                MISSING
+                By the existence of minimal types~\ref{MinimalType} there exist
+                the types $F$ and $\Any_j$ which are the minimal types of $f$
+                and $f b \vec c$ respectively. The minimal type of $f b \vec c$
+                must be a sort, because the term is a type.
+                By~\ref{thm:SortSetApplications} we infer $S(F) \subseteq
+                S(\Any_j)$.
+
+                By definition of a sort set $\Any_j$ must be in the sort set of
+                $f a \vec b$ which by assumption is a subset of $\upper \Any_i$
+                $ \Any_j \subseteq S(f a \vec b) \subseteq \upper {\Any_i}$.
+                This is possible only if $i \le j$. This implies $S(\Any_j) =
+                \set{\Any_{j+1}, \Any_{j+2}, \ldots} \subset \upper{\Any_i}$.
+
+                Combining the two facts we get $S(F) \subseteq S(\Any_j) \subset
+                \upper{\Any_i}$ or better $S(F) \subseteq \upper{\Any_{i+1}}$.
+
+                $f$ is an abstraction, therefore $f a$ is a redex whose minimal
+                type is $F$. This implies that $f a \vec b$ contains a redex
+                whose sort set is contained in $\upper {\Any_{i+1}}$ and
+                contradicts the assumption that $f a \vec b$ is $i+1$-normal.
+                Therefore $f$ cannot be an abstraction.
         \end{enumerate}
     \end{proof}
 \end{theorem}
 
 
 
+\begin{theorem}
+    \label{thm:FormNormalTypes}
+    %------------------------------------------------------------
+    \emph{Form of Normal Types} A welltyped $i+1$-normal type $T$ whose sort set
+    is a subset of $\upper{\Any_i}$ is either a sort or a product or a base
+    term.
+
+
+    \begin{proof}
+        By induction of the structure of $T$.
+        \begin{itemize}
+
+            \item If $T$ is a sort or a product or a variable then the goal is
+                trivial.
+
+            \item $T$ cannot be an abstraction because the type of an
+                abstraction cannot be a sort i.e. it cannot be a welltyped type.
+
+            \item If $T$ is an application it is a base term. This is an
+                immediate consequence of~\ref{thm:NormalBaseTerm}.
+        \end{itemize}
+    \end{proof}
+\end{theorem}
 
 
 
