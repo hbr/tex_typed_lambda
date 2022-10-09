@@ -1,581 +1,151 @@
 \section{Strong Normalization}
 
 
-From the quasinormalization theorem~\ref{quasinormalization} we get the
-following result: All valid types $T$ can be reduced to
+\subsection{Overview}
 
-\begin{itemize}
+We want to prove that all welltyped terms $t$ i.e. terms which satisfy $\Gamma
+\vdash t: T$ for some context $\Gamma$ and type $T$ are strongly normalizing.
+The most straightforward way is to try to prove it by induction on $\Gamma
+\vdash t: T$. The proof works for nearly all rules. Sorts and variables are
+already in normal form. Abstractions and products can use the induction
+hypothesis to prove the strong normalization by the strong normalization of its
+components. The structural rules for weakening, subtyping and reduction
+immediately prove the strong normalization from the induction hypothesis.
 
-\item a syntactical kind $\Pi \vec x^{\vec A}. s$
-
-\item or a syntactical type $\Pi \vec x^{\vec A}. y \vec a$
-
-\end{itemize}
-%
-where $A$ is either a syntactical kind or a syntactical type.
-
-
-\subsection{Constructor Interpretation}
-
-
-
-\begin{definition}
-    \emph{Base Terms} The set of base terms $\baseterms$ is defined by the
-    grammar
-    $$
-    \begin{array}{lll}
-        b &::=& x
-        \\
-        &\mid& b a
-    \end{array}
-    $$
-    where $b$ ranges over base terms, $x$ over variables and $a$ over any terms.
-    I.e. a base term is a variable applied to zero or more arbitrary arguments.
-
-    Base terms have the property that beta reduction does not change the
-    structure. Beta reduction of a base term reduces exactly one of the
-    arguments.
-\end{definition}
+The only rule which fails is the rule for application. There is no way to prove
+the strong normalization of the application $f a$ from the strong normalization
+of its components $f$ and $a$. A simple counterexample: Use $\lambda x^A. x x$
+for $f$ and $a$. The components are strongly normalizing as long as $A$ is
+strongly normalizing. But we have $f a \reduce f a \reduce f a \ldots$ which is
+the start of an infinite reduction sequence.
 
 
 
-\begin{definition}
-    \emph{Key Reduction} A key reduction is the binary relation $\keyreduce$
-    defined by the rules
-    \begin{enumerate}
-    \item
-        $$
-            (\lambda x^A. e) a \keyreduce e[x:=a]
-        $$
+\subsubsection{Value Sets}
 
-    \item
-        $$
-        \rulev {
-            a \keyreduce b
-        }
-        {
-            a c \keyreduce b c
-        }
-        $$
-    \end{enumerate}
-    A key reduction reduces a redex only in a key position i.e. the redex has to
-    be the leftmost subterm of the term.
-\end{definition}
+For each welltyped term $t$ i.e. a valid term in a context with a type ($\Gamma
+\vdash t: T$) we define a value set (or a model set) $\nu t$. We use the fact
+that there is a minimal type $T_\mu$ which can be put into quasinormal form
+$T_{\mu q}$ i.e.  $\Gamma \vdash_{\mu q} t: T_{\mu q}$.
+
+A type in quasinormal form is either a sort, a base term or a term of the form
+$\Pi x^A. B$ where $A$ and $B$ are in quasinormal form.
+
+A value set for a term $t$ with minimal quasinormal type $T_{\mu q}$ is either
+$\set{\theta}$ for some special symbol $\theta$, the set of saturated sets for
+the corresponding type $\satsets\, T_{\mu q}$ or a set of mathematical functions
+mapping a term and a value set to a value set. The last form is chosen when
+$T_{\mu q}$ is not a proposition and has the form $\Pi x^A. B$ i.e. the value
+set of a term which is a function is a set of mathematical functions.
+
+Remark: We use the term \emph{mathematical function} to distinguish them from
+lambda terms which represent a function.
 
 
 
+\subsection{Value Sets}
 
+
+
+\subsection{Context Model}
 
 \begin{definition}
-    \emph{Lambda Function Space}
-    Let $A$ and $B$ two sets of lambda terms. The lambda function space $A
-    \tolambda B$ is defined as
-    $$
-    A \tolambda B := \set{f: \forall a. a \in A \imp fa \in B}
-    $$
+$\rho\xi \vDash \Gamma$
 \end{definition}
 
 
+\subsection{Evaluation}
 
+Specification of an evaluation $\eval t \rho \xi \Gamma$:
 
-
-\begin{definition}
-    \emph{Strongly Normalizing Terms}
-    The set of strongly normalizing terms $\SN$ is defined inductively by the
-    rule
-    $$
-    \ruleh{
-        \forall b. \ruleh{a \reduce b}{b \in \SN}
-    }
-    {
-        a \in \SN
-    }
-    $$
-\end{definition}
-
-
-\begin{definition}
-    \emph{Saturated Sets} A saturated set $X$ is a set of strongly normalizing terms
-    which satisfy the following closure conditions
-    \begin{enumerate}
-    \item $X$ contains all strongly normalizing base terms
-        $$
-            \rulev{b \in \baseterms \\ b \in \SN}{b \in X}
-        $$
-
-    \item $X$ contains all strongly normalizing key redexes if the key reduct is
-        in $X$
-        $$
-        \rulev {
-            b \in X
-            \\
-            a \in \SN
-            \\
-            a \keyreduce b
-        }
-        {
-            a \in X
-        }
-        $$
-    \end{enumerate}
-\end{definition}
-
-
-\begin{theorem}
-    \emph{The saturated sets are closed under arbitrary intersections}
-    Let $S \subseteq \satsets$ be a set of saturated sets. Then the intersection
-    $$
-    \bigcap S := \set{t: \forall A \in S \imp t \in A}
-    $$
-    is saturated as well
-    $$
-    \bigcap S \in \satsets
-    $$
-    \begin{proof}
-        We have to proof the following closure conditions of $\bigcap S$:
-
-        \begin{enumerate}
-        \item All strongly normalizing base terms are in $\bigcap S$:
-
-            Since all strongly normalizing base terms are in each element of $S$
-                they are certainly in the intersection as well.
-
-        \item If key reduct is in $\bigcap S$ then its strongly normalizing key
-            redex is in $\bigcap S$ as well:
-
-
-            Let's assume $b$ is in all sets of $S$ and $a \keyreduce b$ and $a$
-                is strongly normalizing. Then by definition $a$ is in all sets
-                of $S$. Therefore it is the intersection $\bigcap S$ as well.
-        \end{enumerate}
-    \end{proof}
-\end{theorem}
-
-
-\begin{definition} \emph{Syntactical Kinds and Types} Let range $s$ over sorts,
-    $b$ over base terms, $T$ over syntactical types and $K$ over syntactical
-    kinds. Then syntactical kinds and types are defined by the mutually
-    recursive grammar
-    $$
-    \begin{array}{lll}
-        K &::=& s
-        \\
-        &\mid& \Pi x^T. K
-        \\
-        &\mid& \Pi x^K. K
-        \\
-        T &::=& b
-        \\
-        &\mid& \Pi x^T. T
-        \\
-        &\mid& \Pi x^K. T
-    \end{array}
-    $$
-
-    We use $\skinds$ to describe the set of syntactical kinds and $\stypes$ to
-    describe the set of syntactical types.
-\end{definition}
-
-
-
-\begin{definition}
-    \emph{Kinds}
-    The set of kinds $\skinds^*$ is the set of all terms which
-    reduce to a syntactical kind in zero or more steps.
-    $$
-    \skinds^* := \set{A: \exists K \in \skinds. A \reducestar K}
-    $$
-\end{definition}
-
-
-
-
-
-\begin{definition}
-    \emph{Proper Types}
-    The set of proper types $\stypes^*$ is the set of all
-    terms which reduce to a syntactical type in zero or more steps.
-    $$
-    \stypes^* := \set{A: \exists T \in \stypes. A \reducestar T}
-    $$
-\end{definition}
-
-
-
-
-
-\begin{definition}
-    \emph{Constructors}
-    The set of constructors $\constructors_\Gamma$ in the
-    context $\Gamma$ is defined as
-    $$
-    \constructors_\Gamma := \set{A: \exists K\in\skinds^*. \Gamma \vdash A: K}
-    $$
-\end{definition}
-
-
-
-
-\begin{definition}
-    \emph{Model Sets} A model set is either the set of saturated sets or a
-    function from a model set to a model set. Let $M$ range over model sets,
-    then the model sets are described by the grammar
-    $$
-    \begin{array}{lll}
-        M &::=& \satsets
-        \\
-        &\mid& M \to M
-    \end{array}
-    $$
-    We use $\satsets^*$ to describe the set of model sets.
-
-    We can map each syntactical kind to a set of models. We
-    define a function $\nu: \skinds \to \satsets^*$.
-    $$
-    \nu K :=
-    \begin{cases}
-        \nu s := \satsets
-        %
-        \\
-
-        \nu (\Pi x^A. B) := \nu A \to \nu B & \mbox{if } A \in \skinds
-        %
-        \\
-        %
-        \nu (\Pi x^A. B) := \nu B & \mbox{if } A \in \stypes
-    \end{cases}
-    $$
-\end{definition}
-
-The reduction of a type to a syntactical kind or type is not unique. E.g. the
-type $A$ might reduce to the kinds $K_1$ and $K_2$ i.e. $A \reducestar K_1$ and
-$A \reducestar K_2$. According to the Church Rosser theorem there is a term $K$
-with $K_1 \reducestar K$ and $K_2 \reducestar K$. $K$ is a syntactical kind,
-since reduction preserves syntactical kinds and types.
-
-The definition of the function $\nu$ guarantees $K_i \reducestar K \imp \nu K_i
-= \nu K$ which implies $\nu K_1 = \nu K_2$. Therefore we an extend the function
-$\nu$ to all terms $A$ which reduce to a syntactical kind
 $$
-\nu : \skinds^* \to \satsets^*
+\rulev{
+    \Gamma \vdash t : T
+    \\
+    \rho \xi \vDash \Gamma
+}
+{
+    \eval t \rho \xi \Gamma \in \valset \Gamma t
+}
 $$
 
-
 \begin{definition}
-    \emph{Interpretation of Constructor Variables} An interpretation $\xi$ of
-    constructor variable is generated by the grammar
-    $$
-    \begin{array}{lll}
-        \xi &::=& []
-        \\
-        &\mid& \xi, x^S
-    \end{array}
-    $$
-    where $S \in \satsets^*$.
+    We define an \emph{evaluation} $\eval t \rho \xi \Gamma$ recursively by
+    cases.
 
-    A valid interpretation of constructor variables $\xi$ for the
-    context $\Gamma$ written as $\xi \vDash \Gamma$ is an inductive relation
-    defined by the rules
+    \def\evals#1{{\eval {#1} \rho \xi \Gamma}}
+
     \begin{enumerate}
     \item
-        $$
-            [] \vDash []
-        $$
-
-    \item
-        $$
-        \rulev {
-            \xi \vDash \Gamma
-            \\
-            \Gamma \vdash A: s
-            \\
-            A \in \stypes^*
-        }
-        {
-            \xi \vDash \Gamma, x^A
-        }
-        $$
-    \item
-        $$
-        \rulev {
-            \xi \vDash \Gamma
-            \\
-            \Gamma \vdash A: s
-            \\
-            A \in \skinds^*
-            \\
-            S \in \nu A
-        }
-        {
-            \xi, x^S \vDash \Gamma, x^A
-        }
-        $$
-    \end{enumerate}
-\end{definition}
-
-
-\begin{definition}
-    \emph{Constructor Interpretation}  A constructor interpretation
-    $\typeinter{-}{\xi \Gamma}$ is a map from valid constructors $C$ in a valid
-    context $\Gamma$ with the interpretation $\xi$ of the constructor variables
-    into $\satsets^*$.
-    $$
-    \rulev{
-        \xi \vDash \Gamma
-        \\
-        \Gamma \vdash C: K
-        \\
-        K \in \skinds^*
-    }
-    {
-        \typeinter{C}{\xi \Gamma} \in \nu K
-    }
-    $$
-    We define the map $\typeinter{A}{\xi \Gamma}$ recursively over the
-    construction of $C$.
-    \begin{enumerate}
-    \item $C$ is the sort $\Any_i$ where $-1 \le i$:
-        $$
-            \rulev{
-                \xi \vDash \Gamma
-                \\
-                \Gamma \vdash \Any_i: \Any_{i+1}
-                \\
-                \Any_{i+1} \in \skinds
-            }
-            {
-                \typeinter{\Any_i}{\xi\Gamma} := \SN
-            }
-        $$
-        The postcondition $\SN \in \nu \Any_{i+1}$ is satisfied, because $\nu
-        \Any_{i+1} = \satsets^*$ and $\SN \in \satsets^*$.
-
-    \item $C$ is the variable $x$:
-        $$
-            \rulev{
-                \xi \vDash \Gamma
-                \\
-                \Gamma \vdash x: K
-                \\
-                K \in \skinds^*
-            }
-            {
-                \typeinter{x}{\xi\Gamma} := \xi x
-            }
-        $$
-        Proof of the postcondition $\xi x \in \nu K$:
-
-        The condition $\Gamma \vdash x:K$ implies $\Gamma x \le K$ and $\Gamma x
-        \in \skinds^*$. Therefore by definition $\xi x \in \nu (\Gamma x)$.
-        Since $\Gamma x$ is a subtype of $K$, $\nu (\Gamma x) = \nu K$.
-
-    \item $C$ is the product $\Pi x^A. B$:
-
-        We have to distinguish the cases $A \in \stypes^*$ and $A \in \skinds^*$.
-
-        \begin{enumerate}
-        \item $A$ is a proper type $A \in \stypes^*$:
-        $$
-            \rulev{
-                \xi \vDash \Gamma
-                \\
-                \Gamma \vdash \Pi x^A.B : K
-                \\
-                K \in \skinds^*
-            }
-            {
-                \typeinter{\Pi x^A. B}{\xi\Gamma}
-                :=
-                \typeinter{A}{\xi\Gamma}
-                \tolambda
-                \typeinter{B}{\xi(\Gamma,x^A)}
-            }
-        $$
-        From $\Gamma \vdash \Pi x^A.B : K$ we infer the existence of two sorts
-                $s_A$ and $s_B$ such that $\Gamma \vdash A: s_A$ and $\Gamma,x^A
-                \vdash B: s_B$ are valid. $x$ is not a constructor since $A \in
-                \stypes^*$. Therefore the typeinterpretations of $A$ and $B$ are
-                valid and we have $\typeinter{A}{\xi\Gamma} \in \nu s_A$ and
-                $\typeinter{B}{\xi(\Gamma,x^A)} \in \nu s_B$ and $\nu s_A = \nu
-                s_B = \satsets$.
-
-        The typeinterpretations of $A$ and $B$ are saturated sets i.e. set of
-                lambda terms and therefore valid arguments for the lambda
-                function space function $\tolambda$. The resulting set of lambda
-                terms is a saturated set as well, because saturated sets are
-                closed under lambda function space construction.
-
-        Since $K$ must be beta equivalent to some sort we have $\nu K =
-                \satsets$ and therefore the postcondition of the function is
-                satisfied.
-
-        \item $A$ is a kind $A \in \skinds^*$:
-            $$
-            \rulev{
-                \xi \vDash \Gamma
-                \\
-                \Gamma \vdash \Pi x^A.B : K
-                \\
-                K \in \skinds^*
-            }
-            {
-                \typeinter{\Pi x^A. B}{\xi\Gamma}
-                :=
-                \typeinter{A}{\xi\Gamma}
-                \tolambda
-                \bigcap_{S \in \nu A}
-                \typeinter{B}{(\xi,x^S)(\Gamma,x^A)}
-            }
-            $$
-            The validity of the type interpretations of $A$ and $B$ follow from the
-            same arguments as in the previous case. However since the
-            variable $x$ is now a constructor variable the type
-            interpretation of $B$ needs an interpretation of the constructor
-            variable as well i.e. it needs the interpretation $\xi, x^S$
-            where $S \in \nu A$.
-
-            Saturated sets are closed under arbitrary intersections. Therefore the
-            intersection over all possible interpretations of the constructor
-            variable $x$ is a saturated set as well.
-
-            The final lambda function space construction results in a saturated set
-            i.e. the postcondition of the function is satisfied.
-        \end{enumerate}
-
-    \item $C$ is the abstraction $\lambda x^A. e$:
-
-        We have to distinguish the cases $A \in \stypes^*$ and $A \in \skinds^*$.
-
-        \begin{enumerate}
-        \item $A$ is a proper type $A \in \stypes^*$:
-            $$
-            \rulev{
-                \xi \vDash \Gamma
-                \\
-                \Gamma \vdash \lambda x^A.e : K
-                \\
-                K \in \skinds^*
-            }
-            {
-                \typeinter{\lambda x^A. e}{\xi\Gamma}
-                :=
-                \typeinter{e}{\xi (\Gamma,x^A)}
-            }
-            $$
-
-            From the generation lemma~\ref{GenerationLemma} we infer the
-            existence of a sort $s$ and a type $B$ such that
-            $$
-            \begin{array}{lll}
-                \Gamma &\vdash& \Pi x^A. B: s
-                \\
-                \Gamma,x^A &\vdash& e : B
-                \\
-                \Pi x^A. B &\le& K
-            \end{array}
-            $$
-            are valid. $B \in \skinds^*$, because $\Pi x^A.B \le K$ and $K \in
-            \skinds^*$.
-
-            Since $A$ is a proper type,
-            $\typeinter{e}{\xi (\Gamma,x^A)} \in \nu B$
-            is a valid type interpretation.
-
-            By definition $\nu (\Pi x^A. B) = \nu B$. Therefore
-            $\typeinter{e}{\xi (\Gamma,x^)}$ satisfies the postcondition.
-
-        \item $A$ is a kind $A \in \skinds^*$:
-            $$
-            \rulev{
-                \xi \vDash \Gamma
-                \\
-                \Gamma \vdash \lambda x^A.e : K
-                \\
-                K \in \skinds^*
-            }
-            {
-                \typeinter{\lambda x^A. e}{\xi\Gamma}
-                :=
-                (S \in \nu A) \mapsto
-                \typeinter{e}{(\xi,x^S) (\Gamma,x^A)}
-            }
-            $$
-            where $(x \in T) \mapsto e$ is a function mapping an element $t \in
-            T$ to the value $e[x:=t]$
-
-            By the same reasoning as in the previous case we infer the validity
-            of
-            $$
-            \begin{array}{lll}
-                \Gamma &\vdash& \Pi x^A. B: s
-                \\
-                \Gamma,x^A &\vdash& e : B
-                \\
-                \Pi x^A. B &\le& K
-                \\
-                B &\in& \skinds^*
-            \end{array}
-            $$
-            However $A$ is now a kind and therefore $x$ is a constructor
-            variable. We need the interpretation of constructor variables
-            $\xi,x^S$ where $S \in \nu A$ to generate a valid type
-            interpretation of $e$.
-
-            The postcondition requires the result to be in $nu K$ which is the
-            same as $\nu (\Pi x^A.B)$ which by definition is $\nu A \to \nu B$.
-            Obviously the result term satisfies the postcondition.
-
-        \end{enumerate}
-
-    \item $C$ is the application $f a$:
-        There are the preconditions
-        $$
-        \begin{array}{lll}
-            \xi &\vDash& \Gamma
-            \\
-            \Gamma &\vdash& f a: K
-            \\
-            K &\in& \skinds^*
-        \end{array}
-        $$
-        By the generation lemma~\ref{GenerationLemma} there exist the terms $A$
-        and $B$ such that
-        $$
-        \begin{array}{lll}
-            \Gamma &\vdash& f: \Pi x^A. B
-            \\
-            \Gamma &\vdash& a: A
-            \\
-            B[x:=a] &\le& K
-        \end{array}
-        $$
-        are valid.
-
-        {\bf Why this cannot work}:
-        By the typing rule for applications we get the following
+        Terms with propositional type:
         $$
         \rulev{
-            [f^{\Pi x^{\Any_{i+1}}. x}] \vdash f: \Pi x^{\Any_{i+1}}. x
-            \\
-            {[}f^{\Pi x^{\Any_{i+1}}. x}] \vdash \Any_i : \Any_{i+1}
+            \Gamma \vdash T : \Prop
         }
         {
-            f \Any_i:
-            \underbrace{x[x:=\Any_i]}_{= \Any_i}
+            \evals t := \nothing
         }
         $$
-        Problem:
-        \begin{itemize}
-        \item $f \Any_i$ is a a constructor because its type is a syntactical
-            kind.
 
-        \item $f$ is not a constructor because its type is a syntactical type.
+    \item Sorts:
+        $$
+        \evals s := \SN_s
+        $$
 
-        \end{itemize}
+    \item Variables:
+        $$
+        \rulev{x^M \in \xi}{\evals x := M}
+        $$
 
-        In the calculus of constructions this problem cannot happen. There are
-        only the two sorts $ * $ and
-        $\Box$. It is not possible to construct the
-        type $\Pi x^\Box. x$ because $\Box: s$ is invalid.
+    \item Products:
+        $$
+        \evals {\Pi x^A. B} :=
+        \set{
+            F |
+            \bracklist{
+                \Gamma \vdash F : \subst A \rho
+                \\
+                \ruleall {a M} {
+                    a \in \evals A
+                    \\
+                    M \in \valset {\Gamma,x^A} B
+                }
+                {
+                    F a \in
+                    \eval B {(\rho, x^a)} {(\xi, x^M)} {(\Gamma, x^A)}
+                }
+            }
+        }
+        $$
+
+    \item Abstractions:
+        $$
+        \rulev{
+            \dom f =
+            \set{
+                (a,M) |
+                \bracklist{
+                    \Gamma \vdash a : \subst A \rho
+                    \\
+                    M \in \valset \Gamma a
+                }
+            }
+            \\
+            f(a,M) := \eval e {(\rho,x^a)} {(\xi,x^M)} {(\Gamma,x^A)}
+        }
+        {
+            \evals{\lambda x^A. e} := f
+        }
+        $$
+
+    \item Applications:
+        $$
+        \evals {a b} := \evals a \left( \subst b \rho, \evals b \right)
+        $$
     \end{enumerate}
+
 \end{definition}
+
+
+
+
