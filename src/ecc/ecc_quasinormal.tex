@@ -171,7 +171,7 @@
 \begin{theorem}
     \label{thm:SortSetProduct}
     %-----------------------------
-    \emph{The sorts set of a product is either $\upper\Prop$ in case the product
+    \emph{The sort set of a product is either $\upper\Prop$ in case the product
     is a proposition or the intersection of the sort sets of the argument and
     the result type.}
     $$
@@ -487,5 +487,155 @@
             \item If $T$ is an application it is a base term. This is an
                 immediate consequence of~\ref{thm:NormalBaseTerm}.
         \end{itemize}
+    \end{proof}
+\end{theorem}
+
+
+
+\subsection{Degree}
+%------------------------------------------------------------
+
+\begin{definition}
+    \label{def:TypeDegree}
+    \emph{The degree of a welltyped $i+1$-normal type is defined recursively by}
+
+    $$
+    D_i(T) :=
+    \dcases{
+        D_i(T) &:=& 0 \quad\text{if } \upper{\Any_i} \subset S(T)
+        \\
+        D_i(s) &:=& 0
+        \\
+        D_i(x \vec a) &:=& 0
+        \\
+        D_i(\Pi x^A.B) &:=&
+        1 + \text{max}(D_i(A), D_i(B))
+    }
+    $$
+
+    Note that the degree is welldefined by~\ref{thm:FormNormalTypes} which
+    asserts that the type $T$ is either a sort or a base term or a product if
+    its sort set is a subset of $\upper{\Any_i}$.
+    Furthermore subexpressions of $i+1$ normal types are $i+1$ normal as well.
+\end{definition}
+
+
+
+\begin{definition}
+    \label{def:RedexDegree}
+    \emph{Degree of a redex} Assume we have a function $r$ to transform any
+    welltyped term $t$ into $i+1$-normal form $r(t)$ by a finite sequence of
+    beta reductions. Assume further that the term $t$ is $i+1$-normal (if not,
+    we can use $r$ to reduce it into $i+1$-normal form). Then by definition the
+    term $t$ only has redexes whose sort set is a subset of $\upper \Any_i$.
+
+    We define the degree of a redex $(\lambda x^A.e)a$ in $t$ by $D_i(r(T))$
+    where $T$ is a minimal type of its function term $\lambda x^A.e$.
+\end{definition}
+
+
+
+
+
+
+
+\subsection{Normalization}
+%------------------------------------------------------------
+
+
+\begin{definition}
+    \label{def:NormalizationStep}
+    \emph{Normalization step of an $i+1$-normal term}
+    Let $r$ be a function over welltyped terms $t$ such that $r(t)$ is
+    $i+1$-normal. Assume that the term $a$ is $i+1$ normal and has redexes with
+    sort set $\upper{\Any_i}$. Each of these redexes has a degree according to
+    the definition~\ref{def:RedexDegree}. Let $d$ be the highest degree of all
+    these redexes. Then $a \torel {q_i} b$ reduces the rightmost redex of degree
+    $d$ when $d > 0$.
+
+    This definition has the following important consequences:
+    \begin{itemize}
+        \item
+            If the highest degree $d$ of the redexes in the term $t$ is zero,
+            then the term is $i$-normal.
+
+            Reason: There is always a minimal type in $i+1$-normal form of the
+            function term of the redex of the form $\Pi x^A. B$. By definition
+            of the degree of a type~\ref{def:TypeDegree} its degree is at least
+            $1$ as long as its sort set is a subset of $\upper \Any_i$. If the
+            degree is zero, then its sort set is a proper superset of $\upper
+            \Any_i$. Therefore $t$ has no redexes whose sort set is a subset of
+            $\upper \Any_i$ and thus by definition is $i$-normal.
+
+        \item
+            If $a \torel {q_i} b$ is a normalization step of the $i+1$ normal
+            term $a$, then the term $b$ is uniquely defined.
+
+            Reason: The contracted redex is unique because it is the rightmost
+            redex of degree $d$.
+    \end{itemize}
+\end{definition}
+
+
+\begin{theorem}
+    \label{thm:NewRedexCreation}
+    \emph{Creation of new redexes during beta reduction} There are only three
+    possibilities to create new redexes during a beta reduction which does the
+    reduction $(\lambda x^A.e) a \reduce \sub a x e$ on any subterm of a term.
+
+    $$
+    \begin{array}{lll}
+        (\lambda x^A. \ldots xb \ldots) (\lambda y^B. e)
+        &\reduce&
+        \ldots (\lambda y^B.e) b \ldots
+        %
+        \\
+        %
+        (\lambda x^A. x)(\lambda y^B. e) b
+        &\reduce&
+        (\lambda y^B. e) b
+        %
+        \\
+        %
+        (\lambda x^A . \lambda y^B. e) a b
+        &\reduce&
+        (\lambda y^{B[a/x]}. e[a/x]) b
+    \end{array}
+    $$
+    where $xb$ in the first case is not the argument of an application i.e. $xb$
+    is in a head position.
+
+    \begin{proof}
+        A redex consists of an abstraction applied to an argument. Both must
+        have been in the original expression and come together after the
+        reduction. If the abstraction is in the argument of the redex then the
+        argument must be the abstraction. The abstraction replaces the bound
+        variable of the original redex.
+
+        If the original redex has $x b$ in a head position, then the
+        substitution of the abstraction for $x$ creates a new redex. This is the
+        first case.
+
+        If the original redex has only the bound variable $x$ but not applied to
+        an argument, then the body of the original redex must be $x$ and the
+        argument comes from an argument in the original expression which follows
+        the original redex. This is the second case.
+
+        The third possibility has an abstraction without argument (otherwise it
+        were already a redex) as the body of the original abstraction and the
+        argument of the newly created redex is the argument following the
+        argument of the original redex.
+    \end{proof}
+\end{theorem}
+
+
+
+\begin{theorem}
+    \emph{A sequence of normalization steps of an $i+1$-normal term $t$ with $i
+    > 0$ according to definition~\ref{def:NormalizationStep} ends after a finite
+    number of steps in an $i$-normal unique term.}
+
+    \begin{proof}
+        MISSING
     \end{proof}
 \end{theorem}
