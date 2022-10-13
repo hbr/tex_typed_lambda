@@ -1,0 +1,87 @@
+\section{Predicative Church Encodings}
+
+Booleans:
+$$
+\begin{array}{llll}
+    B_i:
+    &\Any_{i+1}
+    &:= &
+    \Pi A^{\Any_i}. \underbrace{A \to A \to A}_{:\Any_i} 
+    %
+    \\
+    \text{true}_i:
+    & B_i
+    &:=&
+    \lambda A^{\Any_i} a^A b^A := a
+    %
+    \\
+    \text{false}_i:
+    & B_i
+    &:=&
+    \lambda A^{\Any_i} a^A b^A := b
+    %
+    \\
+    \text{and}_i:
+    & B_{i+1} \to B_i \to B_i
+    &:=&
+    \lambda a^{B_{i+1}} b^{B_i}. a B_i b \text{ false}_i
+\end{array}
+$$
+
+Natural numbers:
+$$
+\begin{array}{llll}
+    N_i:
+    &\Any_{i+1}
+    &:= &
+    \Pi A^{\Any_i}. \underbrace{A \to (A \to A) \to A}_{:\Any_i} 
+    %
+    \\
+    \text{zero}_i: & N_i &:= &\lambda A^{\Any_i} s^A f^{A \to A}. s
+    %
+    \\
+    \text{succ}_i: & N_i \to N_i &:= &
+    \lambda n^{N_i} A^{\Any_i} s^A f^{A \to A}. f (n A s f)
+    \\
+    %
+    \text{plus}_i:
+    & N_{i+1} \to N_i \to N_i
+    &:=&
+    \lambda a^{N_{i+1}} b^{N_i}. a N_i b \text{ succ}_i
+    \\
+    %
+    \text{mult}_i:
+    & N_{i+1} \to N_{i+1} \to N_i
+    &:=&
+    \lambda a^{N_{i+1}} b^{N_{i+1}}
+    . a N_{i+1} \text{ zero}_i \underbrace{(\text{plus}_i b)}_{: N_i \to N_i}
+\end{array}
+$$
+
+
+Ackerman Function:
+$$
+a m n :=
+\dcases{
+a 0 n &:=& 1 + n
+\\
+a (1+m) 0 &:=& a m 1
+\\
+a (1+m) (1+n) &:=& a m (a (1+m) n)
+}
+$$
+
+It can be defined in the impredicative style:
+$$
+\begin{array}{llll}
+    g:
+    & (N \to N) \to (N \to N)
+    &:=&
+    \lambda f n. \text{ succ } n\, N (\text{succ zero}) f
+    \\
+    %
+    a: & N \to N \to N
+    &:=&
+    \lambda m. m (N \to N) \text{ succ } g
+\end{array}
+$$
