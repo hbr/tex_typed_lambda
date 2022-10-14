@@ -28,7 +28,7 @@ source-files = \
 	ecc_typing.tex \
 	ecc_quasinormal.tex \
 	ecc_normal.tex \
-	ecc_pred_church.tex \
+	ecc_thoughts.tex \
 	ecc_references.tex
 
 

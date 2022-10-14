@@ -1,4 +1,7 @@
-\section{Predicative Church Encodings}
+\section{Thoughts}
+
+
+\subsection{Predicative Church Encodings}
 
 Booleans:
 $$
@@ -59,7 +62,7 @@ $$
 $$
 
 
-Ackerman Function:
+Ackermann Function:
 $$
 a m n :=
 \dcases{
@@ -85,3 +88,20 @@ $$
     \lambda m. m (N \to N) \text{ succ } g
 \end{array}
 $$
+
+
+
+
+\subsection{Barendregt-Geuvers-Klop Conjecture}
+
+Proof goals:
+\begin{enumerate}
+    \item If a welltyped term has a normal form, then it can be found
+        by a rightmost reduction.
+
+    \item If a rightmost reduction of a term ends in a normal form, then
+        the term is strongly normalizing.
+
+    \item  If all subterms of a term are weakly normalizing, then the term
+        is strongly normalizing.
+\end{enumerate}
