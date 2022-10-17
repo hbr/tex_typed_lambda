@@ -103,5 +103,449 @@ Proof goals:
         the term is strongly normalizing.
 
     \item  If all subterms of a term are weakly normalizing, then the term
-        is strongly normalizing.
+        is strongly normalizing. Or the other way round: If a term is not
+        strongly normalizing, then it must have a subterm which is not
+        normalizing.
+
+        It might be necessary to make the premise stronger: If all subterms of
+        any reduct of a term are weakly normalizing, then the term is strongly
+        normalizing.
+
+        This formulation might be better fitted to typed lambda calculi
+        where we try to prove that all welltyped terms are weakly normalizing.
+        Due to subject reduction all reducts of a welltyped term are welltyped
+        as well.
 \end{enumerate}
+
+Candidates for intermediate lemmas:
+\begin{enumerate}
+    \item A rightmost reduction reduces all redexes of a term.
+
+        Proof idea: A rightmost reduction step contracts the rightmost redex.
+        The contraction only modifies subterms of all redexes
+        in which is is contained. But the redexes remain. Finally it has to
+        contract all of them.
+\end{enumerate}
+
+
+Concept: Terms with an infinite reduction sequence where all proper subterms are
+strongly normalizing. Examples $(\lambda x. x x)(\lambda x. x x)$, $U U f$ where
+$U = \lambda x y. y (x x y)$. Such terms must be applications with a redex in
+the head position. Reason: All subterms can be converted to their normal form.
+If the term were not an application with  a redex in the head position, it would
+be normal and could not have an infinite reduction sequence.
+
+Note: A rightmost reduction reduces all subterms of a redex before it contracts
+a redex. I.e. a rightmost reduction will finally encounter all terms with an
+infinite reduction sequence which have only strongly normalizing proper
+subterms.
+
+All terms with an infinite reduction sequence (i.e. not strongly normalizing)
+have minimal substerms with an infinite reduction sequence where all proper
+subterms have no infinite reduction sequence i.e. where all proper subterms are
+strongly normalizing. I.e. we can concentrate on terms with an infinite
+reduction sequence where all proper subterms are strongly normalizing. If such
+welltyped terms do not exist, then all terms are strongly normalizing.
+
+
+\begin{theorem} If a term $t$ has an infinite reduction sequence, then the
+    rightmost reduction sequence is infinite.
+
+    \begin{proof}
+        Main idea: A rightmost reduction of a term with an infinite reduction
+        sequence never ends. After a finite number of steps it reduces to a term
+        where the rightmost reduction continues.
+
+        $t$ has  a rightmost subterm $r$ which has an infinite reduction
+        sequence. Thus all proper subterms of $r$ and all terms to the right of
+        $r$ are strongly normalizing. The rightmost reduction sequence reduces
+        all terms to the right of $r$ and all proper subterms of $r$ to their
+        normal form.
+
+        $r$ must be an application of the form $(\lambda x. e) a \vec b$. This
+        is the only possible form where all proper subterms are normal and the
+        term still reduces.
+
+        The rightmost reduction reduces this term to $e[a/x] \vec b$. $e$, $a$
+        and $\vec b$ are in normal form. Therefore the term $e[a/x] \vec b$ must
+        contain newly created redexes.
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+
+\begin{definition}
+    \emph{Call by value reduction} $a \betarv b$ defined by the compatible
+    closure of the rule
+    $$
+    \ruleh{
+        a \in \NF
+    }
+    {
+        (\lambda x^A. e) a \betarv e[a/x]
+    }
+    $$
+\end{definition}
+
+
+
+
+
+
+
+\begin{definition}
+    \emph{Rightmost reduction} $a \betarr b$ defined by the rules
+    \begin{enumerate}
+        \item Redex contraction
+            $$
+                \ruleh{
+                    a \in \NF
+                }
+                {
+                    (\lambda x^A. e) a \betarr e[a/x]
+                }
+            $$
+
+        \item Product result type reduction
+            $$
+            \rulev{
+                B \betarr B'
+            }
+            {
+                \Pi x^A.B \betarr \Pi x^A. B'
+            }
+            $$
+
+        \item Product argument type reduction
+            $$
+            \rulev{
+                A \betarr A'
+                \\
+                B \in \NF
+            }
+            {
+                \Pi x^A.B \betarr \Pi x^{A'}. B
+            }
+            $$
+
+        \item Abstraction body reduction
+            $$
+            \rulev{
+                e \betarr e'
+            }
+            {
+                \lambda x^A.e \betarr \lambda x^A. e'
+            }
+            $$
+
+        \item Abstraction argument type reduction
+            $$
+            \rulev{
+                A \betarr A'
+                \\
+                e \in \NF
+            }
+            {
+                \lambda x^A.e \betarr \lambda x^{A'}. e
+            }
+            $$
+
+        \item Application argument reduction
+            $$
+            \rulev{
+                a \betarr b
+            }
+            {
+                fa \betarr fb
+            }
+            $$
+
+        \item Application function reduction
+            $$
+            \rulev{
+                f \betarr g
+                \\
+                a \in \NF
+            }
+            {
+                fa \betarr ga
+            }
+            $$
+    \end{enumerate}
+\end{definition}
+
+
+
+
+
+\begin{theorem}
+    \label{thm:HeadRedexStep}
+    $$
+    \rulev{
+        (\lambda x^A. e) a \vec b \in \SN
+        \\
+        c \in SN
+    }
+    {
+        (\lambda x^A. e) a \vec b c \in \SN
+    }
+    $$
+    \begin{proof}
+        MISSING
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\begin{theorem}
+    \label{thm:StronglyNormalizingRedex}
+    $$
+    \rulev{
+        A, e, a, e[a/x] \vec b  \in \SN
+    }
+    {
+        (\lambda x^A. e) a \vec b \in \SN
+    }
+    $$
+    \begin{proof} By induction on the length of $\vec b$.
+
+        The base case $|\vec b| = 0$ is trivial.
+
+        The inductive case is proved by the previous
+        theorem~\ref{thm:HeadRedexStep}.
+
+        MISSING: Induction step needs rework!!
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+
+\begin{definition}
+    \emph{$n$-step relation}
+    \begin{enumerate}
+        \item $$ a \toreln r 0 a$$
+
+        \item $$
+            \ruleh{
+                a \torel r b
+                \\
+                b \toreln r i c
+            }
+            {
+                a \toreln r {i+1} c
+            }
+            $$
+    \end{enumerate}
+\end{definition}
+
+
+
+
+
+
+\begin{definition}
+    \emph{$n$-step beta reduction}
+    \begin{enumerate}
+        \item $$ a \betarn 0 a$$
+
+        \item $$
+            \ruleh{
+                a \reduce b
+                \\
+                b \betarn i c
+            }
+            {
+                a \betarn {i+1} c
+            }
+            $$
+    \end{enumerate}
+\end{definition}
+
+
+\begin{theorem}
+    $$
+    \ruleh{
+        \exists n. \lnot \exists b. a \betarn n b
+    }
+    {
+        a \in \SN
+    }
+    $$
+    \begin{proof}
+
+        By induction on $a \betarn n b$.
+
+        The base case is trivial, because the assumption $a \betarn 0 a \imp
+        \perp$ is not satisfiable.
+
+        MISSING
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+
+\begin{definition}
+    \emph{Subterms of a term.}
+    $$
+    \subterms t :=
+    \dcases {
+        \subterms s &:=& \set{s}
+        \\
+        \subterms x &:=& \set{x}
+        \\
+        \subterms {(\Pi x^A.B)} &:=&
+            \set{\Pi x^A. B} \cup \subterms A \cup \subterms B
+        \\
+        \subterms {(\lambda x^A.e)} &:=&
+            \set{\lambda x^A. e} \cup \subterms A \cup \subterms e
+        \\
+        \subterms {(a b)} &:=&
+            \set{ab} \cup \subterms a \cup \subterms b
+    }
+    $$
+\end{definition}
+
+
+
+
+
+
+
+\begin{definition}
+    \emph{Diverging term.} A term $t$ is diverging if it is not strongly
+    normalizing i.e. $t \notin \SN$.
+\end{definition}
+
+
+
+
+
+\begin{definition}
+    \emph{Minimal diverging term.} A term $t$ is minimal diverging if it is not
+    strongly normalizing i.e. $t \notin \SN$ and all its proper subterms are
+    strongly normalizing.
+\end{definition}
+
+
+
+
+\begin{theorem}
+    \label{thm:FormMinimalDiverging}
+    \emph{A minimal diverging term $t$ has the form $(\lambda x^A.e) a \vec b$.}
+
+    \begin{proof}
+        This is evident by the following facts:
+        \begin{enumerate}
+        \item $t$ cannot be a sort or a variable because they are not diverging.
+
+        \item $t$ cannot be a product or an abstraction because they are
+            strongly normalizing if their proper subterms are strongly
+            normalizing.
+
+        \item Therefore it has to be an application. An application is strongly
+            normalizing if its proper subterms are strongly normalizing unless
+            its head term is an abstraction.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+Note that it is perfectly possible that $\vec b$ is not empty in a minimal
+diverging term. E.g.
+$$
+\begin{array}{lll}
+    (\lambda x y z. x z) \omega a \omega
+    &\reduce&
+    (\lambda y z. \omega z) a \omega
+    \\
+    &\reduce&
+    (\lambda z. \omega z) \omega
+    \\
+    &\reduce&
+    \omega \omega
+\end{array}
+$$
+where $\omega = \lambda x. x x$. Without the last argument the term would be
+strongly normalizing with its unique normal form $\lambda z. \omega z$.
+
+
+
+
+\begin{theorem}
+    \emph{All one step reducts $u$ of a minimal diverging term $t$ are
+    diverging.}
+    $$
+    \rulev{
+        t \text{ is minimal diverging}
+        \\
+        t \reduce u
+    }
+    {
+        u \text{ is diverging}
+    }
+    $$
+
+    \begin{proof}
+        From the theorem~\ref{thm:FormMinimalDiverging} we know that
+        $$
+        t = (\lambda x^A.e) a \vec b
+        $$
+        is valid for some strongly normalizing terms $A$, $e$, $a$ and $\vec b$.
+        We assume $(\lambda x^A.e) a \vec b) \reduce u$ and distinguish two
+        cases:
+        \begin{enumerate}
+            \item We reduce the redex i.e. $u = e[a/x] \vec b$: Assume by way of
+                contradiction that $u$ is strongly normalizing. Then
+                by~\ref{thm:StronglyNormalizingRedex} $t$ would be strongly
+                normalizing as well. This constradicts the assumption that $t$
+                is diverging.
+
+            \item We reduce one of $A$, $e$, $a$ or $\vec b$: In that case we
+                prove the stronger statement that all terms $u$ which can be
+                reached via zero or more reduction steps by reducing one of
+                these subterms are minimal diverging.
+
+                Since $A$, $e$, $a$ and $\vec b$ are strongly normalizing there
+                exists a number $n$ such that no reduction sequence starting at
+                $t$ and reducing only one of these subterms can be longer that
+                $n$. Let $n$ be this number.
+
+                We prove the fact that all terms $u$ are minimal diverging by
+                induction on $n$.
+                \begin{enumerate}
+                    \item $n=0$: In this case the goal is vacuously valid,
+                        because the terms $A$, $e$, $a$ and $\vec b$ are in
+                        normal form such that no $u$ can be reached by reducing
+                        one of these subterms.
+
+                    \item Induction step: The induction hypothesis states that
+                        for all $A$, $e$, $a$ and $\vec b$ and any reduction
+                        sequence of $(\lambda x^A. e) a \vec b$ transforms them
+                        into normal form after at most $n$ reduction steps then
+                        all these reducts are minimal diverging.
+
+                        Now assume that $(\lambda x^A.e)a \vec b$ transforms
+                        these subterms into normal form by reducing only these
+                        subterms in at most $n+1$ steps. Any first reduction
+                        step reducing one of these subterm maintains the form of
+                        the term but now any reduction sequence transforms these
+                        subterms into normal form after at most $n$ steps.
+
+                        MISSING: NEEDS REWORK!!
+                \end{enumerate}
+        \end{enumerate}
+    \end{proof}
+\end{theorem}

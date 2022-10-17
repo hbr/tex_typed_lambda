@@ -13,7 +13,6 @@
 \def\dbrackright{{]\!]}}
 \def\dbrack#1{{\dbrackleft #1 \dbrackright}}
 
-\def\betaeq{\stackrel{\beta}{\sim}}
 
 \def\ECC{\text{ECC}}
 
@@ -28,8 +27,10 @@
 
 \def\Prop{{\cal P}}
 
-\def\SAT{\text{SAT}}
-\def\SN{\text{SN}}   % strongly normalizing terms
+\def\SAT{{\text{SAT}}}
+\def\SN{{\text{SN}}}   % strongly normalizing terms
+\def\NF{{\text{NF}}}
+\def\WN{{\text{WN}}}
 
 \def\satsets{\text{SAT}}
 \def\set#1{{\left\{#1\right\}}}
@@ -37,9 +38,6 @@
 \def\stypes{{\cal T}}
 
 \def\tolambda{\stackrel{\lambda}{\to}}
-
-\def\torel#1{\stackrel{#1}{\to}}
-\def\fromrel#1{\stackrel{#1}{\leftarrow}}
 
 \def\typeinter#1#2{{\dbrackleft #1\dbrackright}_{#2}}
 \def\vdashmin{\vdash_\mu}
@@ -49,10 +47,20 @@
 
 
 
+\def\torel#1{{\,\stackrel{#1}{\to}\,}}
+\def\fromrel#1{{\,\stackrel{#1}{\leftarrow}i\,}}
+
+\def\toreln#1#2{{\torel{{#1}^{#2}}}}
+
 \def\preduce{\torel{\beta_p}}
 \def\preducestar{\torel{\beta_p^*}}
 \def\reduce{\torel{\beta}}
 \def\reducestar{\torel{\beta^*}}
+\def\betaeq{{\stackrel{\beta}{\sim}}}
+\def\betarv{{\torel {\beta_V}}}
+\def\betarr{{\torel {\beta_R}}}
+\def\betarn#1{{\toreln \beta {#1}}}
+
 
 \def\derives#1#2#3{#1 \vdash #2: #3}
 \def\derivesmin#1#2#3{#1 \vdashmin #2: #3}
@@ -101,6 +109,8 @@
 %---------------------------
 
 \def\sub#1#2#3{{#3[#2/#1]}}
+
+\def\subterms#1{{{#1}_{\text{sub}}}}
 
 
 
