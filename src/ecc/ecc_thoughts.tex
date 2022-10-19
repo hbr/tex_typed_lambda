@@ -456,12 +456,15 @@ Candidates for intermediate lemmas:
 \end{enumerate}
 
 
-Concept: Terms with an infinite reduction sequence where all proper subterms are
-strongly normalizing. Examples $(\lambda x. x x)(\lambda x. x x)$, $U U f$ where
-$U = \lambda x y. y (x x y)$. Such terms must be applications with a redex in
-the head position. Reason: All subterms can be converted to their normal form.
-If the term were not an application with  a redex in the head position, it would
-be normal and could not have an infinite reduction sequence.
+Concept: Minimal terms with an infinite reduction sequence where all proper
+subterms are strongly normalizing. Examples $(\lambda x. x x)(\lambda x. x x)$,
+$U U$ where $U = \lambda x y. y (x x y)$. Counterexamples: $\lambda x. UU$ is
+not minimal, $UU f$ has a proper subterm $UU$ which is not strongly normalizing.
+
+Such terms must be applications with an abstraction in the head position.
+Reason: All subterms can be converted to their normal form.  If the term was not
+an application with  an abstraction in the head position, it would be normal and
+could not have an infinite reduction sequence.
 
 Note: A rightmost reduction reduces all subterms of a redex before it contracts
 a redex. I.e. a rightmost reduction will finally encounter all terms with an
