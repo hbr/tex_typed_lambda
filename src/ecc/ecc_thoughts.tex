@@ -9,7 +9,7 @@ $$
     B_i:
     &\Any_{i+1}
     &:= &
-    \Pi A^{\Any_i}. \underbrace{A \to A \to A}_{:\Any_i} 
+    \Pi A^{\Any_i}. \underbrace{A \to A \to A}_{:\Any_i}
     %
     \\
     \text{true}_i:
@@ -37,7 +37,7 @@ $$
     N_i:
     &\Any_{i+1}
     &:= &
-    \Pi A^{\Any_i}. \underbrace{A \to (A \to A) \to A}_{:\Any_i} 
+    \Pi A^{\Any_i}. \underbrace{A \to (A \to A) \to A}_{:\Any_i}
     %
     \\
     \text{zero}_i: & N_i &:= &\lambda A^{\Any_i} s^A f^{A \to A}. s
@@ -199,6 +199,219 @@ wellorder.
     body more than once, the contractum $e[a/x]$ might multiply the number of
     redexes of $a$. As long as they are of lower degree, the measure decreases.
 \end{remark}
+
+
+
+
+
+
+
+\subsection{Confluence with Marks}
+%-------------------------------------------------------------------------------
+{
+
+    \begin{definition}
+        \emph{Terms with marked redexes.}
+        $$
+        t ::= x \mid t t \mid \lambda x. t \mid (\lambda' x. t) t
+        $$
+    \end{definition}
+
+
+
+    \begin{definition}
+        \emph{Remove all marks.}
+        The term
+        $$
+        |t|
+        $$
+        is the term $t$ where all marked $\lambda'$ are replaced by $\lambda$.
+    \end{definition}
+
+
+
+
+    \begin{lemma}
+        \label{thm:ReductionLiftedToMark}
+        $$
+        \ruleh{
+            |a'| = a
+            \quad
+            a \reduce b
+        }
+        {
+            \existbracket {b'}{
+                a' \reduce b'
+                \\
+                |b'| = b
+            }
+        }
+        $$
+
+        \begin{proof}
+            Easy. Just contract the corresponding redex in $a'$ to get $b'$.
+        \end{proof}
+    \end{lemma}
+
+
+
+
+    \begin{definition}
+        \emph{Reduce all marked redexes.}
+        $$
+        \varphi(t) :=
+        \dcases{
+            \varphi(x) &:=& x
+            \\
+            \varphi(a b) &:=& \varphi(a) \varphi(b)
+            \\
+            \varphi(\lambda x .e) &:=& \lambda x. \varphi(e)
+            \\
+            \varphi ((\lambda x.e) a) &:=& \varphi(e)[\varphi(a)/x]
+        }
+        $$
+    \end{definition}
+
+
+
+
+    \begin{lemma}
+        \label{thm:PhiSubstitution}
+        $$
+        \varphi(e[a/x]) = \varphi(e)[\varphi(a)/x]
+        $$
+
+        \begin{proof}
+            By induction on the structure of $e$
+        \end{proof}
+    \end{lemma}
+
+
+
+
+    \begin{lemma}
+        \label{thm:PhiReduction}
+        $$
+        \ruleh{
+            a \reduce b
+        }
+        {
+            \varphi(a) \reduce \varphi(b)
+        }
+        $$
+
+        \begin{proof}
+
+            By induction on $a \reduce b$?
+            % Check, if one step reduction is ok in the conclusion!!
+            %------------------------------------------------------------
+
+            MISSING!!
+        \end{proof}
+    \end{lemma}
+
+
+
+    \begin{lemma}
+        \label{thm:ErasePhi}
+        $$
+        |a| \reducestar \varphi(a)
+        $$
+
+        \begin{proof}
+            By induction on the structure of $a$.
+
+            MISSING!!
+        \end{proof}
+    \end{lemma}
+
+
+
+
+
+
+    \begin{lemma}
+        \label{thm:StripLemma}
+        \emph{Strip lemma.}
+        %------------------------------------------------------------
+        $$
+        \begin{array}{lll}
+            a & \reducestar & b
+            \\
+            \downarrow_\beta & & \downarrow_{\beta^*}
+            \\
+            c & \reducestar & \exists d
+        \end{array}
+        $$
+
+        \begin{proof}
+            Let $(\lambda x.e)f$ be the redex in $a$ which is contracted in $a
+            \reduce c$ and $a'$ the term $a$ where the contracted redex is
+            replaced by $(\lambda' x. e)f$.
+
+            Since $a'$ has only one marked redex we get
+            $$
+            c = \varphi(a')
+            $$
+
+            Repeated application of~\ref{thm:ReductionLiftedToMark} on $a
+            \reducestar b$ guarantees the existence of a term $b'$ with
+            $$
+            \vertlist{
+                |b'| = b
+                \\
+                a' \reducestar b'
+            }
+            $$
+
+            Repeated application of~\ref{thm:PhiReduction} on $a' \reducestar
+            b'$ gives us
+            $$
+            c = \varphi(a') \reducestar \varphi(b')
+            $$
+
+            Moreover from \ref{thm:ErasePhi} we have
+            $$
+            b = |b'| \reducestar \varphi(b')
+            $$
+            i.e. $d := \varphi(b')$ satisfies the requirements of the theorem.
+            $$
+            \begin{array}{ccc}
+                a = |a'| & \reducestar & b = |b'|
+                \\
+                \downarrow_\beta & & \downarrow_{\beta^*}
+                \\
+                c = \varphi(a') & \reducestar &  d = \varphi(b')
+            \end{array}
+            $$
+        \end{proof}
+    \end{lemma}
+
+
+
+
+    \begin{theorem}
+        \label{thm:Confluence}
+        \emph{Confluence.}
+        $$
+        \begin{array}{lll}
+            a & \reducestar & b
+            \\
+            \downarrow_{\beta^*} & & \downarrow_{\beta^*}
+            \\
+            c & \reducestar & \exists d
+        \end{array}
+        $$
+
+        \begin{proof}
+            By repeated application of the strip lemma~\ref{thm:StripLemma} on
+            $a \reducestar c$.
+        \end{proof}
+    \end{theorem}
+
+
+
+}
 
 
 
