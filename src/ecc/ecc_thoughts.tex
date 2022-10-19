@@ -308,91 +308,141 @@ welltyped terms do not exist, then all terms are strongly normalizing.
 
 
 
+\begin{theorem}
+    \label{thm:NonLeftmostReduction}
+    \emph{Non leftmost reduction step.}
+    %--------------------------------------------------
+    Let $t = C[(\lambda x^A. e)a]$ be a term where $(\lambda x^A.e)a$ is the
+    leftmost redex and $t$ reduces to $u$ in one step without contracting its
+    leftmost redex. Then there exist some reducts $A'$, $e'$, $a'$ and $C'$ of
+    $A$, $e$, $a$ and $C$ such that $u = C'[(\lambda x^{A'}. e') a']$.
+    $$
+    \rulev{
+        t \torel \betanl u
+        \\
+        t = C[(\lambda x^A. e) a]
+        \\
+        (\lambda x^A. e) a \text{ is leftmost}
+    }
+    {
+        \existbracket {C' e' a'}
+        {
+            A \reducestar A'
+            \\
+            e \reducestar e'
+            \\
+            a \reducestar a'
+            \\
+            C \reducestar C'
+            \\
+            u = C'[(\lambda x^{A'}. e') a']
+            \\
+            (\lambda x^{A'}. e') a' \text{ is leftmost}
+        }
+    }
+    $$
+    \begin{proof} The fact is quite evident. Since the leftmost redex has not
+        been contracted some other redex in one of the subterms must have been
+        contracted. The other redex must be either in one of the subterms of the
+        leftmost redex or in another subterm outside the redex.
+    \end{proof}
+\end{theorem}
 
 
 
 
-\begin{definition}
-    \emph{Rightmost reduction} $a \betarr b$ defined by the rules
-    \begin{enumerate}
-        \item Redex contraction
-            $$
-                \ruleh{
-                    a \in \NF
-                }
-                {
-                    (\lambda x^A. e) a \betarr e[a/x]
-                }
-            $$
+\begin{theorem}
+    $$
+    \rulev{
+        C[(\lambda x^A. e) a)] \text{ is diverging}
+        \\
+        (\lambda x^A. e) a \text{ is leftmost}
+        \\
+        x \notin \FV(e)
+        \\
+        A, a \in \SN
+    }
+    {
+        C[e] \text{ is diverging}
+    }
+    $$
+    \begin{proof}
+        Let
+        $$
+        t_0 \reduce t_1 \reduce t_2 \ldots
+        $$
+        be an infinite reduction sequence starting at $t_0 = C[(\lambda x^A.e)
+        a]$. Such a reduction sequence exists because $t_0$ is diverging. We
+        distinguish two cases
+        \begin{enumerate}
+            \item All reduction steps are not leftmost:
 
-        \item Product result type reduction
-            $$
-            \rulev{
-                B \betarr B'
-            }
-            {
-                \Pi x^A.B \betarr \Pi x^A. B'
-            }
-            $$
+                Then by the theorem
+                about non leftmost reduction~\ref{thm:NonLeftmostReduction} we
+                have $t_i = C_i[(\lambda x^{A_i}. e_i) a_i]$ where the redex
+                remains the leftmost redex and in each reduction step either a
+                proper subterm of the redex is reduced or a term to the
+                right of the redex is reduced.
 
-        \item Product argument type reduction
-            $$
-            \rulev{
-                A \betarr A'
-                \\
-                B \in \NF
-            }
-            {
-                \Pi x^A.B \betarr \Pi x^{A'}. B
-            }
-            $$
+                Since $A$ and $a$ are strongly normalizing there has to be a $k$
+                such that $A_k = K_j $ and $a_k = a_j$ for all $j \ge k$.
+                Therefore from $k$ on in each reduction step either $e$ is
+                reduced or some other term to the left of the redex is reduced.
 
-        \item Abstraction body reduction
-            $$
-            \rulev{
-                e \betarr e'
-            }
-            {
-                \lambda x^A.e \betarr \lambda x^A. e'
-            }
-            $$
+                All the subterms reduced from step $k$ on are present in
+                $C_j[(\lambda x^{A_j}. e_j) a_j]$ and $C_j[e_j]$ for $k \le j$.
+                Therefore
+                $$
+                C_k[e_k] \reduce C_{k+1}[e_{k+1}] \reduce \ldots
+                $$
+                is an infinite reduction sequence and since $C \reducestar
+                C_k$ and $e \reducestar e_k$ there is the infinite reduction
+                sequence
+                $$
+                C[e] \reducestar
+                C_k[e_k] \reduce C_{k+1}[e_{k+1}] \reduce \ldots
+                $$
 
-        \item Abstraction argument type reduction
-            $$
-            \rulev{
-                A \betarr A'
-                \\
-                e \in \NF
-            }
-            {
-                \lambda x^A.e \betarr \lambda x^{A'}. e
-            }
-            $$
+            \item There is a first leftmost reduction step $t_k \torel
+                \betal t_{k+1}$ for some $k$:
 
-        \item Application argument reduction
-            $$
-            \rulev{
-                a \betarr b
-            }
-            {
-                fa \betarr fb
-            }
-            $$
+                Then the infinite reduction sequence
+                $$
+                t_0
+                \torelstar \betanl
+                t_k
+                \torel \betal
+                t_{k+1}
+                \reduce
+                t_{k+2}
+                \reduce
+                \ldots
+                $$
+                %
+                by~\ref{thm:NonLeftmostReduction}
+                must have the form
+                %
+                $$
+                C[(\lambda x^{A}. e) a]
+                \torelstar \betanl
+                C_k[(\lambda x^{A_k}. e_k) a_k]
+                \torel \betal
+                C_k[e_k]
+                \reduce
+                t_{k+2}
+                \reduce
+                \ldots
+                $$
 
-        \item Application function reduction
-            $$
-            \rulev{
-                f \betarr g
-                \\
-                a \in \NF
-            }
-            {
-                fa \betarr ga
-            }
-            $$
-    \end{enumerate}
-\end{definition}
-
+                Since $C \reducestar C_k$ and $e \reducestar e_k$ we have $C[e]
+                \reducestar C_k[e_k]$ and therefore
+                $$
+                C[e] \reducestar C_k[e_k] \reduce t_{k+2} \reduce \ldots
+                $$
+                is an infinite reduction sequence.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
 
 
 
