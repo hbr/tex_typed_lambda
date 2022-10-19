@@ -92,7 +92,122 @@ $$
 
 
 
+
+
+
+
+
+\subsection{STLC Weak Normalization}
+%-------------------------------------------------------------------------------
+
+
+In simply typed lambda calculus all products $\Pi x^A. B$ have the form $A \to
+B$ i.e. $x \notin \FV(B)$. Therefore all types can be constructed by the grammar
+$$
+T ::= X \mid T \to T
+$$
+where $X$ ranges over (type) variables and $T$ over types. All types $T$ have a
+degree $D(T)$ which is defined as
+$$
+D(T) := \dcases {
+    D(X) &:=& 0
+    \\
+    D(A \to B) &:=& 1 + \text{max}(D(A), D(B))
+}
+$$
+
+The degree of a redex is the degree of the type of its rator. The degree of a
+redex is by definition greater than zero (the rator of a redex must have type $A
+\to B$.
+
+
+Any term $t$ not in normal form has some redexes. For a term we define the
+measure
+$$
+n_{m-1} \ldots n_2 n_1 n_0
+$$
+where $n_i$ is the number of redexes of degree $i+1$ and $m$ is the greatest
+degree if all redexes of the term. The lexicographic order measures is a
+wellorder.
+
+\begin{theorem}
+    \emph{A rightmost reduction of a term reduces its measure.}
+
+    \begin{proof}
+        Let
+        $$
+        t = C[(\lambda x^A.e) a] \reduce C[e[a/x]]
+        $$
+        be a rightmost reduction i.e. $(\lambda x^A.e)a)$ is the rightmost redex
+        of the term and has degree $k+1$.
+
+        Since the contracted redex is the rightmost redex $e$ and $a$ must be
+        in normal form. Therefore all redexes in $e[a/x]$ have to be new redexes
+        which have not been present in the original term.
+
+        All newly created redexes have a degree strictly smaller than $k+1$.
+        Reason: There are only three possibilities to create new redexes and the
+        degree of the new redexes is strictly smaller:
+        \begin{enumerate}
+            \item The reduction of the rightmost redex has the form
+                $$
+                (\lambda x^{A \to B}. \ldots x a \ldots ) (\lambda y^A.e)
+                \reduce
+                \ldots (\lambda y^A. e) a \ldots
+                $$
+                where $x a$ is in the head position of an application (otherwise
+                it were not a new redex). The degree of the newly created redex
+                is $D(A \to B)$. The degree of the original redex is $D((A \to
+                B) \to C)$ for some type $C$ i.e. the degree of the original
+                redex is striclty greater than the degree of the newly created
+                redex.
+
+            \item The reduction of the rightmost redex has the form
+                $$
+                (\lambda x^{A \to B}. x) (\lambda y^A. e)
+                \reduce
+                \lambda y^A. e
+                $$
+                and the redex in the original term is applied to an argument
+                $a$. I.e. the newly created redex is $(\lambda y^A. e) a$ and
+                has degree $D(A \to B)$. The original redex has degree $D((A \to
+                B) \to (A \to B))$ which is strictly greater.
+
+
+            \item The reduction of the rightmost redex has the form
+                $$
+                (\lambda x^A. (\lambda y^B. e)) a
+                \reduce
+                \lambda y^B. e[a/x]
+                $$
+                and the redex in the original term is applied to an argument
+                $b$. I.e. the newly created redex is $(\lambda y^B. e[a/x]) b$
+                and has degree $D(B \to C)$. The original redex has degree $D(A
+                 \to (B \to C))$ which is strictly greater.
+        \end{enumerate}
+
+        Therefore the number of degree $k$ redexes decreases by one, the numbers
+        of redexes with higher degree stay the same. I.e. the measure decreases.
+    \end{proof}
+\end{theorem}
+
+\begin{remark}
+    In the proof of the previous theorem the requirement that the redex is
+    rightmost can be relaxed a little bit. It is at least necessary that
+    the argument $a$ of the redex $(\lambda x^A.e) a$ only contains
+    redexes of lower degree. Since the bound variable $x$ might be in the
+    body more than once, the contractum $e[a/x]$ might multiply the number of
+    redexes of $a$. As long as they are of lower degree, the measure decreases.
+\end{remark}
+
+
+
+
+
+
+
 \subsection{Barendregt-Geuvers-Klop Conjecture}
+%-------------------------------------------------------------------------------
 
 Proof goals:
 \begin{enumerate}
