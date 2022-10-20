@@ -31,6 +31,8 @@
 \def\SN{{\text{SN}}}   % strongly normalizing terms
 \def\NF{{\text{NF}}}
 \def\WN{{\text{WN}}}
+\def\DIV{{\text{DIV}}}
+\def\MDIV{{\text{DIV_\mu}}}
 
 \def\satsets{\text{SAT}}
 \def\set#1{{\left\{#1\right\}}}
@@ -53,7 +55,9 @@
 \def\toreln#1#2{{\torel{{#1}^{#2}}}}
 \def\torelstar#1{{\torel{{#1}^*}}}
 
+\def\betae{{\beta_{\infty}}}
 \def\betal{{\beta_{\text{l}}}}
+\def\betar{{\beta_{\text{r}}}}
 \def\betanl{{\beta_{\text{nl}}}}
 
 \def\preduce{\torel{\beta_p}}
@@ -64,6 +68,8 @@
 \def\betarv{{\torel {\beta_V}}}
 \def\betarr{{\torel {\beta_R}}}
 \def\betarn#1{{\toreln \beta {#1}}}
+
+\def\redex#1#2#3#4{{(\lambda #1^{#2}. #3) #4}}
 
 
 \def\derives#1#2#3{#1 \vdash #2: #3}

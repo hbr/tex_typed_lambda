@@ -524,6 +524,74 @@ welltyped terms do not exist, then all terms are strongly normalizing.
 
 
 
+
+
+
+\begin{definition}
+    \emph{$n$-step relation}
+    \begin{enumerate}
+        \item $$ a \toreln r 0 a$$
+
+        \item $$
+            \ruleh{
+                a \torel r b
+                \\
+                b \toreln r i c
+            }
+            {
+                a \toreln r {i+1} c
+            }
+            $$
+    \end{enumerate}
+\end{definition}
+
+
+
+
+
+
+\begin{definition}
+    \emph{$n$-step beta reduction}
+    \begin{enumerate}
+        \item $$ a \betarn 0 a$$
+
+        \item $$
+            \ruleh{
+                a \reduce b
+                \\
+                b \betarn i c
+            }
+            {
+                a \betarn {i+1} c
+            }
+            $$
+    \end{enumerate}
+\end{definition}
+
+
+
+
+\begin{definition}
+    \emph{Evaluation context.} An evaluation context is a lambda term with one
+    hole. It is defined by the grammar
+    $$
+    E ::= [.] \mid t E \mid E t \mid \lambda x. E
+    $$
+    Where $t$ ranges over lambda terms and $E$ ranges over evaluation contexts.
+\end{definition}
+
+
+
+
+\begin{definition}
+    \emph{Perpetual redex.}
+    A redex $r = \redex x A e a$ is perpetual if its contraction within any
+    diverging term $C[r]$ implies that $C[e[a/x]]$ is diverging.
+\end{definition}
+
+
+
+
 \begin{theorem}
     \label{thm:NonLeftmostReduction}
     \emph{Non leftmost reduction step.}
@@ -568,6 +636,8 @@ welltyped terms do not exist, then all terms are strongly normalizing.
 
 
 \begin{theorem}
+    %  lambda I redex
+    %------------------------------------------------------------
     $$
     \rulev{
         C[(\lambda x^A. e) a)] \text{ is diverging}
@@ -660,7 +730,86 @@ welltyped terms do not exist, then all terms are strongly normalizing.
     \end{proof}
 \end{theorem}
 
+{
+    \def\redex#1#2#3#4{{(\lambda #1^{#2}. #3) #4}}
 
+
+
+
+    \begin{theorem}
+        \def\red{{\redex x A e a}}
+        \def\redi#1{{\redex {x_{#1}} {A_{#1}} {e_{#1}} {a_{#1}}}}
+        \def\contr{{e[a/x]}}
+
+        $$
+        \rulev{
+            C[\red] \text{ is diverging}
+            \\
+            \red \text{ is leftmost}
+            \\
+            x \in \FV(e)
+            \\
+            A \in \NF
+        }
+        {
+            C[\contr] \text{ is diverging}
+        }
+        $$
+        \begin{proof}
+            Let
+            $$
+            C[\red] = t_0 \reduce t_1 \reduce \ldots
+            $$
+            be an infinite reduction sequence which exists because $t_0$ is
+            diverging. We distinguish two cases:
+            \begin{enumerate}
+
+            \item All reductions are not leftmost. Therefore the redex is never
+                contracted in the infinite reduction sequence.
+
+                By the theorem~\ref{thm:NonLeftmostReduction} the reduction
+                sequence must have the form
+                $$
+                    C_0[\redi 0]
+                    \reduce C_1[\redi 1]
+                    \reduce C_2[\redi 2]
+                    \reduce \ldots
+                $$
+                where in each step one of $C_i$, $e_i$ or $a_i$
+                reduces. Since the reduction sequence is infinite at least one
+                of them must have an infinite reduction sequence.
+
+                If $a$ is divergent then $C[\contr]$ is divergent because $a$
+                    occurs in $C[\contr]$.
+
+                If $e$ is divergent, then $e[a/x]$ is divergent as well because
+                    substitution respects reduction ($e \reduce e' \imp e[a/x]
+                    \reduce e'[a/x]$).
+
+                The same applies if $C$ is divergent.
+
+            \item There is a first leftmost reduction step $t_k \torel\betal
+                t_{k+1}$ for some $k$: In that case the infinite reduction
+                sequence looks like
+                $$
+                    C_0[\redi 0]
+                    \torelstar\betanl C_k[\redi k]
+                    \reduce C_k[e_k[a_k/x]]
+                    \reduce t_{k+2}
+                    \reduce \ldots
+                $$
+                Therefore we have for $C[\contr]$ the infinite reduction
+                sequence
+                $$
+                C[\contr]
+                \reducestar C_k[e_k[a_k/x]]
+                \reduce t_{k+2}
+                \reduce \ldots
+                $$
+            \end{enumerate}
+        \end{proof}
+    \end{theorem}
+}
 
 
 \begin{theorem}
@@ -711,92 +860,12 @@ welltyped terms do not exist, then all terms are strongly normalizing.
 
 
 
-\begin{definition}
-    \emph{$n$-step relation}
-    \begin{enumerate}
-        \item $$ a \toreln r 0 a$$
-
-        \item $$
-            \ruleh{
-                a \torel r b
-                \\
-                b \toreln r i c
-            }
-            {
-                a \toreln r {i+1} c
-            }
-            $$
-    \end{enumerate}
-\end{definition}
-
-
-
-
-
 
 \begin{definition}
-    \emph{$n$-step beta reduction}
-    \begin{enumerate}
-        \item $$ a \betarn 0 a$$
-
-        \item $$
-            \ruleh{
-                a \reduce b
-                \\
-                b \betarn i c
-            }
-            {
-                a \betarn {i+1} c
-            }
-            $$
-    \end{enumerate}
-\end{definition}
-
-
-\begin{theorem}
+    \emph{Diverging term.} A term $t$ is diverging if it has an infinite
+    reduction sequence
     $$
-    \ruleh{
-        \exists n. \lnot \exists b. a \betarn n b
-    }
-    {
-        a \in \SN
-    }
-    $$
-    \begin{proof}
-
-        By induction on $a \betarn n b$.
-
-        The base case is trivial, because the assumption $a \betarn 0 a \imp
-        \perp$ is not satisfiable.
-
-        MISSING
-    \end{proof}
-\end{theorem}
-
-
-
-
-
-
-
-\begin{definition}
-    \emph{Subterms of a term.}
-    $$
-    \subterms t :=
-    \dcases {
-        \subterms s &:=& \set{s}
-        \\
-        \subterms x &:=& \set{x}
-        \\
-        \subterms {(\Pi x^A.B)} &:=&
-            \set{\Pi x^A. B} \cup \subterms A \cup \subterms B
-        \\
-        \subterms {(\lambda x^A.e)} &:=&
-            \set{\lambda x^A. e} \cup \subterms A \cup \subterms e
-        \\
-        \subterms {(a b)} &:=&
-            \set{ab} \cup \subterms a \cup \subterms b
-    }
+    t = t_0 \reduce t_1 \reduce t_2 \reduce \ldots
     $$
 \end{definition}
 
@@ -804,28 +873,16 @@ welltyped terms do not exist, then all terms are strongly normalizing.
 
 
 
-
-
 \begin{definition}
-    \emph{Diverging term.} A term $t$ is diverging if it is not strongly
-    normalizing i.e. $t \notin \SN$.
-\end{definition}
-
-
-
-
-
-\begin{definition}
-    \emph{Minimal diverging term.} A term $t$ is minimal diverging if it is not
-    strongly normalizing i.e. $t \notin \SN$ and all its proper subterms are
-    strongly normalizing.
+    \emph{Minimal diverging term.} A term $t$ is minimal diverging if it is
+    diverging and all its proper subterms are strongly normalizing.
 \end{definition}
 
 
 
 
 \begin{theorem}
-    \label{thm:FormMinimalDiverging}
+    \label{thm:FormMinDiverging}
     \emph{A minimal diverging term $t$ has the form $(\lambda x^A.e) a \vec b$.}
 
     \begin{proof}
@@ -865,7 +922,31 @@ strongly normalizing with its unique normal form $\lambda z. \omega z$.
 
 
 
+
+
 \begin{theorem}
+    \label{thm:MinDivergingLeftMostDiverging}
+    %------------------------------------------------------------
+    $$
+    \rulev{
+        \redex x A e a \vec b \text{ is minimal diverging}
+    }
+    {
+        e[a/x] \vec b \text{ is diverging}
+    }
+    $$
+    \begin{proof}
+        MISSING
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+\begin{theorem}
+    WRONG THEOREM!!!
+
     \emph{All one step reducts $u$ of a minimal diverging term $t$ are
     diverging.}
     $$
@@ -879,54 +960,55 @@ strongly normalizing with its unique normal form $\lambda z. \omega z$.
     }
     $$
 
+
     \begin{proof}
-        From the theorem~\ref{thm:FormMinimalDiverging} we know that
+        This statement is wrong. We construct a counter example:
         $$
-        t = (\lambda x^A.e) a \vec b
+        (\lambda x y. x y) (\lambda x. (\lambda y. I) (x x)) \omega
         $$
-        is valid for some strongly normalizing terms $A$, $e$, $a$ and $\vec b$.
-        We assume $(\lambda x^A.e) a \vec b) \reduce u$ and distinguish two
-        cases:
-        \begin{enumerate}
-            \item We reduce the redex i.e. $u = e[a/x] \vec b$: Assume by way of
-                contradiction that $u$ is strongly normalizing. Then
-                by~\ref{thm:StronglyNormalizingRedex} $t$ would be strongly
-                normalizing as well. This constradicts the assumption that $t$
-                is diverging.
+        This term is diverging as can be shown by the following leftmost
+        reduction path:
+        $$
+        \begin{array}{lll}
+            (\lambda x y. x y) (\lambda x. (\lambda z. I) (x x)) \omega
+            &\torel{\betal^2}&
+            (\lambda x. (\lambda z. I) (x x)) \omega
+            \\
+            &\torel\betal&
+            (\lambda y. I) \Omega \quad \in \DIV
+        \end{array}
+        $$
+        The term is certainly minimal, because without the second argument
+        $\omega$ the perpetual strategy ends up in the normal form term $\lambda
+        y. I$.
+        $$
+        \begin{array}{lll}
+            (\lambda x y. x y) (\lambda x. (\lambda z. I) (x x))
+            &\torel{\betae}&
+            \lambda y. (\lambda x. (\lambda z. I) (x x)) y
+            \\
+            &\torel{\betae}& \lambda y. (\lambda z. I) (y y)
+            \\
+            &\torel{\betae}& \lambda y. I
+        \end{array}
+        $$
 
-            \item We reduce one of $A$, $e$, $a$ or $\vec b$: In that case we
-                prove the stronger statement that all terms $u$ which can be
-                reached via zero or more reduction steps by reducing one of
-                these subterms are minimal diverging.
-
-                Since $A$, $e$, $a$ and $\vec b$ are strongly normalizing there
-                exists a number $n$ such that no reduction sequence starting at
-                $t$ and reducing only one of these subterms can be longer that
-                $n$. Let $n$ be this number.
-
-                We prove the fact that all terms $u$ are minimal diverging by
-                induction on $n$.
-                \begin{enumerate}
-                    \item $n=0$: In this case the goal is vacuously valid,
-                        because the terms $A$, $e$, $a$ and $\vec b$ are in
-                        normal form such that no $u$ can be reached by reducing
-                        one of these subterms.
-
-                    \item Induction step: The induction hypothesis states that
-                        for all $A$, $e$, $a$ and $\vec b$ and any reduction
-                        sequence of $(\lambda x^A. e) a \vec b$ transforms them
-                        into normal form after at most $n$ reduction steps then
-                        all these reducts are minimal diverging.
-
-                        Now assume that $(\lambda x^A.e)a \vec b$ transforms
-                        these subterms into normal form by reducing only these
-                        subterms in at most $n+1$ steps. Any first reduction
-                        step reducing one of these subterm maintains the form of
-                        the term but now any reduction sequence transforms these
-                        subterms into normal form after at most $n$ steps.
-
-                        MISSING: NEEDS REWORK!!
-                \end{enumerate}
-        \end{enumerate}
+        However the term reduces in one step to a term which is no longer
+        diverging
+        $$
+        \begin{array}{lll}
+            (\lambda x y. x y) (\lambda x. (\lambda z. I) (x x)) \omega
+            &\torel\betar&
+            (\lambda x y. x y) (\lambda x. I) \omega
+            \\
+            & & \text{\scriptsize now use perpetual strategy}
+            \\
+            &\torel{\betae^2}&
+            (\lambda x. I) \omega
+            \\
+            &\torel{\betae}&
+            I
+        \end{array}
+        $$
     \end{proof}
 \end{theorem}
