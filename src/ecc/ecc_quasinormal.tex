@@ -67,6 +67,8 @@
 
 
 
+In the following the existence of a unique (up to beta equivalence) minimal type
+is crucial.
 
 
 
@@ -79,10 +81,10 @@
 \begin{definition}
     \label{def:UpperSet}
     %-----------------------------
-    The \emph{upper set} $\upper {\Any_i}$ of a sort $\Any_i$ are all sorts
-    $\Any_j$ where $i \le j$.
+    The \emph{upper set} $\upper s$ of a sort $s$ are all sorts
+    $s_2$ where $s \le s_2$.
     $$
-    \upper {\Any_i} := \set{\Any_j \mid i \le j}
+    \upper s := \set{s_2 \mid s \le s_2}
     $$
 \end{definition}
 
@@ -116,15 +118,15 @@
 \begin{theorem}
     \label{thm:SortSetUpperClosed}
     %-----------------------------
-    \emph{A sort set is upper closed}.
+    \emph{A sort set of a type is upper closed}.
     $$
         \ruleh{
-            \Any_i \in S_\Gamma(T)
+            s_1 \in S_\Gamma(T)
             \\
-            i \le j
+            s_1 \le s_2
         }
         {
-            \Any_j \in S_\Gamma(T)
+            s_2 \in S_\Gamma(T)
         }
     $$
     \begin{proof}
@@ -133,8 +135,42 @@
 \end{theorem}
 
 
+\begin{theorem}
+    \label{thm:MinimalSortDecreases}
+    \emph{The minimal sort of a type might decrease after reduction}
+    $$
+    \ruleh{
+        A \reduce B
+        \quad \Gamma \vdashmin A: s_1
+        \quad \Gamma \vdashmin B: s_2
+    }
+    {
+        s_2 \le s_1
+    }
+    $$
+
+    \begin{proof}
+        By subject reduction~\ref{SubjectReduction} we have $\Gamma \vdash B:
+        s_1$. Since $s_2$ is the minimal type of $B$ we have $s_2 \le s_1$.
+    \end{proof}
+
+\end{theorem}
 
 
+
+
+\begin{theorem}
+    \emph{The sort set of a type has a unique minimal sort which we call the
+    level of the type.}
+
+    \begin{proof}
+        If we have a reduction sequence of a type $A_0 \reduce A_1 \reduce
+        \ldots$ we know from~\ref{thm:MinimalSortDecreases} that the
+        corresponding sequence of minimal sorts $s_0 \ge s_1 \ge s_2 \ge
+        \ldots$ is a decreasing sequence. Since the order of the sorts is
+        wellfounded, the sequence must reach a minimal sort.
+    \end{proof}
+\end{theorem}
 
 
 \begin{theorem}
@@ -171,9 +207,9 @@
 \begin{theorem}
     \label{thm:SortSetProduct}
     %-----------------------------
-    \emph{The sort set of a product is either $\upper\Prop$ in case the product
-    is a proposition or the intersection of the sort sets of the argument and
-    the result type.}
+    \emph{The sort set of a product is either $\upper {s_\Prop}$ in case the
+    product is a proposition (i.e. has type $s_\Prop$) or the intersection of
+the sort sets of the argument and the result type.}
     $$
     \ruleh{
         \Gamma \vdash \Pi x^A. B : \dontcare
@@ -181,7 +217,7 @@
     {
         S(\Pi x^A. B) =
         \dcases{
-            \upper\Prop & \text{if }\Gamma \vdash \Pi x^A . B : \Prop
+            \upper{s_\Prop} & \text{if }\Gamma \vdash \Pi x^A . B : s_\Prop
             \\
             S(A) \cap S(B) & \text{otherwise}
         }
@@ -195,9 +231,12 @@
     \begin{proof}
         Now we prove the main theorem.
 
-        If the product is a proposition the proof is trivial because
-        $\upper\Prop$ is the biggest possible sort set. For the
-        non-propositional case we have to prove both directions:
+        If the type of the product is a propositional sort $s_\Prop$ then
+        $\upper{s_\Prop}$ already is the greatest possible sort set for the
+        product.
+
+        If a propositional sort $s_\Prop$ cannot be the type of the product we
+        have to prove both directions:
         \begin{enumerate}
             \item $S(\Pi x^A. B) \subseteq S(A) \cap S(B)$:
                 Assume $s$ is in the sort set of the product. By definition
@@ -377,7 +416,7 @@
 
 
 
-\subsection{$i$-Normal Terms}
+\subsection{$s$-Normal Terms}
 %------------------------------------------------------------
 
 
@@ -400,26 +439,32 @@
 \begin{definition}
     \label{def:INormalTerm}
     %-----------------------------
-    \emph{Welltyped $i$-normal terms}
+    \emph{Welltyped $s$-normal terms}
 
-    A welltyped term $t$ is $i$-normal if it contains no redexes whose sort set
-    is a subset of $\upper {\Any_i}$.
+    A welltyped term $t$ is $s$-normal if it contains no redexes whose sort set
+    is a subset of $\upper s$.
 \end{definition}
 
 
-
+\begin{definition}
+    \emph{Next sort $s+1$}
+    The sort $s + 1$ is defined as the sort $s_2$ such that $[] \vdashmin s:
+    s_2$ is valid. This sort $s_2$ is unique, because minimal types are unique
+    up to beta equivalence. Two sorts can be beta equivalent only if they are
+    the same sort.
+\end{definition}
 
 
 
 \begin{theorem}
     \label{thm:NormalBaseTerm}
     %-----------------------------
-    \emph{Let $fa$ be a welltyped $i+1$-normal type whose sort set is a subset
-    of $\upperany i$.  Then $fa$ is a base term.}
+    \emph{Let $fa$ be a welltyped $s+1$-normal type whose sort set is a subset
+    of $\upper s$.  Then $fa$ is a base term.}
 
     \begin{proof}
         We proof the more general theorem using $f a \vec b$ as the welltyped
-        $i+1$-normal term whose sort set is a subset of  $\upperany i$ and prove
+        $s+1$-normal term whose sort set is a subset of  $\upper s$ and prove
         that $f a \vec b$ is a base term. $\vec b$ is a possibly empty sequence
         $b_1, b_2, \ldots, b_n$ of arguments.
 
@@ -433,32 +478,33 @@
                 term.
 
             \item $f$ is the application $ga_0$: In that case $ga_0 a \vec b$ is
-                a welltyped $i+1$-normal type whose sort set is $\upperany i$
+                a welltyped $s+1$-normal type whose sort set is $\upper s$
                 and by the induction hypothesis for $g$ we conclude that $g a_0
                 a \vec b = f a \vec b$ is a base term.
 
             \item $f$ is an abstraction:
 
                 By the existence of minimal types~\ref{MinimalType} there exist
-                the types $F$ and $\Any_j$ which are the minimal types of $f$
+                the types $F$ and $s_j$ which are the minimal types of $f$
                 and $f b \vec c$ respectively. The minimal type of $f b \vec c$
                 must be a sort, because the term is a type.
                 By~\ref{thm:SortSetApplications} we infer $S(F) \subseteq
-                S(\Any_j)$.
+                S(s_j)$.
 
-                By definition of a sort set $\Any_j$ must be in the sort set of
-                $f a \vec b$ which by assumption is a subset of $\upper \Any_i$
-                $ \Any_j \subseteq S(f a \vec b) \subseteq \upper {\Any_i}$.
-                This is possible only if $i \le j$. This implies $S(\Any_j) =
-                \set{\Any_{j+1}, \Any_{j+2}, \ldots} \subset \upper{\Any_i}$.
+                By definition of a sort set $s_j$ must be in the sort set of
+                $f a \vec b$ which by assumption is a subset of $\upper s$, i.e.
+                $ s_j \in S(f a \vec b) \subseteq \upper s$.
+                This is possible only if $s \le j$. This implies $S(s_j) =
+                \set {s_j + 1, s_j + 2, \ldots}
+                \subset \upper s$.
 
-                Combining the two facts we get $S(F) \subseteq S(\Any_j) \subset
-                \upper{\Any_i}$ or better $S(F) \subseteq \upper{\Any_{i+1}}$.
+                Combining the two facts we get $S(F) \subseteq S(s_j) \subset
+                \upper s$ or better $S(F) \subseteq \upper{(s + 1)}$.
 
                 $f$ is an abstraction, therefore $f a$ is a redex whose minimal
                 type is $F$. This implies that $f a \vec b$ contains a redex
-                whose sort set is contained in $\upper {\Any_{i+1}}$ and
-                contradicts the assumption that $f a \vec b$ is $i+1$-normal.
+                whose sort set is contained in $\upper {(s + 1)}$ and
+                contradicts the assumption that $f a \vec b$ is $s+1$-normal.
                 Therefore $f$ cannot be an abstraction.
         \end{enumerate}
     \end{proof}
@@ -469,8 +515,8 @@
 \begin{theorem}
     \label{thm:FormNormalTypes}
     %------------------------------------------------------------
-    \emph{Form of Normal Types} A welltyped $i+1$-normal type $T$ whose sort set
-    is a subset of $\upper{\Any_i}$ is either a sort or a product or a base
+    \emph{Form of Normal Types} A welltyped $s+1$-normal type $T$ whose sort set
+    is a subset of $\upper s$ is either a sort or a product or a base
     term.
 
 
@@ -497,26 +543,27 @@
 
 \begin{definition}
     \label{def:TypeDegree}
-    \emph{The degree of a welltyped $i+1$-normal type is defined recursively by}
+    \emph{The degree of a welltyped $s+1$-normal type is defined recursively by}
 
     $$
-    D_i(T) :=
+    D_s(T) :=
     \dcases{
-        D_i(T) &:=& 0 \quad\text{if } \upper{\Any_i} \subset S(T)
+        D_s(T) &:=& 0 \quad\text{if } \upper s \subset S(T)
         \\
-        D_i(s) &:=& 0
+        D_s(s') &:=& 0
         \\
-        D_i(x \vec a) &:=& 0
+        D_s(x \vec a) &:=& 0
         \\
-        D_i(\Pi x^A.B) &:=&
-        1 + \text{max}(D_i(A), D_i(B))
+        D_s(\Pi x^A.B) &:=&
+        1 + D_s(A) +  D_s(B)
     }
     $$
 
     Note that the degree is welldefined by~\ref{thm:FormNormalTypes} which
-    asserts that the type $T$ is either a sort or a base term or a product if
-    its sort set is a subset of $\upper{\Any_i}$.
-    Furthermore subexpressions of $i+1$ normal types are $i+1$ normal as well.
+    asserts that the type $T$ is either a sort or a base term or a product if it
+    is $s+1$-normal and
+    its sort set is a subset of $\upper s$.
+    Furthermore subexpressions of $s+1$ normal types are $s+1$ normal as well.
 \end{definition}
 
 
@@ -524,12 +571,12 @@
 \begin{definition}
     \label{def:RedexDegree}
     \emph{Degree of a redex} Assume we have a function $r$ to transform any
-    welltyped term $t$ into $i+1$-normal form $r(t)$ by a finite sequence of
-    beta reductions. Assume further that the term $t$ is $i+1$-normal (if not,
-    we can use $r$ to reduce it into $i+1$-normal form). Then by definition the
-    term $t$ only has redexes whose sort set is a subset of $\upper \Any_i$.
+    welltyped term $t$ into $s+1$-normal form $r(t)$ by a finite sequence of
+    beta reductions. Assume further that the term $t$ is $s+1$-normal (if not,
+    we can use $r$ to reduce it into $s+1$-normal form). Then by definition the
+    term $t$ only has redexes whose sort set is a subset of $\upper s$.
 
-    We define the degree of a redex $(\lambda x^A.e)a$ in $t$ by $D_i(r(T))$
+    We define the degree of a redex $(\lambda x^A.e)a$ in $t$ by $D_s(r(T))$
     where $T$ is a minimal type of its function term $\lambda x^A.e$.
 \end{definition}
 
@@ -545,34 +592,37 @@
 
 \begin{definition}
     \label{def:NormalizationStep}
-    \emph{Normalization step of an $i+1$-normal term}
+    \emph{Normalization step of an $s+1$-normal term}
     Let $r$ be a function over welltyped terms $t$ such that $r(t)$ is
-    $i+1$-normal. Assume that the term $a$ is $i+1$ normal and has redexes with
-    sort set $\upper{\Any_i}$. Each of these redexes has a degree according to
-    the definition~\ref{def:RedexDegree}. Let $d$ be the highest degree of all
-    these redexes. Then $a \torel {q_i} b$ reduces the rightmost redex of degree
-    $d$ when $d > 0$.
+    $s+1$-normal. Assume that the term $a$ is $s+1$ normal and has redexes with
+    sort set $\upper s$. Each of these redexes has a degree according to
+    the definition~\ref{def:RedexDegree}.
+
+    We define $a \torel {q_s} b$ as the reduction relation
+    which reduces the rightmost redex of sort set $\upper s$.
 
     This definition has the following important consequences:
     \begin{itemize}
         \item
             If the highest degree $d$ of the redexes in the term $t$ is zero,
-            then the term is $i$-normal.
+            then the term is $s$-normal.
 
-            Reason: There is always a minimal type in $i+1$-normal form of the
+            Reason: There is always a minimal type in $s+1$-normal form of the
             function term of the redex of the form $\Pi x^A. B$. By definition
             of the degree of a type~\ref{def:TypeDegree} its degree is at least
-            $1$ as long as its sort set is a subset of $\upper \Any_i$. If the
+            $1$ as long as its sort set is a subset of $\upper s$. If the
             degree is zero, then its sort set is a proper superset of $\upper
-            \Any_i$. Therefore $t$ has no redexes whose sort set is a subset of
-            $\upper \Any_i$ and thus by definition is $i$-normal.
+            s$. Therefore $t$ has no redexes whose sort set is a subset of
+            $\upper s$ and thus by definition is $s$-normal.
 
         \item
-            If $a \torel {q_i} b$ is a normalization step of the $i+1$ normal
-            term $a$, then the term $b$ is uniquely defined.
+            If $a \torel {q_s} b$ is a normalization step of the $s+1$ normal
+            term $a$, then the term $b$ is uniquely defined because the
+            rightmost redex of degree with sort set $\upper s$ is unique.
 
-            Reason: The contracted redex is unique because it is the rightmost
-            redex of degree $d$.
+        \item The reduction $a \torel {q_s} b$ does not copy any existing
+            redexes with sort set $\upper s$, because the contracted redex is
+            the rightmost redex.
     \end{itemize}
 \end{definition}
 
@@ -631,11 +681,32 @@
 
 
 \begin{theorem}
-    \emph{A sequence of normalization steps of an $i+1$-normal term $t$ with $i
-    > 0$ according to definition~\ref{def:NormalizationStep} ends after a finite
-    number of steps in an $i$-normal unique term.}
+    \emph{A sequence of normalization steps
+        according to
+        definition~\ref{def:NormalizationStep}
+        of an $s+1$-normal term $t$
+        when $s$
+        is not a propositional sort
+        ends after a finite number of steps
+        in an $s$-normal unique term.}
 
     \begin{proof}
-        MISSING
+
+        Let
+        $$
+            n_d n_{d-1} \ldots n_2 n_1
+        $$
+        be a sequence of numbers where $d$ is the maximal degree of all redexes
+        in $t$ with sort set $\upper s$ where $s$ is not a propositional sort.
+        The number $n_i$ is the number of redexes in the term $t$ of degree $i$
+        and with sort set $\upper s$.
+
+        Then in the reduction sequence
+        $$
+            t = t_0 \torel {q_s} t_1 \torel{q_s} t_2 \torel{q_s} \ldots
+        $$
+        each reduction step decreases the number sequence in the lexicographic
+        order. Since the lexicographic order is a wellorder, the reduction
+        sequence ends after a finite number of steps.
     \end{proof}
 \end{theorem}
