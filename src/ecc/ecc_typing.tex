@@ -1,6 +1,8 @@
 \section{Typing}
 
 
+
+
 {\scriptsize
 \begin{verbatim}
     Substitution                Strengthening
@@ -19,6 +21,57 @@
             Types
 \end{verbatim}
 }
+
+
+
+
+
+\subsection{Sorts, Order Relation and Axioms}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In the extended calculus of constructions we use the sorts
+$$
+    \Prop, \Any_0, \Any_1, \ldots
+$$
+with the transitively closed order relation
+$$
+    \Prop < \Any_0 < \Any_1 < \ldots
+$$
+and the axioms
+$$
+\rulev{
+    s_1 < s_2
+}
+{
+    [] \vdash s_1: s_2
+}
+$$
+
+Note that the order $<$ is a linear order, in particular it is a wellorder.
+Based on this linear order of sorts there is an induced partial order $<_i$ on
+terms which is defined inductively by the rules
+\begin{enumerate}
+    \item
+        $$
+        \ruleh{s_1 < s_2}{s_1 <_0 s_2}
+        $$
+    \item
+        $$
+        \ruleh {B_1 <_i B_2}{\Pi x^A. B_1 <_{i+1} \Pi x^A. B_2}
+        $$
+\end{enumerate}
+
+This order is needed to define minimal types and proof that minimal types are
+unique up to beta equivalence.
+
+In order to have unique minimal types it is crucial that for any sort $s_1$
+there is a unique sort $s_2$ satisfying $s_1 < s_2$.
+
+We can define a more general calculus of construction by just requiring that the
+relation $<$ on sorts is a wellfounded relation with the additional uniqueness
+condition.
+
+
 
 
 
