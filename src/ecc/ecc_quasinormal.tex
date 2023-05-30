@@ -1,6 +1,41 @@
 %-------------------------------------------------------------------------------
 \section{Quasinormalization}
 %-------------------------------------------------------------------------------
+\begin{comment}
+
+    Basic proof idea
+    ============================================================
+
+    Levels of a redex (via level of the type of the function term)
+    ------------------------------------------------------------
+
+    Each term which is not in normal form has a nonempty set of redexes. Each of
+    these redexes has a function term and this function term has a minimal type.
+
+    Each type has a level which is its lowest sort modulo reduction. Therefore
+    we can say that each redex has a level (the level of the minimal type of its
+    function term). The number of redexes in a term is finite. There is a
+    highest level of all redexes a term.
+
+    We say that a term is s-normal, if it has no redexes of level s or higher.
+    If s is the highest level of a redex in a term, then the term is s+1 normal.
+
+
+    Degree of a redex
+    ------------------------------------------------------------
+
+    For all terms which are s+1 normal it is possible the define a degree for
+    all s level redexes.
+
+    We can reduce each term where s is the highest level of all its redexes into
+    s-normal form. We do this by repeatedly reducing the rightmost redex of
+    level s.
+
+
+
+\end{comment}
+
+
 
 \begin{comment}
     Level:
