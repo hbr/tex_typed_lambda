@@ -35,25 +35,25 @@ $$
 $$
 with the transitively closed order relation
 $$
-    \Prop < \Any_0 < \Any_1 < \ldots
+    \Prop \prec \Any_0 \prec \Any_1 \prec \ldots
 $$
 and the axioms
 $$
-\rulev{
-    s_1 < s_2
+\ruleh{
+    s_1 \prec s_2
 }
 {
     [] \vdash s_1: s_2
 }
 $$
 
-Note that the order $<$ is a linear order, in particular it is a wellorder.
+Note that the order $\prec$ is a linear order, in particular it is a wellorder.
 Based on this linear order of sorts there is an induced partial order $<_i$ on
 terms which is defined inductively by the rules
 \begin{enumerate}
     \item
         $$
-        \ruleh{s_1 < s_2}{s_1 <_0 s_2}
+        \ruleh{s_1 \prec s_2}{s_1 <_0 s_2}
         $$
     \item
         $$
@@ -61,16 +61,20 @@ terms which is defined inductively by the rules
         $$
 \end{enumerate}
 
-This order is needed to define minimal types and proof that minimal types are
+This order is needed to define minimal types and prove that minimal types are
 unique up to beta equivalence.
 
 In order to have unique minimal types it is crucial that for any sort $s_1$
-there is a unique sort $s_2$ satisfying $s_1 < s_2$.
+there is a unique minimal sort $s_2$ satisfying $s_1 \prec s_2$.
 
-We can define a more general calculus of construction by just requiring that the
-relation $<$ on sorts is a wellfounded relation with the additional uniqueness
+We can define a more general calculus of constructions by just requiring that the
+relation $\prec$ on sorts is a wellfounded relation with the additional uniqueness
 condition.
 
+We use the definition that in a wellfounded relation all elements are
+accessible. An element of the carrier is accessible if all its predecessors are
+accessible. This guarantees the existence of minimal elements (i.e. elements
+which have no predecessors in the relation $\prec$.
 
 
 
@@ -667,7 +671,7 @@ $t$.
         For all structural rules the goal follows from the induction hypothesis
         and some properties of subtyping.
 
-        All proves follow the same pattern. We give here the proof for the
+        All proofs follow the same pattern. We give here the proof for the
         product generation lemma.
 
         {\def\goal#1#2#3#4#5#6{
@@ -1575,8 +1579,9 @@ prove that each welltyped term has a minimal type.
 
 
 \begin{lemma}
-    \label{MinimalTypeOfVariable}
     \emph{The type of an introduced variable is its minimal type}.
+    \label{MinimalTypeOfVariable}
+    %------------------------------------------------------------
     $$
     \ruleh{
         \derives {\Gamma,x^A} x A
@@ -1634,8 +1639,8 @@ prove that each welltyped term has a minimal type.
 
 
 \begin{theorem}
-    \label{MinimalType}
     \emph{For each welltyped term there exists a minimal type}
+    \label{thm:ExistMinimalType}
     $$
     \ruleh {
         \derives \Gamma t T
@@ -1888,10 +1893,13 @@ prove that each welltyped term has a minimal type.
 
 
 
+
+
 \begin{theorem}
+    \emph{For the function term $f$ of an application $f a$
+    there exists a minimal type of $f$ of the form $\Pi x^A. B$}.
     \label{thm:MinimalTypeFunctionTerm}
-    \emph{If $f$ is the function term of a welltyped application $fa$, then
-    there is a minimal type of $f$ in the form $\Pi x^A. B$}.
+    %----------------------------------------------------------------------
     $$
     \ruleh{
         \Gamma \vdash f a : \dontcare
@@ -1900,9 +1908,29 @@ prove that each welltyped term has a minimal type.
         \exists AB. \Gamma \vdashmin f : \Pi x^A. B
     }
     $$
-    \begin{proof}
+    \begin{proof} By~\ref{thm:ExistMinimalType} there exists a minimal type $F$
+        of $f$ and by the generation lamma~\ref{GenerationLemma} for application
+        there exists a type of the form $\Pi x^{A_3}. B_3$ for $f$. Because of
+        minimality we have
+        $$
+        F \le \Pi x^{A_3}.B_3
+        $$
 
-        MISSING!!!
+        The definition of the subtype relation $\le$ has two cases. The first
+        case requires that both operands are beta equivalent and in this case
+        the goal is trivial. The second case requires the existence of $i$,
+        $A$, $B$ and $B_2$ such that
+        $$
+        \begin{array}{lll}
+            F & \reducestar & \Pi x^{A}. B
+            \\
+            \Pi x^A. B & <_{i+1} & \Pi x^A. B_2
+            \\
+            \Pi x^{A_3}. B_3 & \reducestar & \Pi x^A. B_2
+        \end{array}
+        $$
+        are valid. The first line uncovers the minimal type of the required
+        form.
     \end{proof}
 \end{theorem}
 

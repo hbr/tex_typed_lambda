@@ -1,6 +1,46 @@
 %-------------------------------------------------------------------------------
 \section{Quasinormalization}
 %-------------------------------------------------------------------------------
+
+
+\subsection{Overview}
+%-------------------------------------------------------------------------------
+
+
+In this section we prove that all welltyped terms can be reduced to an $1$
+normal form. A term is in $1$ normal form if it has no redexes of level
+$1$ or higher.
+
+The level of a type is the level of the lowest sort the type lives in up to
+reduction. The level of a redex is the level of the type of its function term.
+
+Here we give an overview of the proof. The needed definitions and theorems will
+be made precise in the subsequent sections.
+
+A term $t$ is welltyped if there is a context $\Gamma$ and a type term $T$ such
+that $\Gamma \vdash t : T$ is satisfied. Without restriction of generality we
+can assume that $\Gamma \vdash t : T$ has been derived with a finite set of
+sorts $S_n$. To find $n$ just look into the derivation of $\Gamma \vdash t : T$
+and find the highest sort $\Any_n$. Then it is guaranteed that the derivation is
+possible with the finite sort set $S_n$.
+
+If we restrive ourselves to the finite sort set $S_n$ then the highest level of
+all types is $n$ and the highest level of any redex is $n$ as well.
+I.e. all derivable terms are in $n+1$ normal form.
+
+We want to prove that we can transform any welltyped term $t$ derived with the
+finite sort set $S_n$ into $1$ normal form. We do this by downward
+induction from $n+1$ to $1$.
+
+The induction start is trivial, because all terms derived with the finite sort
+set $S_n$ are in $n+1$ normal form.
+
+For the induction step from $i+1$ down to $i$ we can assume the induction
+hypothesis that we can reduce any welltyped term to $i+1$ normal form.
+
+
+
+
 \begin{comment}
 
     Basic proof idea
@@ -102,15 +142,31 @@
 
 
 
-In the following the existence of a unique (up to beta equivalence) minimal type
-is crucial.
-
-
-
 
 
 \subsection{Sort Sets}
 %----------------------------------------------------------------------
+
+In the extended calculus of constructions there are functions which have
+non-propositional types as arguments and non-propositional types as values. E.g.
+the identity function $\lambda x^{\Any_i}. x$ with type $\Any_i \to \Any_i$ for
+$i > 0$ can accept arguments $T$ of type $\Any_j$ with $j \le i$ and it returns
+a value of type $\Any_i$.
+
+However if we consider the beta reduction $(\lambda x^{\Any_i}. x) T \reduce T$
+then the types of redex and the reduct are different.
+$$
+\begin{array}{lll}
+    (\lambda x^{\Any_i}. x) T & : & \Any_i[T/x] = \Any_i
+    \\
+    T & : & \Any_j
+\end{array}
+$$
+
+I.e. the minimal type of a type term is not invariant against beta reduction. We
+define the \emph{level of type} as the level of the lowest sort it lives in up
+to beta reduction.
+
 
 
 \begin{definition}
@@ -451,57 +507,247 @@ the sort sets of the argument and the result type.}
 
 
 
-\subsection{$s$-Normal Terms}
+\subsection{Level}
 %------------------------------------------------------------
 
 
 \begin{definition}
-    \label{def:RedexSortSet}
-    %-----------------------------
-    \emph{Sort set of a redex}
-
-    The sort set of a redex $(\lambda x^A. e) a$ is the sort set of a
-    minimal type of its function term $\lambda x^A. e$.
-
-    This set is welldefined because a minimal type of a term is unique up to
-    beta equivalence and due to~\ref{thm:SortSetsSubtype} all beta equivalent
-    types have the same sort set.
+    The \emph{Level} $\Level(T)$ of a type T is the level of the minimal sort
+    the type lives in up to reduction.
 \end{definition}
 
+
+\begin{theorem}
+    \label{thm:LevelTypeSafeSubstitution}
+    %------------------------------------------------------------
+    Type safe substitution decreases the level of a type.
+    $$
+    \rulev{
+        \Gamma \vdash a : A
+        \\
+        \Gamma, x^A \vdash B: s
+    }
+    {
+        \Level(B[a/x]) \le \Level(B)
+    }
+    $$
+    \begin{proof}
+        Let's say the level of $B$ is $i$. Then there exists by definition of
+        the level a reduct $C$ of $B$ such that $\Gamma, x^A \vdash C: \Any_i$
+        is valid. By the substitution lemma~\ref{SubstitutionLemma} we get
+        $\Gamma \vdash C[a/x]: \Any_i$. Since $C[a/x]$ lives in the sort
+        $\Any_i$ and is a reduct of $B[a/x]$ the level of $B[a/x]$ is less or
+        equal $i$.
+    \end{proof}
+\end{theorem}
+
+
+
+
+\begin{theorem}
+    \label{thm:LevelProduct}
+    %------------------------------------------------------------
+    The level of a nonpropositional product is the maximal level of the argument
+    type and the result type.
+    $$
+    \ruleh{
+        \Level(B) > 0
+    }
+    {
+        \Level(\Pi x^A.B) = \max(\Level(A), \Level(B))
+    }
+    $$
+    \begin{proof}
+        Because of cumulativity we have
+        $$
+        \rulev{
+            \Gamma \vdash A: \Any_i
+            \\
+            \Gamma,x^A \vdash B: \Any_j
+            \\
+            i,j > 0
+        }
+        {
+            \Gamma \vdash \Pi x^A. B : \Any_{\max(i,j)}
+        }
+        $$
+        Since reduction of a product does not change its shape, the levels of
+        the argument and result type determine uniquely the level of the
+        product.
+    \end{proof}
+\end{theorem}
+
+
+
+
+\begin{theorem}
+    \label{thm:LevelSubtypeEquivalence}
+    %------------------------------------------------------------
+    The level of a type respects subtyping and betaequivalence.
+    \begin{enumerate}
+        \item $ A \betaeq B \imp \Level(A) = \Level(B)$
+
+        \item $ A <_i B \imp \Level(A) \le \Level(B) $
+    \end{enumerate}
+
+    \begin{proof}
+        \ \begin{enumerate}
+            \item In case of betaequivalence $A$ and $B$ have a common reduct
+                $C$ with $\Level(A) = \Level(C) = \Level(B)$.
+
+            \item By induction on $<_i$.
+                \begin{enumerate}
+                    \item The base case is trivial.
+
+                    \item For the induction step we assume $B_1 <_i B_2 \imp
+                        \Level(B_1) \le \Level(B_2)$ and have to prove
+                        $$
+                            \Level(\Pi x^A.B_1) \le \Level(\Pi x^A. B_2)
+                        $$
+                        under the assumption $ \Pi x^A. B_1 <_{i+1} \Pi x^A.
+                        B_2$ (which implies $\Level(B_1) \le \Level(B_2)$ by the
+                        induction hypothesis.
+
+                        If $B_1$ is a proposition i.e. $\Level(B_1) = 0$, then
+                        the goal is trivial.
+
+                        So we assume $B_1$ is not a
+                        proposition which implies that $B_2$ is not a
+                        proposition either. With the help of
+                        theorem~\ref{thm:LevelProduct} we derive
+                        $$
+                        \begin{array}{lll}
+                            \Level(\Pi x^A. B_1)
+                            & = & \max(\Level(A), \Level(B_1)
+                            \\
+                            & \le & \max(\Level(A), \Level(B_2))
+                            \\
+                            & = & \Level(\Pi x^A. B_2)
+                        \end{array}
+                        $$
+                \end{enumerate}
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+
+
+\begin{theorem}
+    \label{thm:LevelApplication}
+    %------------------------------------------------------------
+    Let $f a$ be an application where $F$ is a minimal type of $f$ and $R$ is a
+    minimal type of $f a$. Then the level of $F$ is greater equal the level of
+    $R$.
+    $$
+    \rulev{
+        \Gamma \vdashmin f : F
+        \\
+        \Gamma \vdashmin f a: R
+    }
+    {
+        \Level(F) \ge \Level(R)
+    }
+    $$
+    \begin{proof}
+        Without loss of generality we assume that $F$ is not a proposition,
+        because for propositions the goal is trivial.
+
+        Since $f$ is a function positition according
+        to~\ref{thm:MinimalTypeFunctionTerm} there is a minimal type of the form
+        $\Pi x^A.B$ betaequivalent to $F$.
+        $$
+        \begin{array}{lllll}
+            \Level(F)
+            & = & \Level(\Pi x^A.B) &~\ref{thm:LevelSubtypeEquivalence}
+            \\
+            & \ge  & \Level(B)
+            &~\ref{thm:LevelProduct}
+            \\
+            & \ge & \Level(B[a/x]
+            &~\ref{thm:LevelTypeSafeSubstitution}
+            \\
+            & = & \Level(R)
+        \end{array}
+        $$
+    \end{proof}
+\end{theorem}
+
+
+\begin{theorem}
+    \label{thm:LevelRepeatedApplication}
+    %------------------------------------------------------------
+    Let $f a_1 \ldots a_n$ is an application where $F$ is a minimal type of $f$
+    and $R_i$ is a minimal type of $f a_1 \ldots a_i$ with $i \le n$. Then the
+    level of $F$ is greater equal to the level of $R_n$.
+
+    \begin{proof}
+        We prove this fact by repeated application of the previous
+        theorem~\ref{thm:LevelApplication}.
+        $$
+        \begin{array}{lll}
+            \Level(F) & \ge & \Level(R_1)
+            \\
+            & \ge & \Level(R_2)
+            \\
+            \ldots
+            \\
+            & \ge & \Level(R_n)
+        \end{array}
+        $$
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+
+
+\subsection{$i$-Normal Terms}
+%------------------------------------------------------------
+
+With the help of the level of a type we define the level of a redex by
+\begin{definition}
+    \emph{Level of a redex}
+    %------------------------------------------------------------
+
+    The level of a redex $(\lambda x^A. e) a$ is the level of the minimal type of
+    the function term $\lambda x^A. e$.
+\end{definition}
+
+The level of a redex is welldefined because all minimal types are betaequivalent
+and due to~\ref{thm:LevelSubtypeEquivalence} all betaequivalent types have the
+same level.
 
 
 
 \begin{definition}
-    \label{def:INormalTerm}
-    %-----------------------------
-    \emph{Welltyped $s$-normal terms}
+    \emph{Welltyped $i$-normal terms}
 
-    A welltyped term $t$ is $s$-normal if it contains no redexes whose sort set
-    is a subset of $\upper s$.
+    A welltyped term $t$ is $i$-normal if it contains no redexes with a level of
+    $i$ or higher.
 \end{definition}
 
-
-\begin{definition}
-    \emph{Next sort $s+1$}
-    The sort $s + 1$ is defined as the sort $s_2$ such that $[] \vdashmin s:
-    s_2$ is valid. This sort $s_2$ is unique, because minimal types are unique
-    up to beta equivalence. Two sorts can be beta equivalent only if they are
-    the same sort.
-\end{definition}
 
 
 
 \begin{theorem}
     \label{thm:NormalBaseTerm}
     %-----------------------------
-    \emph{Let $fa$ be a welltyped $s+1$-normal type whose sort set is a subset
-    of $\upper s$.  Then $fa$ is a base term.}
+    \emph{Let $fa$ be a welltyped $i+1$-normal type whose level is $i$ or lower
+    i.e. $\Level(f a) \le i$.
+    In that case $f a$ is a base term.}
 
     \begin{proof}
-        We proof the more general theorem using $f a \vec b$ as the welltyped
-        $s+1$-normal term whose sort set is a subset of  $\upper s$ and prove
-        that $f a \vec b$ is a base term. $\vec b$ is a possibly empty sequence
-        $b_1, b_2, \ldots, b_n$ of arguments.
+        We prove the more general theorem using $f a \vec b$ as the welltyped
+        $i+1$-normal term with $\Level(f a \vec b) \le i$ where $\vec b$ is a
+        possibly empty sequence of additional arguments.
+        We prove that $f a \vec b$ is a base term.
+
+        Since $f a \vec b$ is a type, its type has to be a sort i.e. we have
+        $\Gamma \vdashmin f a \vec b: \Any_j$ for some $\Gamma$ and $j$. Since the
+        level of the type is $i$ or lower, we have $i \le j$.
 
         The proof goes by induction on the structure of the function term $f$.
         \begin{enumerate}
@@ -513,46 +759,26 @@ the sort sets of the argument and the result type.}
                 term.
 
             \item $f$ is the application $ga_0$: In that case $ga_0 a \vec b$ is
-                a welltyped $s+1$-normal type whose sort set is $\upper s$
-                and by the induction hypothesis for $g$ we conclude that $g a_0
+                a welltyped $i+1$-normal type of level $i$ or lower.
+                From the induction hypothesis for $g$ we conclude that $g a_0
                 a \vec b = f a \vec b$ is a base term.
 
             \item $f$ is an abstraction:
-
-                By the existence of minimal types~\ref{MinimalType} there exist
-                the types $F$ and $s_j$ which are the minimal types of $f$
-                and $f b \vec c$ respectively. The minimal type of $f b \vec c$
-                must be a sort, because the term is a type.
-                By~\ref{thm:SortSetApplications} we infer $S(F) \subseteq
-                S(s_j)$.
-
-                By definition of a sort set $s_j$ must be in the sort set of
-                $f a \vec b$ which by assumption is a subset of $\upper s$, i.e.
-                $ s_j \in S(f a \vec b) \subseteq \upper s$.
-                This is possible only if $s \le j$. This implies $S(s_j) =
-                \set {s_j + 1, s_j + 2, \ldots}
-                \subset \upper s$.
-
-                Combining the two facts we get $S(F) \subseteq S(s_j) \subset
-                \upper s$ or better $S(F) \subseteq \upper{(s + 1)}$.
-
-                $f$ is an abstraction, therefore $f a$ is a redex whose minimal
-                type is $F$. This implies that $f a \vec b$ contains a redex
-                whose sort set is contained in $\upper {(s + 1)}$ and
-                contradicts the assumption that $f a \vec b$ is $s+1$-normal.
-                Therefore $f$ cannot be an abstraction.
+                Say $F$ is a minimal type of $f$.
+                By~\ref{thm:LevelRepeatedApplication} we have $\Level(F) \ge
+                \Level(\Any_j) = j + 1 > i$. This contradicts the assumption that
+                $f a \vec b$ is $i+1$ normal i.e. does not have redexes of level
+                $i + 1$ or higher. Therefore $f$ cannot be an abstraction.
         \end{enumerate}
     \end{proof}
 \end{theorem}
 
 
-
 \begin{theorem}
     \label{thm:FormNormalTypes}
     %------------------------------------------------------------
-    \emph{Form of Normal Types} A welltyped $s+1$-normal type $T$ whose sort set
-    is a subset of $\upper s$ is either a sort or a product or a base
-    term.
+    \emph{Form of Normal Types} A welltyped $i+1$-normal type $T$ whose level is
+    $i$ or higher is either a sort, a product or a base term.
 
 
     \begin{proof}
