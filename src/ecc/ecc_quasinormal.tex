@@ -144,367 +144,6 @@ hypothesis that we can reduce any welltyped term to $i+1$ normal form.
 
 
 
-\subsection{Sort Sets}
-%----------------------------------------------------------------------
-
-In the extended calculus of constructions there are functions which have
-non-propositional types as arguments and non-propositional types as values. E.g.
-the identity function $\lambda x^{\Any_i}. x$ with type $\Any_i \to \Any_i$ for
-$i > 0$ can accept arguments $T$ of type $\Any_j$ with $j \le i$ and it returns
-a value of type $\Any_i$.
-
-However if we consider the beta reduction $(\lambda x^{\Any_i}. x) T \reduce T$
-then the types of redex and the reduct are different.
-$$
-\begin{array}{lll}
-    (\lambda x^{\Any_i}. x) T & : & \Any_i[T/x] = \Any_i
-    \\
-    T & : & \Any_j
-\end{array}
-$$
-
-I.e. the minimal type of a type term is not invariant against beta reduction. We
-define the \emph{level of type} as the level of the lowest sort it lives in up
-to beta reduction.
-
-
-
-\begin{definition}
-    \label{def:UpperSet}
-    %-----------------------------
-    The \emph{upper set} $\upper s$ of a sort $s$ are all sorts
-    $s_2$ where $s \le s_2$.
-    $$
-    \upper s := \set{s_2 \mid s \le s_2}
-    $$
-\end{definition}
-
-
-
-
-\begin{definition}
-    \label{def:SortSet}
-    %-----------------------------
-    The \emph{sort set $S_\Gamma(T)$ of a type $T$} is defined inductively by
-    the rule
-    $$
-    \ruleh{
-        \Gamma \vdash T : s_1\quad
-        T \reducestar U\quad
-        \Gamma \vdash U : s
-    }
-    {
-        s \in S_\Gamma(T)
-    }
-    $$
-
-    We often write $S(T)$ without the subscript $\Gamma$ when the context is
-    clear.
-\end{definition}
-
-
-
-
-
-\begin{theorem}
-    \label{thm:SortSetUpperClosed}
-    %-----------------------------
-    \emph{A sort set of a type is upper closed}.
-    $$
-        \ruleh{
-            s_1 \in S_\Gamma(T)
-            \\
-            s_1 \le s_2
-        }
-        {
-            s_2 \in S_\Gamma(T)
-        }
-    $$
-    \begin{proof}
-        By the cumulativity rule of the typing relation.
-    \end{proof}
-\end{theorem}
-
-
-\begin{theorem}
-    \label{thm:MinimalSortDecreases}
-    \emph{The minimal sort of a type might decrease after reduction}
-    $$
-    \ruleh{
-        A \reduce B
-        \quad \Gamma \vdashmin A: s_1
-        \quad \Gamma \vdashmin B: s_2
-    }
-    {
-        s_2 \le s_1
-    }
-    $$
-
-    \begin{proof}
-        By subject reduction~\ref{SubjectReduction} we have $\Gamma \vdash B:
-        s_1$. Since $s_2$ is the minimal type of $B$ we have $s_2 \le s_1$.
-    \end{proof}
-
-\end{theorem}
-
-
-
-
-\begin{theorem}
-    \emph{The sort set of a type has a unique minimal sort which we call the
-    level of the type.}
-
-    \begin{proof}
-        If we have a reduction sequence of a type $A_0 \reduce A_1 \reduce
-        \ldots$ we know from~\ref{thm:MinimalSortDecreases} that the
-        corresponding sequence of minimal sorts $s_0 \ge s_1 \ge s_2 \ge
-        \ldots$ is a decreasing sequence. Since the order of the sorts is
-        wellfounded, the sequence must reach a minimal sort.
-    \end{proof}
-\end{theorem}
-
-
-\begin{theorem}
-    \label{thm:SortSetSubstitution}
-    %-----------------------------
-    \emph{Type safe substitution makes the sort set bigger}.
-    $$
-        \ruleh{
-            \Gamma \vdash a : A \quad \Gamma,x^A \vdash B
-        }
-        {
-            S_{\Gamma,x^A}(B) \subseteq S_\Gamma(B[a/x])
-        }
-    $$
-    \begin{proof}
-        Assume $s \in S_{\Gamma,x^A}(B)$.
-
-        Then by the definition of sort sets~\ref{def:SortSet}
-        there exists $C$ with $B \reducestar C$ and $\Gamma,x^A \vdash C: s$.
-        This implies $B[a/x] \reducestar C[a/x]$ and $\Gamma \vdash C[a/x] : s$
-        by the subject reduction~\ref{SubjectReduction} and the substitution
-        theorem~\ref{SubstitutionLemma}.
-
-        The definition of sort sets~\ref{def:SortSet} implies $s \in
-        S_\Gamma(B[a/x])$ which completes the proof.
-    \end{proof}
-\end{theorem}
-
-
-
-
-
-
-\begin{theorem}
-    \label{thm:SortSetProduct}
-    %-----------------------------
-    \emph{The sort set of a product is either $\upper {s_\Prop}$ in case the
-    product is a proposition (i.e. has type $s_\Prop$) or the intersection of
-the sort sets of the argument and the result type.}
-    $$
-    \ruleh{
-        \Gamma \vdash \Pi x^A. B : \dontcare
-    }
-    {
-        S(\Pi x^A. B) =
-        \dcases{
-            \upper{s_\Prop} & \text{if }\Gamma \vdash \Pi x^A . B : s_\Prop
-            \\
-            S(A) \cap S(B) & \text{otherwise}
-        }
-    }
-    $$
-
-    This theorem has the immediate consequence $S(\Pi x^A. B) \subseteq S(B)$. In
-    the propositional case this is trivial. In the non-propositional case it is
-    a consequence of the intersection.
-
-    \begin{proof}
-        Now we prove the main theorem.
-
-        If the type of the product is a propositional sort $s_\Prop$ then
-        $\upper{s_\Prop}$ already is the greatest possible sort set for the
-        product.
-
-        If a propositional sort $s_\Prop$ cannot be the type of the product we
-        have to prove both directions:
-        \begin{enumerate}
-            \item $S(\Pi x^A. B) \subseteq S(A) \cap S(B)$:
-                Assume $s$ is in the sort set of the product. By definition
-                there exist reducts $A'$ and $B'$ of $A$ and $B$ such that
-                $\Gamma \vdash \Pi x^{A'}. B' : s$. By the generation
-                lemma~\ref{GenerationLemma} for products there exist a sort
-                $s_0$ which is a valid type of $A'$ and $B'$ with $s_0 \le s$.
-                Therefore $s_0$ is in the sort sets of $A$ and $B$. Because sort
-                sets are upper closed $s$ is in both sort sets as well.
-
-            \item $S(A) \cap S(B) \subseteq S(\Pi x^A. B)$:
-                Assume $s$ is in both sort sets of $A$ and $B$. By definition
-                there exist reducts $A'$ and $B'$ such that $s$ is a type of
-                $A'$ and $B'$. The introduction rule for products in the typing
-                relation says that $s$ is a type of the product $\Pi x^{A'}.
-                B'$. By definition of the sort set $s$ is in the sort set of
-                $\Pi x^A. B$.
-        \end{enumerate}
-    \end{proof}
-\end{theorem}
-
-
-
-
-
-
-\begin{theorem}
-    \label{thm:SortSetsSubtype}
-    %-----------------------------
-    \emph{Let $A$ and $B$ be some welltyped terms in the same context. Then the
-    following is valid:}
-    \begin{enumerate}
-
-        \item $A \betaeq B \imp S(A) = S(B)$
-
-        \item $A <_i B \imp S(B) \subset S(A)$
-    \end{enumerate}
-    \begin{proof}
-
-        \ \begin{enumerate}
-
-            \item Because of confluence there exists a common reduct $C$ of $A$
-                and $B$. Then by definition of the sort set $S(A) = S(C) =
-                S(B)$.
-
-            \item By induction on $ A <_i B$.
-                \begin{enumerate}
-                    \item The base case is trivial.
-
-                    \item In the induction step we have $\Pi x^A . B_1 <_{i+1}
-                        \Pi x^A. B_2$ where $S(B_2) \subset S(B_1)$ is given by
-                        the induction hypothesis.
-
-                        In case that $\Pi x^A. B_1$ is a proposition the goal is
-                        trivial because $\upper\Prop$ is the largest possible
-                        sort set.
-
-                        It remains the case that both are not propositions ($\Pi
-                        x^A. B_2$ cannot be a proposition because it is a proper
-                        supertype).
-
-                        Then we have
-                        $$
-                        S(\Pi x^A. B_2) = S(A) \cap S(B_2) \subset S(A) \cap
-                        S(B_2) = S(\Pi x^A. B_1)
-                        $$
-                        by using the induction hypothesis
-                        and~\ref{thm:SortSetProduct}.
-                \end{enumerate}
-        \end{enumerate}
-    \end{proof}
-\end{theorem}
-
-
-
-
-
-
-\begin{theorem}
-    \label{thm:SortSetApplication}
-    %-----------------------------
-    \emph{Sort sets of applications} Let $fa$ be an application where $F$ is a
-    minimal type of $f$ and $R$ is a minimal type of $fa$. Then the sort set of
-    $F$ is a subset of the sort set of $R$.
-    $$
-    \rulev{
-        \Gamma \vdashmin f : F
-        \\
-        \Gamma \vdashmin fa : R
-    }
-    {
-        S(F) \subseteq S(R)
-    }
-    $$
-    \begin{proof}
-
-        By~\ref{thm:MinimalTypeFunctionTerm} there exist the types $A$ and $B$
-        such that $\Pi x^A. B$ is a minimal type of $f$. Therefore $F$ and $\Pi
-        x^A.B$ are beta equivalent and have the same sort sets.
-
-        The generation lemma~\ref{GenerationLemma} for application guarantees
-        the existence of $A'$ and $B'$ such that $\Pi x^{A'}.B'$ is a valid type
-        of $f$ and $A'$ is a valid type of $a$ and $\sub a x {B'} \le R$.
-
-        Since $\Pi x^A. B$ is minimal we have $A \betaeq A'$ and $B \le B'$
-        by~\ref{thm:ProductSubtype}.
-
-        The minimality of $R$, the antisymmetry of
-        subtypes~\ref{thm:SubtypeAntisymmetric} and the fact that
-        substitution respects subtypes~\ref{thm:SubstitutionRespectsSubtype} we
-        have $\sub a x B \betaeq R$.
-
-        In combination with \ref{thm:SortSetsSubtype} and
-        \ref{thm:SortSetProduct} and \ref{thm:SortSetSubstitution} we get
-        $$
-        S(F) = S(\Pi x^A. B)
-            \subseteq S(B)
-            \subseteq S(\sub a x B)
-            = S(R)
-        $$
-    \end{proof}
-\end{theorem}
-
-
-
-
-
-
-\begin{theorem}
-    \label{thm:SortSetApplications}
-    %-----------------------------
-    \emph{Sort sets of generalized applications} This is a generalization of the
-    previous theorem~\ref{thm:SortSetApplication}.
-
-    Let $fa \vec b$ be an application where
-    $F$ is a minimal type of $f$ and $R$ is a minimal type of $fa \vec b$ where
-    $\vec b$ is a possibly empty sequence of arguments $b_1, b_2, \ldots, b_n$.
-    Then the sort set of $F$ is a subset of the sort set of $R$.
-    $$
-    \rulev{
-        \Gamma \vdashmin f : F
-        \\
-        \Gamma \vdashmin f a \vec b : R
-    }
-    {
-        S(F) \subseteq S(R)
-    }
-    $$
-    \begin{proof}
-        We prove the goal by induction on the length $n$ of $\vec b$.
-        \begin{enumerate}
-            \item $n=0$: Immediate consequence of the previous
-                theorem~\ref{thm:SortSetApplication}.
-
-            \item Induction step from $n$ to $n+1$:
-                Assume $S(F) \subseteq S(R)$ for $n = |\vec b|$. We have to
-                prove the goal
-                $$
-                \rulev{
-                    \Gamma \vdashmin f a \vec b b_{n+1} : R'
-                }
-                {
-                    S(F) \subseteq S(R')
-                }
-                $$
-                By using the the induction hypothesis and the previous
-                theorem~\ref{thm:SortSetApplication} we can prove the goal
-                $$
-                    S(F) \subseteq S(R) \subseteq S(R')
-                $$
-        \end{enumerate}
-    \end{proof}
-\end{theorem}
-
-
-
-
 
 
 \subsection{Level}
@@ -778,7 +417,7 @@ same level.
     \label{thm:FormNormalTypes}
     %------------------------------------------------------------
     \emph{Form of Normal Types} A welltyped $i+1$-normal type $T$ whose level is
-    $i$ or higher is either a sort, a product or a base term.
+    $i$ or lower is either a sort, a product or a base term.
 
 
     \begin{proof}
@@ -804,41 +443,64 @@ same level.
 
 \begin{definition}
     \label{def:TypeDegree}
-    \emph{The degree of a welltyped $s+1$-normal type is defined recursively by}
+    \emph{The degree of a welltyped $i+1$-normal type is defined recursively by}
 
     $$
-    D_s(T) :=
+    D_i(T) :=
     \dcases{
-        D_s(T) &:=& 0 \quad\text{if } \upper s \subset S(T)
+        D_i(T) &:=& 0 \quad\text{if } \Level(T) \ne i
         \\
-        D_s(s') &:=& 0
+        D_i(s) &:=& 0
         \\
-        D_s(x \vec a) &:=& 0
+        D_i(x \vec a) &:=& 0
         \\
-        D_s(\Pi x^A.B) &:=&
-        1 + D_s(A) +  D_s(B)
+        D_i(\Pi x^A.B) &:=&
+        1 + D_i(A) +  D_i(B)
     }
     $$
 
     Note that the degree is welldefined by~\ref{thm:FormNormalTypes} which
-    asserts that the type $T$ is either a sort or a base term or a product if it
-    is $s+1$-normal and
-    its sort set is a subset of $\upper s$.
-    Furthermore subexpressions of $s+1$ normal types are $s+1$ normal as well.
+    asserts that a level $i$ type $T$ is either a sort or a base term or a
+    product if it is $i+1$-normal.
 \end{definition}
+
+
+
+\begin{theorem}
+    Welltyped betaequivalent types which are $i+1$-normal have the same degree.
+    \label{thm:BetaEquivalentSameDegree}
+    %----------------------------------------------------------------------
+    \begin{proof}
+        Assume that $T_1$ and $T_2$ are betaequivalent and $i+1$-normal.
+        By~\ref{thm:LevelSubtypeEquivalence} they have the same level. If the
+        level is not $i$, then the goal is trivial. Therefore we assume that the
+        level is $i$.
+
+        We prove $\Level(T_1) = \Level(T_2)$ by induction on the structure of
+        $T_1$.
+
+        By~\ref{thm:FormNormalTypes} we known that both are either sorts, base
+        terms or products. Welltyped sorts, base terms and products can only be
+        betaequivalent if they are both sorts, base terms or products respectively.
+
+
+        For sorts and base terms the goal is evident by definition that
+        they have the same degree (namely 0). If both are products the goal
+        follows from the induction hypothesis.
+    \end{proof}
+\end{theorem}
+
+
 
 
 
 \begin{definition}
     \label{def:RedexDegree}
-    \emph{Degree of a redex} Assume we have a function $r$ to transform any
-    welltyped term $t$ into $s+1$-normal form $r(t)$ by a finite sequence of
-    beta reductions. Assume further that the term $t$ is $s+1$-normal (if not,
-    we can use $r$ to reduce it into $s+1$-normal form). Then by definition the
-    term $t$ only has redexes whose sort set is a subset of $\upper s$.
+    The \emph{degree of a redex} in an $i+1$-normal term is defined as the
+    degree of a minimal type of the function term.
 
-    We define the degree of a redex $(\lambda x^A.e)a$ in $t$ by $D_s(r(T))$
-    where $T$ is a minimal type of its function term $\lambda x^A.e$.
+    The degree of a redex is welldefined, because betaequivalent types have the
+    same degree by~\ref{thm:BetaEquivalentSameDegree}.
 \end{definition}
 
 
