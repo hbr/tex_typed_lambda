@@ -640,11 +640,82 @@ confluence.
 
         \item $
             \ruleh
-            {A \reducestar A_1\quad A_1 <_i B_1\quad B \reducestar B_1}
+            {A_1 <_i B_1
+            \quad A \reducestar A_1
+            \quad B \reducestar B_1}
             {A \le B}
             $
     \end{enumerate}
 \end{definition}
+
+
+The definition of the subtype relation has been based on reduction. I could have
+been defined based on betaequivalence (i.e. $A \betaeq A_1, B \betaeq A_2$) as
+well. The following theorem shows that a definition based on equivalence would
+not increase the relation.
+
+\begin{theorem}
+    \label {thm:SubtypeEquivalence}
+    $$
+    \ruleh{
+        V_1 <_i V_2
+        \\
+        T \betaeq V_1
+        \\
+        U \betaeq V_2
+    }
+    {
+        \exists V_1' V_2'.
+        \bracklist{
+            V_1' <_i V_2'
+            \\
+            T \reducestar V_1'
+            \\
+            U \reducestar V_2'
+        }
+    }
+    $$
+    \begin{proof}
+        By induction on the definition of the proper subtype relation
+        $<_i$.
+
+        The base case is trivial, because a sort can only be betaequivalent with
+        another term if it is a reduct of the other term.
+
+        For the inductive step we assume $\Pi x^A. B_1 <_{i+1} \Pi x^A. B_2$
+        because of $B_1 <_i B_2$ and $T \betaeq \Pi x^A. B_1$ and $U \betaeq \Pi
+        x^A. B_2$.
+
+        By using the Church-Rosser theorem we derive
+        $$
+        \begin{array}{lcl|lcl}
+            T & \betaeq & \Pi x^A.B_1 &
+            U & \betaeq & \Pi x^A. B_2
+            \\
+            \searrow\beta^* & & \swarrow\beta^* &
+            \searrow\beta^* & & \swarrow\beta^*
+            \\
+            & \Pi x^{A_1'}.B_1' & &
+            & \Pi x^{A_2'}.B_2'
+            \\
+            & \downarrow\beta^* & & & \downarrow\beta^*
+            \\
+            & \Pi x^{A''}. B_1' & &
+            & \Pi x^{A''}. B_2'
+        \end{array}
+        $$
+
+        Because of $B_1' \betaeq B_1$ and $B_2' \betaeq B_2$ we derive from the
+        induction hypothesis the existence of $B_1''$ and
+        $B_2''$ such that $B_1' \reducestar B_2''$, $B_2' \reducestar B_2''$ and
+        $B_1'' <_i B_2''$ and therfore $\Pi x^{A''}.B_1'' <_{i+1} \Pi x^{A''}.
+        B_2''$.
+
+        Using $V_1' = \Pi x^{A''}. B_1''$ and $V_2' = \Pi x^{A''}. B_2''$ proves
+        the goal.
+    \end{proof}
+\end{theorem}
+
 
 
 \begin{theorem}
