@@ -451,19 +451,20 @@ same level.
 
 \begin{definition}
     \label{def:TypeDegree}
-    \emph{The degree of a welltyped $i+1$-normal type is defined recursively by}
+    \emph{The $i$-degree of a welltyped $i+1$-normal type is defined recursively
+    by}
 
     $$
-    D_i(T) :=
+    \Degree_i(T) :=
     \dcases{
-        D_i(T) &:=& 0 \quad\text{if } \Level(T) \ne i
+        \Degree_i(T) &:=& 0 \quad\text{if } \Level(T) \ne i
         \\
-        D_i(s) &:=& 0
+        \Degree_i(s) &:=& 0
         \\
-        D_i(x \vec a) &:=& 0
+        \Degree_i(x \vec a) &:=& 0
         \\
-        D_i(\Pi x^A.B) &:=&
-        1 + D_i(A) +  D_i(B)
+        \Degree_i(\Pi x^A.B) &:=&
+        1 + \Degree_i(A) +  \Degree_i(B)
     }
     $$
 
@@ -487,7 +488,7 @@ same level.
         We prove $\Level(T_1) = \Level(T_2)$ by induction on the structure of
         $T_1$.
 
-        By~\ref{thm:FormNormalTypes} we known that both are either sorts, base
+        By~\ref{thm:FormNormalTypes} we know that both are either sorts, base
         terms or products. Welltyped sorts, base terms and products can only be
         betaequivalent if they are both sorts, base terms or products respectively.
 
@@ -500,7 +501,54 @@ same level.
 
 
 
+\begin{theorem}
+    Subtyping of welltyped $i+1$-normal types of level $i$ respects the degree.
+    $$
+    \rulev{
+        T \le U
+        \\
+        \Level(T) = \Level(U) = i
+    }
+    {
+        \Degree_i(T) \le \Degree_i(U)
+    }
+    $$
+    \begin{proof}
+        $T$ and $U$ are $i+1$-normal and of level $i$. Therefore both are either
+        sorts, baseterms or products by~\ref{thm:FormNormalTypes}.
 
+        In case $T$ and $U$ are betaequivalent, the goal follows immediately
+        from \ref{thm:BetaEquivalentSameDegree}.
+
+        In the other case there exist some $k$, $V_1$ and $V_2$ such that $V_1
+        <_k V_2$, $T \reducestar V_1$ and $U \reducestar V_2$ are valid.
+
+        We prove the remaining case by induction on the structure of $T$ where
+        we have to consider only the cases that $T$ is either a sort, a base
+        term or a product.
+
+        \begin{enumerate}
+            \item $T$ is a sort (say $s_T$): This is possible only if $k=0$. This
+                implies that $U$ is a sort (say $s_U$) as well with $s_T <_0
+                s_U$ which implies the goal. 
+
+            \item $T$ is a base term: This case is impossible, because reduction
+                does not change the structure of a base term and $V_1$
+                cannot be a base term.
+
+            \item $T$ is a product (say T = $\Pi x^{A_1}. B_1$): This implies that
+                $V_1$ and $V_2$ are products as well and $k > 0$. Therefore $U$ has
+                to by a product as well, say $U = \Pi x^{A_2}. B_2$.
+
+                Furthermore from $V_1 <_k V_2$ we infer than $A_1 \betaeq A_2$
+                and $B_1 \le B_2$. From~\ref{thm:BetaEquivalentSameDegree} and
+                the induction hypothesis we infer $\Degree_i(A_1) =
+                \Degree_i(A_2)$ and $\Degree_i(B_1) \le \Degree_i(B_2)$ which
+                implies by the definition of the degree $\Degree_i(T) \le
+                \Degree_i(U)$.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
 
 
 
