@@ -214,6 +214,9 @@ hypothesis that we can reduce any welltyped term to $i+1$ normal form.
         the argument and result type determine uniquely the level of the
         product.
     \end{proof}
+
+    Note the restriction to nonpropositional products. The level of a
+    propositional product is 0 regardless of the level of the argument type.
 \end{theorem}
 
 
@@ -245,7 +248,7 @@ hypothesis that we can reduce any welltyped term to $i+1$ normal form.
                         $$
                         under the assumption $ \Pi x^A. B_1 <_{i+1} \Pi x^A.
                         B_2$ (which implies $\Level(B_1) \le \Level(B_2)$ by the
-                        induction hypothesis.
+                        induction hypothesis).
 
                         If $B_1$ is a proposition i.e. $\Level(B_1) = 0$, then
                         the goal is trivial.
@@ -438,6 +441,11 @@ same level.
 
 
 
+
+
+
+
+
 \subsection{Degree}
 %------------------------------------------------------------
 
@@ -494,17 +502,6 @@ same level.
 
 
 
-\begin{definition}
-    \label{def:RedexDegree}
-    The \emph{degree of a redex} in an $i+1$-normal term is defined as the
-    degree of a minimal type of the function term.
-
-    The degree of a redex is welldefined, because betaequivalent types have the
-    same degree by~\ref{thm:BetaEquivalentSameDegree}.
-\end{definition}
-
-
-
 
 
 
@@ -512,42 +509,96 @@ same level.
 \subsection{Normalization}
 %------------------------------------------------------------
 
+In this section we prove that all welltyped terms have a 1-normal form. Without
+loss of generality we restrict ourselves to welltyped terms derivable with a
+finite sort set $S_n$.
+
+We prove the more general statement that all welltyped terms derivable with the
+finite sort set $S_n = \set{\Any_0, \Any_1, \Any_2, \ldots, \Any_n}$ have an
+$i$-normal form for all $0 < i \le n + 1$. The proof goes by induction from $i =
+n+1$ down to $1$. The base case $i = n + 1$ is trivial because there are no
+level $n+1$ level types and therefore no $n+1$ level redexes. All terms are
+$n+1$-normal.
+
+In the following we concentrate on the induction step assuming that there exists
+an $i+1$-normal form for all welltyped terms and construct from that an
+$i$-normal form of the term.
 
 \begin{definition}
-    \label{def:NormalizationStep}
-    \emph{Normalization step of an $s+1$-normal term}
-    Let $r$ be a function over welltyped terms $t$ such that $r(t)$ is
-    $s+1$-normal. Assume that the term $a$ is $s+1$ normal and has redexes with
-    sort set $\upper s$. Each of these redexes has a degree according to
-    the definition~\ref{def:RedexDegree}.
+    The \emph{$i$-degree of a redex}
+    %------------------------------------------------------------
+    in an $i+1$ normal term under the assumption
+    that every welltyped term is reducible to an $i+1$ normal form is defined as
+    the $i$-degree of the $i+1$-normalized minimal type of the function term of
+    the redex.
 
-    We define $a \torel {q_s} b$ as the reduction relation
-    which reduces the rightmost redex of sort set $\upper s$.
-
-    This definition has the following important consequences:
-    \begin{itemize}
-        \item
-            If the highest degree $d$ of the redexes in the term $t$ is zero,
-            then the term is $s$-normal.
-
-            Reason: There is always a minimal type in $s+1$-normal form of the
-            function term of the redex of the form $\Pi x^A. B$. By definition
-            of the degree of a type~\ref{def:TypeDegree} its degree is at least
-            $1$ as long as its sort set is a subset of $\upper s$. If the
-            degree is zero, then its sort set is a proper superset of $\upper
-            s$. Therefore $t$ has no redexes whose sort set is a subset of
-            $\upper s$ and thus by definition is $s$-normal.
-
-        \item
-            If $a \torel {q_s} b$ is a normalization step of the $s+1$ normal
-            term $a$, then the term $b$ is uniquely defined because the
-            rightmost redex of degree with sort set $\upper s$ is unique.
-
-        \item The reduction $a \torel {q_s} b$ does not copy any existing
-            redexes with sort set $\upper s$, because the contracted redex is
-            the rightmost redex.
-    \end{itemize}
+    Note that the notion of the $i$-degree of a redex is welldefined, because
+    all minimal types of the function term are betaequivalent and
+    by~\ref{thm:BetaEquivalentSameDegree} all betaequivalent types have the same
+    degree.
 \end{definition}
+
+
+
+\begin{definition}
+    The \emph{complexity measure of an $i+1$-normal term $t$}
+    %------------------------------------------------------------
+    is defined as the sequence of numbers
+    $$
+        (d,  \, n_d \, \ldots \, n_1)
+    $$
+    where $d$ is the highest $i$-degree of a $i$-level redex in $t$ and $n_k$ is the
+    number of $i$-level redexes with $i$-degree $k$.
+
+    We consider the complexity measure as lexicographically sorted where $d$ has
+    the highest significance and the the significance of $n_{k+1}$ is higher
+    than the significance of $n_k$.
+\end{definition}
+
+
+\begin{definition}
+    An \emph{i-normalization step} $t \torel{i} u$
+    %------------------------------------------------------------
+    of an $i+1$-normal welltyped
+    term $t$ consists of reducing the rightmost redex of level $i$ in the term.
+\end{definition}
+
+
+
+\begin{theorem}
+    Each $i$-normalzation step of an $i$-level redex with $i$-degree $k$ does
+    not increase the number of $i$-level redexes by copying (i.e. multiplying)
+    them.
+    \label{thm:INormalizationNotCopy}
+
+    \begin{proof}
+        Since an $i$-normalization step reduces the rightmost $i$-level redex
+        $(\lambda x^A.e)a \reduce e[a/x]$ the argument $a$ cannot contain any
+        $i$-level redex.
+    \end{proof}
+\end{theorem}
+
+
+
+\begin{theorem}
+    Each $i$-normalzation step of an $i$-level redex with $i$-degree $k$ might
+    create new redexes of $i$-degree lower than $k$.
+    \label{thm:INormalizationDecreasesDegree}
+
+    \begin{proof}
+        MISSING
+    \end{proof}
+\end{theorem}
+
+
+
+
+
+
+
+
+
+
 
 
 \begin{theorem}
