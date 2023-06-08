@@ -3,143 +3,40 @@
 %-------------------------------------------------------------------------------
 
 
-\subsection{Overview}
-%-------------------------------------------------------------------------------
+In this section we prove that all welltyped terms can be reduced to a
+quasinormal form where a term in quasinormal form has only propositional
+redexes.
 
+Outline of the proof:
+\begin{itemize}
+    \item First we introduce the level of a type as the smallest sort it lives
+        in up to reduction. As opposed to the minimal type the level is
+        invariant for betaequivalent types. A propositional type has level 0.
+        All predicative types i.e. non-propositional types have a level greater
+        than 0.
 
-In this section we prove that all welltyped terms can be reduced to an $1$
-normal form. A term is in $1$ normal form if it has no redexes of level
-$1$ or higher.
+    \item We use the level of a type to assign a level to a redex which is the
+        level of the minimal type of its function term (i.e. its abstraction).
+        This allows us to define $i$-normality of a term which means that the
+        term does not have redexes of level $i$ or higher.
 
-The level of a type is the level of the lowest sort the type lives in up to
-reduction. The level of a redex is the level of the type of its function term.
+    \item For $i+1$ normal types we can define an $i$-degree which is some kind
+        of arity of the type.
 
-Here we give an overview of the proof. The needed definitions and theorems will
-be made precise in the subsequent sections.
+    \item With the help of $i$-degrees we can define for $i+1$ normal terms an
+        $i$-normalization step which decreases in each step the complexity
+        measure to end finally in a term which is $i$-normal. Therefore we can
+        reduce each $i+1$-normal term into an $i$-normal term.
 
-A term $t$ is welltyped if there is a context $\Gamma$ and a type term $T$ such
-that $\Gamma \vdash t : T$ is satisfied. Without restriction of generality we
-can assume that $\Gamma \vdash t : T$ has been derived with a finite set of
-sorts $S_n$. To find $n$ just look into the derivation of $\Gamma \vdash t : T$
-and find the highest sort $\Any_n$. Then it is guaranteed that the derivation is
-possible with the finite sort set $S_n$.
-
-If we restrive ourselves to the finite sort set $S_n$ then the highest level of
-all types is $n$ and the highest level of any redex is $n$ as well.
-I.e. all derivable terms are in $n+1$ normal form.
-
-We want to prove that we can transform any welltyped term $t$ derived with the
-finite sort set $S_n$ into $1$ normal form. We do this by downward
-induction from $n+1$ to $1$.
-
-The induction start is trivial, because all terms derived with the finite sort
-set $S_n$ are in $n+1$ normal form.
-
-For the induction step from $i+1$ down to $i$ we can assume the induction
-hypothesis that we can reduce any welltyped term to $i+1$ normal form.
-
-
-
-
-\begin{comment}
-
-    Basic proof idea
-    ============================================================
-
-    Levels of a redex (via level of the type of the function term)
-    ------------------------------------------------------------
-
-    Each term which is not in normal form has a nonempty set of redexes. Each of
-    these redexes has a function term and this function term has a minimal type.
-
-    Each type has a level which is its lowest sort modulo reduction. Therefore
-    we can say that each redex has a level (the level of the minimal type of its
-    function term). The number of redexes in a term is finite. There is a
-    highest level of all redexes a term.
-
-    We say that a term is s-normal, if it has no redexes of level s or higher.
-    If s is the highest level of a redex in a term, then the term is s+1 normal.
-
-
-    Degree of a redex
-    ------------------------------------------------------------
-
-    For all terms which are s+1 normal it is possible the define a degree for
-    all s level redexes.
-
-    We can reduce each term where s is the highest level of all its redexes into
-    s-normal form. We do this by repeatedly reducing the rightmost redex of
-    level s.
-
-
-
-\end{comment}
-
-
-
-\begin{comment}
-    Level:
-
-        A set of sorts a type can live in, even if beta reduced.
-
-        Note:
-            Beta reduction can reduce the sort. E.g.
-
-                (\ (A: Any (i+k+1)) := A) (Any i) ~> Any i
-
-            where `Any i` has type  `Any (i+1)` and
-            `(\ (A: Any (i+k+1)) := A) (Any i)` has type `Any (i+k+1)` because
-            the result of the function term is `A` which has type `Any (i+k+1)`.
-
-
-    Level of a redex:
-
-        All redexes have a function term which has a minimal type of the form
-        'all (x: A): B' (or beta equivalents). The level of this type is the
-        level of a redex.
-
-
-    j-normal term:
-
-        Does not have redexes of level 'upper (Any j)' or subsets of it.
-
-        0-normal terms are normal terms, because they contain no redexes.
-
-
-    Proof idea:
-
-        In ECCn a redex with sort set upper (Any n) is not possible. Therefore
-        we have a function rn which reduces any term to its n-normal form. Since
-        all terms are in n-normal form rn is the identity function.
-
-        Induction step: Assume there is a reduction function ri+1, find a
-        reduction function ri.
-
-            We look into redexes whose sort set of its function term type is
-            upper (Any i). We can transform all these types into i+1 normal form
-            via ri+1. The normalized type is a sort or a product or a base term.
-            We can compute the degree of all these types.
-
-            We use the triple
-
-                (i, d, n)
-
-            where d is the maximal degree of all these types and n is the number
-            of redexes which have this maximal degree.
-
-            We reduce the rightmost redex of degree d and claim that this
-            reduces n by one. We continue until n=0 i.e. there are no more
-            redexes of degree d.
-
-            We continue this process until there are no more redexes of level i.
-
-            The i-normal term is unique because the rightmost redex is unique.
-            Therefore we have found the reduction function ri.
-
-        Crucial in the construction: The reduction of the rightmost redex of the
-        highest degree does not make new redexes of this degree.
-\end{comment}
-
+    \item For all welltyped terms derivable with in infinite sort set $S_\infty$
+        there exists a finite sort set $S_n$ such that the welltyped term can be
+        derived with the finite sort set. All welltyped terms derived with a
+        finite sort set $S_n$ are trivially $n+1$-normal because no types of
+        level $n+1$ or higher can be derived with the finite sort set. Therefore
+        all welltyped terms (which are $n+1$-normal for some $n$) can be
+        stepwise reduced to 1-normal terms which are quasinormal and contain
+        only propositional redexes.
+\end{itemize}
 
 
 
@@ -159,7 +56,7 @@ hypothesis that we can reduce any welltyped term to $i+1$ normal form.
 \begin{theorem}
     \label{thm:LevelTypeSafeSubstitution}
     %------------------------------------------------------------
-    Type safe substitution decreases the level of a type.
+    Type safe substitution does not increase the level of a type.
     $$
     \rulev{
         \Gamma \vdash a : A
@@ -503,6 +400,7 @@ same level.
 
 \begin{theorem}
     Subtyping of welltyped $i+1$-normal types of level $i$ respects the degree.
+    \label{thm:SubtypeRespectsDegree}
     $$
     \rulev{
         T \le U
@@ -552,6 +450,61 @@ same level.
 
 
 
+\begin{theorem}
+    Typesafe substitution of an $i+1$ normal type of level $i$ does not increase
+    the $i$-degree of the type as long as the level of the minimal type of the
+    replacement term is $i$ or lower.
+    \label{thm:DegreeTypesafeSubstitution}
+    $$
+    \rulev{
+        \Gamma \vdashmin a : A
+        \\
+        \Gamma,x^A \vdashmin T: \Any_k
+        \\
+        \Level(T) = i   \quad \text{$T$ is $i+1$-normal}
+        \\
+        \text{$T[a/x]$ has a betaequivalent $i+1$-normal form}
+    }
+    {
+        \Degree_i(T[a/x]) \le \Degree_i(T)
+    }
+    $$
+    \begin{proof}
+        By induction on the structure of $T$. Because of~\ref{thm:FormNormalTypes}
+        $T$ is either a
+        sort, a base term or a product.
+        \begin{enumerate}
+            \item $T$ is a sort: Trivial
+
+            \item $T$ is a base term (say $y \vec b$):
+                \begin{itemize}
+                    \item $x \ne y$: Then $T[a/x]$ and all its betaequivalent
+                        $i+1$-normal forms are base terms with degree 0.
+
+                    \item $x = y$: In this case we have $T[a/x] = a \vec b :
+                        \Any_k$. We can derive
+                        $$
+                        \begin{array}{llll}
+                            i &=& \Level(A)
+                            \\
+                            &\ge& \Level(\Any_k)
+                            &\text{\ref{thm:LevelRepeatedApplication}}
+                            \\
+                            &=& k + 1
+                            \\
+                            &>& i
+                        \end{array}
+                        $$
+                        which states the contradiction $i > i$. Therefore this
+                        case is not possible.
+                \end{itemize}
+
+            \item $T$ is a product (say $\Pi y^B. C$): The goal is a consequence
+                of the induction hypotheses for $B$ and $C$.
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
 
 
 \subsection{Normalization}
@@ -565,7 +518,7 @@ We prove the more general statement that all welltyped terms derivable with the
 finite sort set $S_n = \set{\Any_0, \Any_1, \Any_2, \ldots, \Any_n}$ have an
 $i$-normal form for all $0 < i \le n + 1$. The proof goes by induction from $i =
 n+1$ down to $1$. The base case $i = n + 1$ is trivial because there are no
-level $n+1$ level types and therefore no $n+1$ level redexes. All terms are
+$n+1$-level types and therefore no $n+1$-level redexes. All terms are
 $n+1$-normal.
 
 In the following we concentrate on the induction step assuming that there exists
@@ -591,16 +544,12 @@ $i$-normal form of the term.
 \begin{definition}
     The \emph{complexity measure of an $i+1$-normal term $t$}
     %------------------------------------------------------------
-    is defined as the sequence of numbers
+    is defined as pair of numbers
     $$
-        (d,  \, n_d \, \ldots \, n_1)
+        (d, n_d)
     $$
-    where $d$ is the highest $i$-degree of a $i$-level redex in $t$ and $n_k$ is the
-    number of $i$-level redexes with $i$-degree $k$.
-
-    We consider the complexity measure as lexicographically sorted where $d$ has
-    the highest significance and the the significance of $n_{k+1}$ is higher
-    than the significance of $n_k$.
+    where $d$ is the highest $i$-degree of a $i$-level redex in $t$ and $n_d$ is the
+    number of $i$-level redexes with $i$-degree $d$.
 \end{definition}
 
 
@@ -608,127 +557,128 @@ $i$-normal form of the term.
     An \emph{i-normalization step} $t \torel{i} u$
     %------------------------------------------------------------
     of an $i+1$-normal welltyped
-    term $t$ consists of reducing the rightmost redex of level $i$ in the term.
+    term $t$ consists of reducing the rightmost redex of level $i$ and $i$-degree
+    $d$ in the term where $d$ is the highest $i$-degree of all $i$ level redexes in
+    the term.
+
+    If there are no $i$-level redexes, then the term is already in $i$-normal
+    form.
 \end{definition}
 
 
 
-\begin{theorem}
-    Each $i$-normalzation step of an $i$-level redex with $i$-degree $k$ does
-    not increase the number of $i$-level redexes by copying (i.e. multiplying)
-    them.
-    \label{thm:INormalizationNotCopy}
-
-    \begin{proof}
-        Since an $i$-normalization step reduces the rightmost $i$-level redex
-        $(\lambda x^A.e)a \reduce e[a/x]$ the argument $a$ cannot contain any
-        $i$-level redex.
-    \end{proof}
-\end{theorem}
 
 
 
 \begin{theorem}
-    Each $i$-normalzation step of an $i$-level redex with $i$-degree $k$ might
-    create new redexes of $i$-degree lower than $k$.
-    \label{thm:INormalizationDecreasesDegree}
+    Each $i$-normalization step of an $i+1$-normal term $t$ reduces the
+    complexity measure $(d, n_d)$ lexicographically.
+    \label{thm:INormalizationStepReduceComplexity}
 
     \begin{proof}
-        MISSING
+        An $i$-normalization step reduces the rightmost redex of level $i$ and
+        $i$-degree $d$ where $d$ is the highest degree of $i$-level redexes in
+        $t$.
+
+        The reduction step certainly reduces the number of $i$-degree $d$
+        redexes by one because it reduces one of them. We have to make sure that
+        it cannot increase the number.
+
+        Since it reduces the rightmost redex of $i$-degree $d$, the argument of
+        the redex
+        does not contain any redexes of $i$-degree $d$. Therefore the reduction
+        step does not increase the number of $i$-degree $d$ redexes by copying
+        them.
+
+        There are three possiblities that a reduction can create new redexes. We
+        assume that the newly created redexs have level $i$, otherwise they are
+        not critical.
+        \begin{enumerate}
+            \item The reduction step is
+                $$
+                (\underbrace{\lambda x^A. f(xa)}_{:\, \Pi x^A. B})
+                (\underbrace{\lambda z^C. e}_{:\, A' \le A})
+                \reduce
+                f((\lambda z^C.e)a)
+                $$
+                where $f$ is a term with zero or more occurrences of the subterm
+                $x a$ and the annotated types are minimal and have $i+1$-normal
+                form. The reduced term may have zero or more occurrences of the
+                redex $(\lambda z^C.e) a$.
+
+                For the $i$-degree of $A'$ we get
+                $$
+                \begin{array}{llll}
+                    \Degree_i(A')
+                    &<& 1 + \Degree_i(A') + \Degree_i(B)
+                    \\
+                    &\le & 1 + \Degree_i(A) + \Degree_i(B)
+                    & \text{\ref{thm:SubtypeRespectsDegree}}
+                    \\
+                    & = & \Degree_i(\Pi x^A. B) &\text{by definition}
+                \end{array}
+                $$
+                which has lower degree.
+
+
+            \item The reduction step is
+                $$
+                (\underbrace{\lambda x^A. x}_{:\, \Pi x^A. A})
+                (\underbrace{\lambda z^C. e}_{:\, A' \le A})
+                a
+                \reduce
+                (\lambda z^C. e) a
+                $$
+
+                By the same reasoning as above we get
+                $$
+                \begin{array}{llll}
+                    \Degree_i(A')
+                    &<& 1 + \Degree_i(A') + \Degree_i(A)
+                    \\
+                    &\le & 1 + \Degree_i(A) + \Degree_i(A)
+                    & \text{\ref{thm:SubtypeRespectsDegree}}
+                    \\
+                    & = & \Degree_i(\Pi x^A. A) &\text{by definition}
+                \end{array}
+                $$
+
+
+            \item The reduction step is
+                $$
+                (\underbrace{\lambda x^A.
+                \underbrace{\lambda z^C.e}_{: B}}_{:\, \Pi x^A. B})
+                a
+                b
+                \reduce
+                (\underbrace{\lambda z^{C[a/x]}.  e[a/x]}_{: B[a/x]})
+                b
+                $$
+                We can derive
+                $$
+                \begin{array}{llll}
+                    \Degree_i(B[a/x])
+                    &\le& \Degree_i(B)
+                    &\text{\ref{thm:DegreeTypesafeSubstitution}}
+                    \\
+                    &<& 1 + \Degree_i(A) + \Degree_i(B)
+                    \\
+                    &=& \Degree_i(\Pi x^A.B)
+                    &\text{definition}
+                \end{array}
+                $$
+                Therefore the newly created redex has a strict lower degree than
+                the reduced redex.
+        \end{enumerate}
     \end{proof}
 \end{theorem}
 
 
+Since each $i$-normalization step reduces the complexity measure
+lexicographically it is guaranteed that repeated $i$-normalization steps
+terminate after a finite number of steps with an $i$-normal term.
 
-
-
-
-
-
-
-
-
-
-\begin{theorem}
-    \label{thm:NewRedexCreation}
-    \emph{Creation of new redexes during beta reduction} There are only three
-    possibilities to create new redexes during a beta reduction which does the
-    reduction $(\lambda x^A.e) a \reduce \sub a x e$ on any subterm of a term.
-
-    $$
-    \begin{array}{lll}
-        (\lambda x^A. \ldots xb \ldots) (\lambda y^B. e)
-        &\reduce&
-        \ldots (\lambda y^B.e) b \ldots
-        %
-        \\
-        %
-        (\lambda x^A. x)(\lambda y^B. e) b
-        &\reduce&
-        (\lambda y^B. e) b
-        %
-        \\
-        %
-        (\lambda x^A . \lambda y^B. e) a b
-        &\reduce&
-        (\lambda y^{B[a/x]}. e[a/x]) b
-    \end{array}
-    $$
-    where $xb$ in the first case is not the argument of an application i.e. $xb$
-    is in a head position.
-
-    \begin{proof}
-        A redex consists of an abstraction applied to an argument. Both must
-        have been in the original expression and come together after the
-        reduction. If the abstraction is in the argument of the redex then the
-        argument must be the abstraction. The abstraction replaces the bound
-        variable of the original redex.
-
-        If the original redex has $x b$ in a head position, then the
-        substitution of the abstraction for $x$ creates a new redex. This is the
-        first case.
-
-        If the original redex has only the bound variable $x$ but not applied to
-        an argument, then the body of the original redex must be $x$ and the
-        argument comes from an argument in the original expression which follows
-        the original redex. This is the second case.
-
-        The third possibility has an abstraction without argument (otherwise it
-        were already a redex) as the body of the original abstraction and the
-        argument of the newly created redex is the argument following the
-        argument of the original redex.
-    \end{proof}
-\end{theorem}
-
-
-
-\begin{theorem}
-    \emph{A sequence of normalization steps
-        according to
-        definition~\ref{def:NormalizationStep}
-        of an $s+1$-normal term $t$
-        when $s$
-        is not a propositional sort
-        ends after a finite number of steps
-        in an $s$-normal unique term.}
-
-    \begin{proof}
-
-        Let
-        $$
-            n_d n_{d-1} \ldots n_2 n_1
-        $$
-        be a sequence of numbers where $d$ is the maximal degree of all redexes
-        in $t$ with sort set $\upper s$ where $s$ is not a propositional sort.
-        The number $n_i$ is the number of redexes in the term $t$ of degree $i$
-        and with sort set $\upper s$.
-
-        Then in the reduction sequence
-        $$
-            t = t_0 \torel {q_s} t_1 \torel{q_s} t_2 \torel{q_s} \ldots
-        $$
-        each reduction step decreases the number sequence in the lexicographic
-        order. Since the lexicographic order is a wellorder, the reduction
-        sequence ends after a finite number of steps.
-    \end{proof}
-\end{theorem}
+This proves the validity of the induction step from $i+1$-normal terms to
+$i$-normal terms. Therefore after finitely many induction steps we can generate
+for all welltyped terms an 1-normal term i.e. a term which contains only
+propositional redexes.
