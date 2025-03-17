@@ -47,8 +47,60 @@ Outline of the proof:
 %------------------------------------------------------------
 
 
+
+According to \ref{TypeOfTypes} the type of a valid type $T$ is a sort i.e.
+$\Gamma \vdash T: s$. Furthermore the lemma~\ref{thm:ExistMinimalType}
+guarantees the existence of a minimal type for each valid term (in this case a
+minimal sort $s_\mu$) such that $\Gamma \vdash T: s_\mu$. But such a minimal
+sort is not invariant during reduction.
+
+Consider the term the reduction
+
+$$
+(\lambda x^{\Any_{i+2}}. x) \Any_i \quad\reduce\quad \Any_i
+$$
+Note that the redex and the reduct have different minimal sorts.
+$$
+\vertlist{
+    (\lambda x^{\Any_{i+2}}. x) \Any_i
+    &:&
+    \Any_{i+2}
+    \\
+    \Any_i
+    &:&
+    \Any_{i+1}
+}
+$$
+The minimal sort of the reduct is evident. The minimal sort of the redex can be
+seen by looking at the typing
+$$
+    [] \vdash \lambda x^{\Any_{i+2}} . x : \Pi x^{\Any_{i+2}}. \Any_{i+2}
+$$
+and the typing rule
+$$
+\rulev{
+    \Gamma \vdash f: \Pi x^A. B
+    \\
+    \Gamma \vdash a: A
+}
+{
+    \Gamma \vdash f a: B[a/x]
+}
+$$
+
+
+
+Because of the subject reduction lemma~\ref{SubjectReduction} the minimal sort
+can only because smaller after redution.  Since order of the sorts is
+wellfounded $\Prop < \Any_0 < \Any_1 \ldots$ there is always a minimal sort a
+type lives in up to reduction.
+
+
+
 \begin{definition}
-    The \emph{Level} $\Level(T)$ of a type T is the level of the minimal sort
+    The \emph{Level} $\Level(T)$ of a type T
+    %---------------------------------------
+    is the minimal sort
     the type lives in up to reduction.
 \end{definition}
 
